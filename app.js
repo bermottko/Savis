@@ -4,7 +4,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const expressLayouts = require('express-ejs-layouts');
-const Post = require ('./models/Post');
 
 // Rotas
 const indexRoutes = require('./routes/indexRoutes');
