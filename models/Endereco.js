@@ -31,6 +31,9 @@ const Endereco = db.sequelize.define('endereco', {
     type: db.Sequelize.CHAR(9),
     allowNull: false
   }
-});
+},{
+  timestamps: false   
+  }
+);
 
 module.exports = Endereco;
