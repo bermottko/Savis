@@ -10,126 +10,145 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-    /*NAV BAR*/
-        .navbar {
-        background-color: #00204c; 
-        }
-        .nav-link {
-            color:#f8f9fa;
-            font-weight: bold;
-            transition: color 0.3s ease;
-            margin-bottom: 7px;
-        }
-        .nav-link:hover {
-            color: #d8d8d8; 
-        }
-        .logo-nome-nav {
-            font-family: 'League Spartan', sans-serif;
-            font-weight: bold;
-            font-size: 27px;  
-            color: #fff;
-            margin-top: 17px; 
-        }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
 
-        .active-nav {
-            border-bottom: 3px solid #7397cb;
-            padding-bottom: 3px;
-            color: #ffffff;
-        }
+    /* NAVBAR */
+    .navbar {
+        background-color: #00204c;
+        padding: 0;
+        display: flex;
+        align-items: stretch;
+    }
 
-    /*TELA INCIAL*/
-        .container-tela-inicial {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding-bottom: 130px; /* empurra pra baixo, fazendo parecer mais alto */
-            box-sizing: border-box;
-        }
-        .logo-img-nome {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding-right: 80px;
-        }
-        .logo-img{
-            width: 150px;
-        }
-        .logo-nome {
-            font-family: 'League Spartan', sans-serif;
-            font-size: 130px;
-            color: #00204c;
-            font-weight: bold;
-            margin-top: 140px;
-        }
-        .logo-nome-cadastro {
-            font-family: 'League Spartan', sans-serif;
-            color: #235284;
-            font-weight: bold;
-            font-size: 22px;
-        }
-        .logo-subnome {
-            font-family: 'League Spartan', sans-serif;
-            font-size: 20px; 
-            color: #235284; 
-            margin-top: 6px; /* espaço superior para afastar da logo-nome */
-            text-align: center; 
-            font-weight: bold;
-}
-        .botoes{
-            display: flex;
-            gap: 40px; /* espaçamento horizontal entre os botões */
-            justify-content: center; /* ventraliza os botões */
-            margin-top: 65px;
-        }
+    .navbar-nav .nav-link {
+        color: #f8f9fa;
+        font-weight: bold;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        height: 100%; /* ocupa altura total da navbar */
+        border-bottom: 3px solid transparent;
+        transition: border-bottom 0.3s ease;
+    }
 
-        .botao {
-            display: inline-block;
-            background-color: #00204c; 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 5px; /* cantos arredondados */
-            text-decoration: none; /* remove sublinhado */
-        }
-        .botao:hover {
-            background-color: #001129; 
-        }
-    /*CADASTRO*/
-        .botao-cadastro{
-            background-color: #00204c;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin-top: 30px; 
-            text-align: center; 
-            width: fit-content; 
-            box-shadow: none; 
-            border: none; 
-        }
-        .botao-cadastro:hover {
-            background-color: #001129; 
-        }
-        .criar-conta {
-            text-decoration: none;
-        }
-        .texto-criar-conta {
-            font-size: 14px;
-            display: block; 
-            margin-top: 30px; 
-            text-align: center;
-        }
+    .navbar-nav .nav-link:hover {
+        color: #d8d8d8;
+    }
 
-    </style>
+    .navbar-nav .nav-link.active-nav {
+        border-bottom: 3px solid #7397cb;
+    }
+
+    .logo-nome-nav {
+        font-family: 'League Spartan', sans-serif;
+        font-weight: bold;
+        font-size: 27px;
+        color: #fff;
+        margin-top: 17px;
+    }
+
+    /* TELA INICIAL */
+    .container-tela-inicial {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding-bottom: 130px;
+        box-sizing: border-box;
+    }
+
+    .logo-img-nome {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding-right: 80px;
+    }
+
+    .logo-img {
+        width: 150px;
+    }
+
+    .logo-nome {
+        font-family: 'League Spartan', sans-serif;
+        font-size: 130px;
+        color: #00204c;
+        font-weight: bold;
+        margin-top: 140px;
+    }
+
+    .logo-nome-cadastro {
+        font-family: 'League Spartan', sans-serif;
+        color: #235284;
+        font-weight: bold;
+        font-size: 22px;
+    }
+
+    .logo-subnome {
+        font-family: 'League Spartan', sans-serif;
+        font-size: 20px;
+        color: #235284;
+        margin-top: 6px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .botoes {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        margin-top: 65px;
+    }
+
+    .botao {
+        display: inline-block;
+        background-color: #00204c;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .botao:hover {
+        background-color: #001129;
+    }
+
+    /* CADASTRO */
+    .botao-cadastro {
+        background-color: #00204c;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-top: 30px;
+        text-align: center;
+        width: fit-content;
+        box-shadow: none;
+        border: none;
+    }
+
+    .botao-cadastro:hover {
+        background-color: #001129;
+    }
+
+    .criar-conta {
+        text-decoration: none;
+    }
+
+    .texto-criar-conta {
+        font-size: 14px;
+        display: block;
+        margin-top: 30px;
+        text-align: center;
+    }
+</style>
 </head>
 <body>
     <%- include('../partials/navbar') %>
