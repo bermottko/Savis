@@ -45,7 +45,7 @@ router.post('/add-usuario', async (req, res) => {
             senha: req.body.senha,
         });
 
-        res.send('Cadastro realizado com sucesso!');
+        res.redirect('/auth/cadastro-sucesso');
     } catch (erro) {
         console.error(erro);
         res.status(500).send('Erro ao cadastrar: ' + erro);

@@ -1,3 +1,38 @@
-<h3>Esse é o painel para visualizar os usuarios cadastrados, e todas suas informações</h3>
-<h1>Usuarios: </h1>
-
+<table class="table">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Data de Nascimento</th>
+      <th>CPF</th>
+      <th>Gênero</th>
+      <th>Email</th>
+      <th>Telefone</th>
+      <th>Rua</th>
+      <th>Número</th>
+      <th>Bairro</th>
+      <th>Cidade</th>
+      <th>UF</th>
+      <th>CEP</th>
+      <th>SUS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% posts.forEach(function(post) { %>
+      <tr>
+        <td><%= post.nome %></td>
+        <td><%= post.data_nasc %></td>
+        <td><%= post.CPF %></td>
+        <td><%= post.genero.descricao %></td>
+        <td><%= post.email %></td>
+        <td><%= post.fone %></td>
+        <td><%= post.endereco.rua %></td>
+        <td><%= post.endereco.numero %></td>
+        <td><%= post.endereco.bairro %></td>
+        <td><%= post.endereco.cidade %></td>
+        <td><%= post.endereco.UF %></td>
+        <td><%= post.endereco.CEP %></td>
+        <td><%= post.SUS %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
