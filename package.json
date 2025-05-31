@@ -1,7 +1,7 @@
 {
   "name": "savis",
   "version": "1.0.0",
-  "description": "sistema de agendamento de viagens para secretaria de saúde",
+  "description": "Sistema de Agendamento de Viagens para Secretaria de Saúde",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
