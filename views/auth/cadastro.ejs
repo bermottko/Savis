@@ -1,18 +1,18 @@
  <div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;">
     <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
-      <form action="/auth/add-usuario" method="POST">
+      <form action="/auth/add-usuario" method="POST" enctype="multipart/form-data">
     <div class="text-center mb-4">
           <img src="/assets/logo.png" alt="Logo" style="width: 50px; height: 70px;">
           <h5 class="mt-2 logo-nome-cadastro">Criar conta</h5>
 
-          <!-- <label for="foto_perfil">
+       <label for="foto_perfil">
         <img id="preview_foto" src="/assets/default-profile.jpg" alt="Foto de perfil"
          class="rounded-circle mt-3 mb-2"
          style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
         </label> 
 
         <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
-        -->
+      
     </div>
         <div class="mb-3">
           <label for="nome" class="form-label">Nome</label>
@@ -135,7 +135,7 @@
       </form>
     </div>
   </div> 
-<!--<script>
+<script>
   function previewImagem(event) {
     const input = event.target;
     const img = document.getElementById('preview_foto');
@@ -148,4 +148,4 @@
       reader.readAsDataURL(input.files[0]);
     }
   }
-</script> -->
+</script> 

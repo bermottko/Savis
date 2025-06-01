@@ -1,38 +1,20 @@
-<table class="table">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Data de Nascimento</th>
-      <th>CPF</th>
-      <th>Gênero</th>
-      <th>Email</th>
-      <th>Telefone</th>
-      <th>Rua</th>
-      <th>Número</th>
-      <th>Bairro</th>
-      <th>Cidade</th>
-      <th>UF</th>
-      <th>CEP</th>
-      <th>SUS</th>
-    </tr>
-  </thead>
-  <tbody>
+<div class="container mt-4">
+  <div class="row justify-content-center">
     <% posts.forEach(function(post) { %>
-      <tr>
-        <td><%= post.nome %></td>
-        <td><%= post.data_nasc %></td>
-        <td><%= post.CPF %></td>
-        <td><%= post.genero.descricao %></td>
-        <td><%= post.email %></td>
-        <td><%= post.fone %></td>
-        <td><%= post.endereco.rua %></td>
-        <td><%= post.endereco.numero %></td>
-        <td><%= post.endereco.bairro %></td>
-        <td><%= post.endereco.cidade %></td>
-        <td><%= post.endereco.UF %></td>
-        <td><%= post.endereco.CEP %></td>
-        <td><%= post.SUS %></td>
-      </tr>
+      <div class="col-12 d-flex justify-content-center mb-3">
+        <div class="card d-flex flex-row align-items-center p-3 shadow-sm"
+             style="width: 100%; max-width: 700px; background-color: #d1e3fd;">
+          <img 
+            src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
+            alt="Foto de perfil" 
+            class="me-3 border shadow-sm" 
+            style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px;">
+          <div class="flex-grow-1">
+            <h5 class="mb-0" style="font-size: 16px; font-weight: bold;"><%= post.nome %></h5>
+          </div>
+          <button class="botao">Ver mais</button>
+        </div>
+      </div>
     <% }) %>
-  </tbody>
-</table>
+  </div>
+</div>

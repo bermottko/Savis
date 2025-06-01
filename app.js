@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const expressLayouts = require('express-ejs-layouts');
 
+
 // Rotas
 const indexRoutes = require('./routes/indexRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -27,7 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
 // Arquivos estáticos (imagens, CSS, JS)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d'
+}));
 
 // Rotas
 app.use('/', indexRoutes);

@@ -11,4 +11,5 @@ Endereco.hasMany(Usuarios, { foreignKey: 'enderecoID' });
 Usuarios.belongsTo(Genero, { foreignKey: 'generoID' });
 Genero.hasMany(Usuarios, { foreignKey: 'generoID' });
 
+console.log('Arquivo models/index.js executado');
 module.exports = { db, Usuarios, Endereco, Genero };

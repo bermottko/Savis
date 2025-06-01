@@ -1,55 +1,20 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const authController = require('../controllers/authController');
 
-var express = require('express');
-var router = express.Router();
-//Models
-const Usuarios = require('../models/Usuarios');
-const Endereco = require('../models/Endereco');
-
-router.get('/entrada', (req, res) => {
-    res.render('auth/entrada', {layout: 'layouts/layoutAuth'});  
+// Configuração do Multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'public/uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + ".jpg")
 });
 
-router.get('/cadastro', (req, res) => {
-    res.render('auth/cadastro', {layout: 'layouts/layoutAuth'});  
-});
+const upload = multer({ storage });
 
-router.get('/cadastro-sucesso', (req, res) => {
-    res.render('auth/cadastro-sucesso');  
-});
-
-router.post('/add-usuario', async (req, res) => {
-    try {
-        //Cria o endereço
-        const enderecoCriado = await Endereco.create({
-            rua: req.body.rua,
-            numero: req.body.numero,
-            bairro: req.body.bairro,
-            cidade: req.body.cidade,
-            UF: req.body.uf,
-            CEP: req.body.cep
-        });
-
-        //Pega o codigo do endereço
-        const enderecoID = enderecoCriado.cod;
-
-        //Cria o usuário
-        await Usuarios.create({
-            nome: req.body.nome,
-            data_nasc: req.body.data_nasc,
-            CPF: req.body.CPF,
-            generoID: req.body.genero,  
-            email: req.body.email,
-            fone: req.body.fone,
-            enderecoID: enderecoID,
-            SUS: req.body.SUS,
-            senha: req.body.senha,
-        });
-
-        res.redirect('/auth/cadastro-sucesso');
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao cadastrar: ' + erro);
-    }
-})
+// Rotas
+router.get('/entrada', authController.renderEntrada);
+router.get('/cadastro', authController.renderCadastro);
+router.get('/cadastro-sucesso', authController.renderCadastroSucesso);
+router.post('/add-usuario', upload.single('foto_perfil'), authController.cadastrarUsuario);
 
 module.exports = router;
