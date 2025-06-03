@@ -16,7 +16,7 @@
     </div>
         <div class="mb-3">
           <label for="nome" class="form-label">Nome</label>
-          <input type="text" id="nome" name="nome" maxlength="40" required class="form-control" placeholder="Digite seu nome completo" />
+          <input type="text" id="nome" name="nome" maxlength="40" required class="form-control" placeholder="Digite seu nome completo"/>
         </div>
 
         <div class="mb-3">
@@ -49,8 +49,6 @@
           <label for="fone" class="form-label">Telefone</label>
           <input type="text" id="fone" name="fone" maxlength="16" class="form-control" placeholder="Digite seu telefone para contato" />
         </div>
-
-        <hr>
 
         <h6>Endereço</h6>
 
@@ -136,6 +134,7 @@
     </div>
   </div> 
 <script>
+  // Foto de perfil
   function previewImagem(event) {
     const input = event.target;
     const img = document.getElementById('preview_foto');
@@ -148,4 +147,34 @@
       reader.readAsDataURL(input.files[0]);
     }
   }
-</script> 
+
+  // Máscaras de CPF e Telefone
+  document.addEventListener("DOMContentLoaded", function () {
+    const cpfInput = document.getElementById('CPF');
+    const foneInput = document.getElementById('fone');
+
+    // Máscara para CPF
+    cpfInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length <= 11) {
+        value = value
+          .replace(/^(\d{3})(\d)/, '$1.$2')
+          .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+          .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+      }
+      e.target.value = value;
+    });
+
+    // Máscara para telefone
+    foneInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+
+      value = value
+        .replace(/^(\d{2})(\d)/g, '($1) $2')
+        .replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+
+      e.target.value = value;
+    });
+  });
+</script>

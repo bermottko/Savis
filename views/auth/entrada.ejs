@@ -7,8 +7,25 @@
         </div>
 
         <div class="mb-3">
-          <label for="cpf" class="form-label">CPF / Mart.</label>
-          <input type="text" id="cpf" name="cpf" required class="form-control" placeholder="Digite seu CPF ou nº de matrícula" />
+          <div>
+            <input type="radio" id="paciente" name="tipo" value="paciente"  style="transform: scale(0.85); margin-right: 4px;" checked onclick="toggleCampos()" />
+            <label for="paciente" style="font-size: 14px;">Paciente</label>
+            &nbsp;&nbsp;
+            <input type="radio" id="funcionario" name="tipo" value="funcionario"  style="transform: scale(0.85); margin-right: 4px;" onclick="toggleCampos()" />
+            <label for="funcionario" style="font-size: 14px;">Funcionário</label>
+          </div>
+        </div>
+
+        <!-- Campo CPF -->
+        <div class="mb-3 mt-4" id="campo-cpf">
+          <label for="cpf" class="form-label">CPF</label>
+          <input type="text" id="cpf" name="cpf" class="form-control" placeholder="Digite seu CPF" />
+        </div>
+
+        <!-- Campo Matrícula -->
+        <div class="mb-3 mt-4 d-none" id="campo-matricula">
+          <label for="matricula" class="form-label">Matrícula</label>
+          <input type="text" id="matricula" name="matricula" class="form-control" placeholder="Digite sua matrícula" />
         </div>
 
         <div class="mb-3">
@@ -32,3 +49,13 @@
     </div>
 </div>
 
+<script>
+  function toggleCampos() {
+    const pacienteSelecionado = document.getElementById('paciente').checked;
+
+    document.getElementById('campo-cpf').classList.toggle('d-none', !pacienteSelecionado);
+    document.getElementById('campo-matricula').classList.toggle('d-none', pacienteSelecionado);
+  }
+
+  window.onload = toggleCampos;
+</script>
