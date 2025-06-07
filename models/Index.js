@@ -4,12 +4,28 @@ const Usuarios = require('./Usuarios');
 const Endereco = require('./Endereco');
 const Genero = require('./Genero');
 
-// Associações
-Usuarios.belongsTo(Endereco, { foreignKey: 'enderecoID' });
-Endereco.hasMany(Usuarios, { foreignKey: 'enderecoID' });
+Usuarios.belongsTo(Endereco, { 
+    foreignKey: 'enderecoID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Endereco.hasMany(Usuarios, { 
+    foreignKey: 'enderecoID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
 
-Usuarios.belongsTo(Genero, { foreignKey: 'generoID' });
-Genero.hasMany(Usuarios, { foreignKey: 'generoID' });
+Usuarios.belongsTo(Genero, { 
+    foreignKey: 'generoID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Genero.hasMany(Usuarios, { 
+    foreignKey: 'generoID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
 
 console.log('Arquivo models/index.js executado');
 module.exports = { db, Usuarios, Endereco, Genero };

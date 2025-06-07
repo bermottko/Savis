@@ -9,6 +9,7 @@ exports.renderUsuarios = (req, res) => {
         ]
     })
     .then(function (posts) {
+        posts.sort((a, b) => b.cod - a.cod);
         res.render('admin/usuarios', {
             posts: posts,
             layout: 'layouts/layoutAdmin',
@@ -24,17 +25,12 @@ exports.renderUsuarios = (req, res) => {
 exports.buscarUsuarios = async (req, res) => {
     try {
         const termo = req.query.q || '';  // pega o termo da URL: ?q=mar
-
         const usuarios = await Usuarios.findAll({
             where: {
                 nome: {
                     [Op.like]: `%${termo}%`   // busca nome contendo o termo
                 }
             },
-            include: [
-                { model: Endereco },
-                { model: Genero }
-            ]
         });
 
         res.json(usuarios);  // retorna a lista em JSON

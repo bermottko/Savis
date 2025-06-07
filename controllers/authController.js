@@ -10,7 +10,7 @@ exports.renderCadastro = (req, res) => {
 };
 
 exports.renderCadastroSucesso = (req, res) => {
-    res.render('auth/cadastro-sucesso');
+    res.render('auth/cadastro-sucesso', {layout: 'layouts/layoutAuth'});
 };
 
 exports.cadastrarUsuario = async (req, res) => {
@@ -29,7 +29,7 @@ exports.cadastrarUsuario = async (req, res) => {
 
         // Criação do usuário
         await Usuarios.create({
-            img: req.file ? req.file.filename : 'default-profile.jpg',
+            img: req.file ? req.file.filename : null,
             nome: req.body.nome,
             data_nasc: req.body.data_nasc,
             CPF: req.body.CPF,

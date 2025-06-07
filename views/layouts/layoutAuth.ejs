@@ -20,13 +20,10 @@
     /*TELA INCIAL*/
         .container-tela-inicial {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding-bottom: 130px; /* empurra pra baixo, fazendo parecer mais alto */
-            box-sizing: border-box;
-        }
+            }
         .logo-img-nome {
             display: flex;
             flex-direction: row;
@@ -67,18 +64,18 @@
         }
 
         .botao {
-            display: inline-block;
-            background-color: #00204c; 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 5px; /* cantos arredondados */
-            text-decoration: none; /* remove sublinhado */
-            border: none; 
-            box-shadow: none;
-        }
-        .botao:hover {
-            background-color: #001129; 
-        }
+            background-color: #00204c;
+            color: white;
+            padding: 8px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            }
+
+            .botao:hover {
+            background-color: #001129;
+            }
     /*CADASTRO*/
         .botao-cadastro{
             background-color: #00204c;
@@ -107,13 +104,12 @@
             text-align: center;
         }
         .cadastro-sucesso {
-            text-align: center;
             font-family: 'League Spartan', sans-serif;
-            font-size: 40px;
+            font-size: 32px;
             color: #00204c;
             font-weight: bold;
-            padding-bottom: 100px;
-        }
+            white-space: nowrap; /* impede quebra de linha */
+            }
 
     </style>
 </head>

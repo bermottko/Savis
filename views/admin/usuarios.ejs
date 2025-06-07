@@ -1,9 +1,12 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <input type="search" 
-    id="pesquisa" 
-    placeholder="Pesquisar usuários" 
-    class="form-control pesquisa-custom mb-3">
+    <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
+      <input type="search" 
+      id="pesquisa" 
+      placeholder="Pesquisar usuário por nome ou CPF" 
+      class="form-control pesquisa-custom mb-3">
+      <a href="/auth/cadastro" class="botao-cadastro">Cadastrar Usuário</a>
+    </div>
 
     <% posts.forEach(function(post) { %>
 
@@ -20,31 +23,38 @@
               <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
             </div>
 
-            <button class="botao ver-mais-btn" data-cod="<%= post.cod %>">Ver mais</button> <!-- data-cod armazena o cod do usuário -->
-          </div>
+            <button class="botao ver-mais-btn">Ver mais</button> 
+            </div>
 
-          <!--VER MAIS-->
-          <div class="detalhes">
-            <p><strong>Data de Nascimento:</strong> <%= new Date(post.data_nasc).toLocaleDateString('pt-BR') %></p>
+            <!--VER MAIS-->
+            <div class="detalhes">
+            <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('T')[0].split('-').reverse().join('/') %></p>
             <hr>
-            <p><strong>CPF: </strong> <%= post.CPF %></p>
+            <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
             <hr>
-            <p><strong>Gênero: </strong> <%= post.genero.descricao%></p>
+            <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
             <hr>
-            <p><strong>Email:</strong> <%= post.email %></p>
+            <p><strong>Email: </strong> <%= post.email %></p>
             <hr>
-            <p><strong>Telefone:</strong> <%= post.fone %></p>
+            <p><strong>Telefone: </strong><%= post.fone.length === 11 
+            ? post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") 
+            : post.fone.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3") 
+            %></p>
             <hr>
-            <p><strong>Endereço:</strong>
-              <%= post.endereco?.rua || '' %>,        <!-- "?" é usado para se o campo for null não dar erro e o "|| ''" é para trocar "undefined" por um espaço vazio-->
+            <p><strong>Endereço: </strong>
+              <%= post.endereco?.rua || '' %>, 
               <%= post.endereco?.numero || '' %> - 
               <%= post.endereco?.bairro || '' %> - 
-              <%= post.endereco?.cidade || '' %>
-              (<%=post.endereco?.UF || '' %>) 
-              CEP: <%= post.endereco?.CEP || '' %>
+              <%= post.endereco?.cidade || '' %> 
+              (<%= post.endereco?.UF || '' %>) 
+              CEP: <%= post.endereco?.CEP 
+                          ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
+                          : '' 
+                    %>
             </p>
             <hr>
-            <p><strong>SUS:</strong> <%= post.SUS %></p>
+            <p><strong>SUS: </strong> <%= post.SUS %></p>
+
           </div>
         </div>
       </div>
@@ -58,6 +68,7 @@
   const inputPesquisa = document.getElementById('pesquisa');
   const cards = Array.from(document.querySelectorAll('.card')); // colocando os cards dentro de uma array
   const row = document.querySelector('.row');
+  
 
   cards.forEach((card, index) => {                         
     card.setAttribute('data-original-index', index);            // salva o index(posição) original dos cards
@@ -85,16 +96,20 @@
         const nomeELemento = card.querySelector('.nome-perfil');  
         const nome = nomeELemento ? nomeELemento.textContent.toLowerCase() : '';  // se o nomeELemento existe transforma em lowercase e guarda no nome se não guarda ' '
 
-        if (nome.startsWith(termo)) {
+        const cpfElemento = card.querySelector('.cpf-perfil');
+        const cpf = cpfElemento ? cpfElemento.textContent.replace(/[.\-]/g, '') : '';
+
+        if (nome.startsWith(termo) || cpf.startsWith(termo)) {
           card.style.display = 'block';
           card.setAttribute('data-relevancia', '1');
-        } else if (nome.includes(termo)) {
+        } else if (nome.includes(termo) || cpf.includes(termo)) {
           card.style.display = 'block';
           card.setAttribute('data-relevancia', '2');
         } else {
           card.style.display = 'none';
-          card.setAttribute('data-relevancia', '99');          // sem relevancia (99): display = none 
+          card.setAttribute('data-relevancia', '99');
         }
+
       });
 
       const fragment = document.createDocumentFragment();

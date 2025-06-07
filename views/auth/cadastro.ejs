@@ -50,7 +50,9 @@
           <input type="text" id="fone" name="fone" maxlength="16" class="form-control" placeholder="Digite seu telefone para contato" />
         </div>
 
-        <h6>Endereço</h6>
+        <hr>
+
+        <h6 style="color:#909090">Endereço</h6>
 
         <div class="mb-3">
           <label for="rua" class="form-label">Rua</label>
@@ -110,7 +112,7 @@
           <label for="cep" class="form-label">CEP</label>
           <input type="text" id="cep" name="cep" required class="form-control" placeholder="Digite o número do seu CEP" />
         </div>
-
+        <hr>
         <div class="mb-3">
           <label for="SUS" class="form-label">Cartão SUS (CNS - Cartão Nacional de Saúde)</label>
           <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control" placeholder="Digite o número do seu cartão SUS" />
@@ -118,7 +120,7 @@
 
         <div class="mb-3">
           <label for="senha" class="form-label">Senha</label>
-          <input type="password" id="senha" name="senha" required class="form-control" placeholder="Crie uma senha" />
+          <input type="password" id="senha" name="senha" maxlength="16" required class="form-control" placeholder="Crie uma senha" />
         </div>
 
         <!--<div class="mb-3">
@@ -138,10 +140,10 @@
   function previewImagem(event) {
     const input = event.target;
     const img = document.getElementById('preview_foto');
-    
+
     if (input.files && input.files[0]) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         img.src = e.target.result;
       };
       reader.readAsDataURL(input.files[0]);
@@ -152,6 +154,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     const cpfInput = document.getElementById('CPF');
     const foneInput = document.getElementById('fone');
+    const cepInput = document.getElementById('cep');
 
     // Máscara para CPF
     cpfInput.addEventListener('input', function (e) {
@@ -176,5 +179,25 @@
 
       e.target.value = value;
     });
+
+    // Máscara para CEP 
+     cepInput.addEventListener('input', function (e) {
+       let value = e.target.value.replace(/\D/g, '');
+       if (value.length > 8) value = value.slice(0, 8);
+       value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+       e.target.value = value;
+     });
+
+    // Antes de enviar o formulário, remove as máscaras
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', function (e) {
+      // Remove qualquer caractere não numérico antes de enviar
+      cpfInput.value = cpfInput.value.replace(/\D/g, '');
+      foneInput.value = foneInput.value.replace(/\D/g, '');
+      cepInput.value = cepInput.value.replace(/\D/g, '');
+
+    });
   });
 </script>
+
