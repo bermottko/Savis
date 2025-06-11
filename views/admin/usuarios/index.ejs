@@ -28,7 +28,7 @@
 
             <!--VER MAIS-->
             <div class="detalhes">
-            <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('T')[0].split('-').reverse().join('/') %></p>
+            <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
             <hr>
             <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
             <hr>
@@ -54,7 +54,7 @@
             </p>
             <hr>
             <p><strong>SUS: </strong> <%= post.SUS %></p>
-
+            <a href="/admin/usuarios/editar/<%= post.cod %>" class="botao ms-2">Editar</a>
           </div>
         </div>
       </div>
