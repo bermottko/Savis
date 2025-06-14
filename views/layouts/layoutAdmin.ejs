@@ -11,6 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
     <style>
 
+    html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    main {
+        flex: 1;
+    }
+
     body {
         font-family: Arial, sans-serif;
         background-color: #f8f9fa;
@@ -140,12 +150,47 @@
         opacity: 1;
     }
 
+    .footer-custom {
+    background-color: #a1c3f2;
+    color: #fff;
+    padding: 30px 20px;
+    text-align: center;
+    /* sem margin-top:auto aqui, pois quem empurra o footer é o flex do body */
+    }
 
+    .footer-links {
+    margin-bottom: 20px;
+    }
+
+    .footer-links a {
+    margin: 0 15px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    }
+
+    .footer-icons {
+    margin-bottom: 15px;
+    }
+
+    .footer-icons a {
+    margin: 0 10px;
+    }
+
+    .footer-copy {
+    margin-top: 10px;
+    }
+    
 </style>
 </head>
 <body>
     <%- include('../partials/navbar') %>
+
+    <main>
     <%- body %>
+    </main>
+
+    <%- include('../partials/footer') %>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

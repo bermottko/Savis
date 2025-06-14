@@ -26,6 +26,15 @@ Genero.hasMany(Usuarios, {
     onUpdate: 'CASCADE' 
 });
 
+// Sincroniza as tabelas no banco
+db.sequelize.sync({ force: false }) // force: true recria as tabelas do zero (CUIDADO!)
+  .then(() => {
+    console.log('Tabelas sincronizadas com sucesso.');
+  })
+  .catch((err) => {
+    console.error('Erro ao sincronizar as tabelas:', err);
+  });
 
 console.log('Arquivo models/index.js executado');
+
 module.exports = { db, Usuarios, Endereco, Genero };

@@ -1,8 +1,9 @@
 //Conectando com o mysql
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('savisdb', 'root', 'Be#99493544',{
+const sequelize = new Sequelize('savisdb', 'root', '2017',{
   host: "localhost",
-  dialect: "mysql"
+  dialect: "mysql",
+  logging: false  // desativa mensagem enorme no terminal sobre mysql funcionando
 })
 
 module.exports = {
