@@ -26,7 +26,7 @@
       <!-- Campo: CPF -->
       <div class="mb-3 d-flex align-items-center">
         <label for="CPF" class="me-2" >CPF:</label>
-        <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control input-transparente" value="<%= usuario.CPF %>" />
+        <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control input-transparente" value="<%= usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")  %>" />
       </div>
 
       <hr> 
@@ -56,7 +56,7 @@
       <!-- Campo: Telefone -->
       <div class="mb-3 d-flex align-items-center">
         <label for="fone" class="me-2" >Telefone:</label>
-        <input type="text" id="fone" name="fone" maxlength="16" class="form-control input-transparente"  value="<%= usuario.fone || '' %>" />
+        <input type="text" id="fone" name="fone" maxlength="16" class="form-control input-transparente"  value="<%= usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %>" />
       </div>
 
       <hr>
@@ -109,7 +109,7 @@
       <!-- Endereço: CEP -->
       <div class="mb-3 d-flex align-items-center">
         <label for="cep" class="me-2">CEP:</label>
-        <input type="text" id="cep" name="cep" required class="form-control input-transparente" value="<%= usuario.endereco?.CEP || '' %>" />
+        <input type="text" id="cep" name="cep" required class="form-control input-transparente" value="<%= usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') %>" />
       </div>
 
       <hr>
@@ -117,7 +117,7 @@
       <!-- Campo: Cartão SUS -->
       <div class="mb-3 d-flex align-items-center">
         <label for="SUS" class="me-2">SUS:</label>
-        <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control input-transparente" value="<%= usuario.SUS || '' %>" />
+        <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control input-transparente" value="<%= usuario.SUS%>" />
       </div>
 
       <div class="d-flex justify-content-between">
@@ -142,48 +142,14 @@
   reader.readAsDataURL(input.files[0]);
 }
 
-
-  // Máscaras para CPF, Telefone e CEP (igual no cadastro)
-  document.addEventListener("DOMContentLoaded", function () {
+ document.querySelector('form').addEventListener('submit', function (e) {
     const cpfInput = document.getElementById('CPF');
     const foneInput = document.getElementById('fone');
     const cepInput = document.getElementById('cep');
 
-    cpfInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length <= 11) {
-        value = value
-          .replace(/^(\d{3})(\d)/, '$1.$2')
-          .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
-          .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-      }
-      e.target.value = value;
-    });
-
-    foneInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 11) value = value.slice(0, 11);
-
-      value = value
-        .replace(/^(\d{2})(\d)/g, '($1) $2')
-        .replace(/(\d{5})(\d{1,4})$/, '$1-$2');
-
-      e.target.value = value;
-    });
-
-    cepInput.addEventListener('input', function (e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 8) value = value.slice(0, 8);
-      value = value.replace(/^(\d{5})(\d)/, '$1-$2');
-      e.target.value = value;
-    });
-
-    const form = document.querySelector('form');
-
-    form.addEventListener('submit', function (e) {
-      cpfInput.value = cpfInput.value.replace(/\D/g, '');
-      foneInput.value = foneInput.value.replace(/\D/g, '');
-      cepInput.value = cepInput.value.replace(/\D/g, '');
-    });
+    cpfInput.value = cpfInput.value.replace(/\D/g, '');   
+    foneInput.value = foneInput.value.replace(/\D/g, '');
+    cepInput.value = cepInput.value.replace(/\D/g, '');
   });
+
 </script>

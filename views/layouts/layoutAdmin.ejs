@@ -82,7 +82,7 @@
 
     .botao-cadastro {
         background-color: #ffffff;
-        color: #a2c3f2;
+        color: #93b2dd;
         padding: 10px 25px;
         border-radius: 5px;
         text-decoration: none;
@@ -142,32 +142,64 @@
     /*EDIÇÃO*/
     .input-transparente {
         max-width: auto;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: 300px;
-}
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 300px;
+    }
 
 
-form label {
-  font-weight: bold;
-}
+    form label {
+     font-weight: bold;
+    }
 
-.espaco-card-edit {
-  padding-top: 50px;
-  padding-bottom: 70px;
-}
+    .espaco-card-edit {
+     padding-top: 50px;
+     padding-bottom: 70px;
+    }
 
+    /*FOOTER*/
+    .footer-custom {
+    background-color: #a1c3f2;
+    color: #fff;
+    padding: 30px 20px;
+    text-align: center;
+    /* sem margin-top:auto aqui, pois quem empurra o footer é o flex do body */
+    }
 
+    .footer-links {
+    margin-bottom: 20px;
+    }
 
+    .footer-links a {
+    margin: 0 15px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    }
+
+    .footer-icons {
+    font-size: 0px;
+    margin-bottom: 15px;
+    }
+
+    .footer-icons a {
+    margin: 0 10px;
+    }
+
+    .footer-copy {
+    margin-top: 10px;
+    }
+    
 </style>
 </head>
 <body>
     <%- include('../partials/navbar') %>
     <%- body %>
+    <%- include('../partials/footer') %>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
