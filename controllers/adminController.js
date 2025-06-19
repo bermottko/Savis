@@ -1,8 +1,8 @@
-const { Usuarios, Endereco, Genero } = require('../models');
+const { Usuario, Endereco, Genero } = require('../models');
 const { Op } = require('sequelize'); 
 
 exports.renderUsuarios = (req, res) => {
-    Usuarios.findAll({
+    Usuario.findAll({
         include: [
             { model: Endereco },
             { model: Genero }
@@ -25,7 +25,7 @@ exports.renderUsuarios = (req, res) => {
 exports.buscarUsuarios = async (req, res) => {
     try {
         const termo = req.query.q || '';  // pega o termo da URL: ?q=mar
-        const usuarios = await Usuarios.findAll({
+        const usuarios = await Usuario.findAll({
             where: {
                 nome: {
                     [Op.like]: `%${termo}%`   // busca nome contendo o termo
@@ -44,7 +44,7 @@ exports.editarUsuario = async (req, res) => {
     const cod = req.params.cod;
 
     try {
-        const usuario = await Usuarios.findOne({
+        const usuario = await Usuario.findOne({
             where: { cod },
             include: [
                 { model: Endereco },
@@ -73,7 +73,7 @@ exports.salvarEdicaoUsuario = async (req, res) => {
     const cod = req.params.cod;
 
     // Busca o usuário para pegar o enderecoID
-    const usuario = await Usuarios.findByPk(cod);
+    const usuario = await Usuario.findByPk(cod);
 
     if (!usuario) {
       return res.status(404).send('Usuário não encontrado');
@@ -92,7 +92,7 @@ exports.salvarEdicaoUsuario = async (req, res) => {
     });
 
     // Atualiza o usuário
-    await Usuarios.update({
+    await Usuario.update({
       img: req.file ? req.file.filename : usuario.img,
       nome: req.body.nome,
       data_nasc: req.body.data_nasc,

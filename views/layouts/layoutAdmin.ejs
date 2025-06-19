@@ -14,6 +14,9 @@
     body {
         font-family: Arial, sans-serif;
         background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
     }
 
     /* NAVBAR */
@@ -194,11 +197,17 @@
     margin-top: 10px;
     }
     
+    main {
+        flex: 1;
+    }
+    
 </style>
 </head>
 <body>
     <%- include('../partials/navbar') %>
-    <%- body %>
+    <main>
+      <%- body %>
+    </main>
     <%- include('../partials/footer') %>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
