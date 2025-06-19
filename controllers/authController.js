@@ -1,4 +1,4 @@
-const Usuarios = require('../models/Usuarios');
+const Usuario = require('../models/Usuario');
 const Endereco = require('../models/Endereco');
 
 exports.renderEntrada = (req, res) => {
@@ -28,7 +28,7 @@ exports.cadastrarUsuario = async (req, res) => {
         const enderecoID = enderecoCriado.cod;
 
         // Criação do usuário
-        await Usuarios.create({
+        await Usuario.create({
             img: req.file ? req.file.filename : null,
             nome: req.body.nome,
             data_nasc: req.body.data_nasc,

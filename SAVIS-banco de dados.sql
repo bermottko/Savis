@@ -1,4 +1,4 @@
-CREATE TABLE endereco (
+CREATE TABLE enderecos (
     cod INT NOT NULL AUTO_INCREMENT,
     rua VARCHAR(50) NOT NULL,
     numero INT NOT NULL,
@@ -6,25 +6,25 @@ CREATE TABLE endereco (
     cidade VARCHAR(30) NOT NULL,
     UF CHAR(2) NOT NULL,
     CEP CHAR(9) NOT NULL,
-    CONSTRAINT pk_endereco PRIMARY KEY (cod), 
-    CONSTRAINT ck_UF CHECK (UF IN ('AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'))
+    CONSTRAINT pk_enderecos PRIMARY KEY (cod), 
+    CONSTRAINT ck_enderecos_UF CHECK (UF IN ('AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'))
 );
 
-CREATE TABLE genero (
+CREATE TABLE generos (
     cod INT NOT NULL AUTO_INCREMENT,
     descricao CHAR(13) NOT NULL, 
-    CONSTRAINT pk_genero PRIMARY KEY (cod),
-    CONSTRAINT ck_descricao CHECK (descricao IN ('Masculino', 'Feminino', 'Não-binário', 'Outro'))
+    CONSTRAINT pk_generos PRIMARY KEY (cod),
+    CONSTRAINT ck_generos_descricao CHECK (descricao IN ('Masculino', 'Feminino', 'Não-binário', 'Outro'))
 );
 
 CREATE TABLE status (
     cod INT NOT NULL AUTO_INCREMENT,
-    descricao CHAR(9) NOT NULL,
+    descricao VARCHAR(9) NOT NULL,
     CONSTRAINT pk_status PRIMARY KEY (cod),
     CONSTRAINT ck_status CHECK (descricao IN ('Cancelada', 'Concluída', 'Pendente'))
 );
 
-CREATE TABLE usuario (
+CREATE TABLE usuarios (
     cod INT NOT NULL AUTO_INCREMENT,
     img BLOB,
     nome VARCHAR(40) NOT NULL,
@@ -34,16 +34,16 @@ CREATE TABLE usuario (
     email VARCHAR(30) NOT NULL,
     fone CHAR(16) NOT NULL,
     endereco INT NOT NULL,
-    SUS INT NOT NULL,
+    SUS CHAR(15) NOT NULL,
     senha VARCHAR(16) NOT NULL,
-    CONSTRAINT pk_usuario PRIMARY KEY (cod), 
-    CONSTRAINT fk_usuario_endereco FOREIGN KEY (endereco) REFERENCES endereco(cod)
+    CONSTRAINT pk_usuarios PRIMARY KEY (cod), 
+    CONSTRAINT fk_usuarios_endereco FOREIGN KEY (endereco) REFERENCES enderecos(cod)
         ON DELETE CASCADE ON UPDATE CASCADE, 
-    CONSTRAINT fk_usuario_genero FOREIGN KEY (genero) REFERENCES genero(cod)
+    CONSTRAINT fk_usuarios_genero FOREIGN KEY (genero) REFERENCES generos(cod)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE solicita (
+CREATE TABLE solicitacoes (
     cod INT NOT NULL AUTO_INCREMENT,
     usuario INT NOT NULL, 
     local_consul VARCHAR(50) NOT NULL,
@@ -55,10 +55,10 @@ CREATE TABLE solicita (
     obs VARCHAR(255), 
     data_solicita DATE,
     hora_solicita TIME,
-    CONSTRAINT pk_solicita PRIMARY KEY (cod), 
-    CONSTRAINT fk_solicita_usuario FOREIGN KEY (usuario) REFERENCES usuario(cod)
+    CONSTRAINT pk_solicitacoes PRIMARY KEY (cod), 
+    CONSTRAINT fk_solicitacoes_usuario FOREIGN KEY (usuario) REFERENCES usuarios(cod)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_solicita_status FOREIGN KEY (status) REFERENCES status(cod)
+    CONSTRAINT fk_solicitacoes_status FOREIGN KEY (status) REFERENCES status(cod)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -75,7 +75,7 @@ CREATE TABLE documentos (
     CONSTRAINT pk_documentos PRIMARY KEY (cod)
 );
 
-CREATE TABLE motorista (
+CREATE TABLE motoristas (
     cod INT NOT NULL AUTO_INCREMENT,
     matricula INT UNIQUE,
     img BLOB,
@@ -86,17 +86,18 @@ CREATE TABLE motorista (
     email VARCHAR(30),
     endereco INT, 
     genero INT, 
-    docs INT, 
-    CONSTRAINT pk_motorista PRIMARY KEY (cod), 
-    CONSTRAINT fk_motorista_endereco FOREIGN KEY (endereco) REFERENCES endereco(cod)
+    docs INT,
+    senha VARCHAR(16) NOT NULL, 
+    CONSTRAINT pk_motoristas PRIMARY KEY (cod), 
+    CONSTRAINT fk_motoristas_endereco FOREIGN KEY (endereco) REFERENCES enderecos(cod)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_motorista_genero FOREIGN KEY (genero) REFERENCES genero(cod)
+    CONSTRAINT fk_motoristas_genero FOREIGN KEY (genero) REFERENCES generos(cod)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_motorista_docs FOREIGN KEY (docs) REFERENCES documentos(cod)
+    CONSTRAINT fk_motoristas_docs FOREIGN KEY (docs) REFERENCES documentos(cod)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE viagem (
+CREATE TABLE viagens (
     cod INT NOT NULL AUTO_INCREMENT,
     destino_cid VARCHAR(30),
     data_viagem DATE,
@@ -112,20 +113,20 @@ CREATE TABLE viagem (
     paradas VARCHAR(200),
     horario_chega TIME,
     obs VARCHAR(255),
-    CONSTRAINT pk_viagem PRIMARY KEY (cod), 
-    CONSTRAINT fk_viagem_motorista FOREIGN KEY (motorista) REFERENCES motorista(cod)
+    CONSTRAINT pk_viagens PRIMARY KEY (cod), 
+    CONSTRAINT fk_viagens_motorista FOREIGN KEY (motorista) REFERENCES motoristas(cod)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_viagem_status FOREIGN KEY (status) REFERENCES status(cod)
+    CONSTRAINT fk_viagens_status FOREIGN KEY (status) REFERENCES status(cod)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE chefe_agendamento (
+CREATE TABLE chefes (
     cod INT NOT NULL AUTO_INCREMENT,
     matricula INT NOT NULL UNIQUE,
     senha VARCHAR(16) NOT NULL,
     nome VARCHAR(40) NOT NULL,
-    CONSTRAINT pk_chefe_agendamento PRIMARY KEY (cod)
+    CONSTRAINT pk_chefes PRIMARY KEY (cod)
 );
 
-INSERT INTO chefe_agendamento (matricula, senha, nome)
+INSERT INTO chefes (matricula, senha, nome)
 VALUES (1234, '1234', 'Ber');

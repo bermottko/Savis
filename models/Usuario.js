@@ -2,7 +2,7 @@ const db = require('./db');
 const Endereco = require('./Endereco');
 const Genero = require('./Genero');
 
-const Usuarios = db.sequelize.define('usuarios', {
+const Usuario = db.sequelize.define('Usuario', {
     cod: {
         type: db.Sequelize.INTEGER,
         primaryKey: true,
@@ -28,6 +28,7 @@ const Usuarios = db.sequelize.define('usuarios', {
     generoID: { 
         type: db.Sequelize.INTEGER, 
         allowNull: false, 
+        field: 'genero', //nome de verda no banco
         references: { 
             model: Genero, 
             key: 'cod' } 
@@ -43,6 +44,7 @@ const Usuarios = db.sequelize.define('usuarios', {
     enderecoID: {
         type: db.Sequelize.INTEGER,
         allowNull: false,
+        field: 'endereco', //nome de verda no banco
         references: {
             model: Endereco,
             key: 'cod'
@@ -60,5 +62,4 @@ const Usuarios = db.sequelize.define('usuarios', {
   timestamps: false   
   });
 
-module.exports = Usuarios
-
+module.exports = Usuario;
