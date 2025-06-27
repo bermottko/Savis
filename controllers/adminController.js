@@ -40,6 +40,25 @@ exports.buscarUsuarios = async (req, res) => {
     }
 };
 
+exports.deletarUsuarios = async (req, res) => {
+  try {
+    const { cod } = req.params;
+
+    const usuario = await Usuario.findByPk(cod);
+    if (!usuario) {
+      return res.status(404).send('Usuário não encontrado');
+    }
+
+    await usuario.destroy();
+
+    res.redirect('/admin/usuarios/index'); 
+  } catch (error) {
+    console.error('Erro ao deletar usuário:', error);
+    res.status(500).send('Erro interno no servidor');
+  }
+};
+
+
 exports.editarUsuario = async (req, res) => {
     const cod = req.params.cod;
 

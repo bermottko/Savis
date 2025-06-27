@@ -12,8 +12,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 router.get('/usuarios/index', adminController.renderUsuarios);
 router.get('/usuarios/buscar', adminController.buscarUsuarios);
+router.delete('/usuarios/deletar/:cod', adminController.deletarUsuarios);
 router.get('/usuarios/editar/:cod', adminController.editarUsuario);
-router.post('/usuarios/editar/:cod', upload.single('foto_perfil'), adminController.salvarEdicaoUsuario);
+router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), adminController.salvarEdicaoUsuario);
 router.get('/motoristas', adminController.renderMotoristas);
 router.get('/solicitacoes', adminController.renderSolicitacoes);
 router.get('/viagens', adminController.renderViagens);

@@ -53,6 +53,12 @@
             <hr>
             <p><strong>SUS: </strong> <%= post.SUS %></p>
             <a href="/admin/usuarios/editar/<%= post.cod %>" class="botao ms-2">Editar</a>
+            <form action="/admin/usuarios/deletar/<%= post.cod %>?_method=DELETE" method="POST" class="d-inline">
+              <button type="submit" class="botao ms-2" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">
+                Deletar
+              </button>
+            </form>
+
           </div>
         </div>
       </div>
