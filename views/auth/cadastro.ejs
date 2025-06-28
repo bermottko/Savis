@@ -1,138 +1,131 @@
  <div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;">
     <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
       <form action="/auth/add-usuario" method="POST" enctype="multipart/form-data">
-    <div class="text-center mb-4">
-          <img src="/assets/logo.png" alt="Logo" style="width: 50px; height: 70px;">
-          <h5 class="mt-2 logo-nome-cadastro">Criar conta</h5>
+  <div class="text-center mb-4">
+    <img src="/assets/logo.png" alt="Logo" style="width: 50px; height: 70px;">
+    <h5 class="mt-2 logo-nome-cadastro">Criar conta</h5>
 
-       <label for="foto_perfil">
-        <img id="preview_foto" src="/assets/default-profile.jpg" alt="Foto de perfil"
-         class="rounded-circle mt-3 mb-2"
-         style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
-        </label> 
+    <label for="foto_perfil">
+      <img id="preview_foto" src="/assets/default-profile.jpg" alt="Foto de perfil"
+        class="rounded-circle mt-3 mb-2"
+        style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
+    </label> 
 
-        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
-      
-    </div>
-        <div class="mb-3">
-          <label for="nome" class="form-label">Nome</label>
-          <input type="text" id="nome" name="nome" maxlength="40" required class="form-control" placeholder="Digite seu nome completo"/>
-        </div>
+    <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
+  </div>
 
-        <div class="mb-3">
-          <label for="data_nasc" class="form-label">Data de nascimento</label>
-          <input type="date" id="data_nasc" name="data_nasc" required class="form-control" />
-        </div> 
+  <div class="mb-3">
+    <label for="nome" class="form-label">Nome</label>
+    <input type="text" id="nome" name="nome" maxlength="40" required class="form-control"
+      placeholder="Digite seu nome completo" value="<%= preenchido?.nome || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="CPF" class="form-label">CPF</label>
-          <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control" placeholder="Digite seu CPF" />
-        </div>
+  <div class="mb-3">
+    <label for="data_nasc" class="form-label">Data de nascimento</label>
+    <input type="date" id="data_nasc" name="data_nasc" required class="form-control"
+      value="<%= preenchido?.data_nasc || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="genero" class="form-label">Gênero</label>
-          <select id="genero" name="genero" required class="form-select">
-            <option selected disabled>Não selecionado</option>
-            <option value="1">Masculino</option>
-            <option value="2">Feminino</option>
-            <option value="3">Não-binário</option>
-            <option value="4">Outro</option>
-          </select>
-        </div>
+  <div class="mb-3">
+    <label for="CPF" class="form-label">CPF</label>
+    <input type="text" id="CPF" name="CPF" maxlength="14" required
+      class="form-control <% if (erroCPF) { %>is-invalid<% } %>" placeholder="Digite seu CPF"
+      value="<%= preenchido?.CPF || '' %>" />
+    <% if (erroCPF) { %>
+      <div class="invalid-feedback"><%= erroCPF %></div>
+    <% } %>
+  </div>
 
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" id="email" name="email" maxlength="30" required class="form-control" placeholder="Digite seu e-mail para contato" />
-        </div>
+  <div class="mb-3">
+    <label for="genero" class="form-label">Gênero</label>
+    <select id="genero" name="genero" required class="form-select">
+      <option value="" disabled <%= !preenchido?.genero ? 'selected' : '' %>>Não selecionado</option>
+      <option value="1" <%= preenchido?.genero == '1' ? 'selected' : '' %>>Masculino</option>
+      <option value="2" <%= preenchido?.genero == '2' ? 'selected' : '' %>>Feminino</option>
+      <option value="3" <%= preenchido?.genero == '3' ? 'selected' : '' %>>Não-binário</option>
+      <option value="4" <%= preenchido?.genero == '4' ? 'selected' : '' %>>Outro</option>
+    </select>
+  </div>
 
-        <div class="mb-3">
-          <label for="fone" class="form-label">Telefone</label>
-          <input type="text" id="fone" name="fone" maxlength="16" class="form-control" placeholder="Digite seu telefone para contato" />
-        </div>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" id="email" name="email" maxlength="30" required class="form-control"
+      placeholder="Digite seu e-mail para contato" value="<%= preenchido?.email || '' %>" />
+  </div>
 
-        <hr>
+  <div class="mb-3">
+    <label for="fone" class="form-label">Telefone</label>
+    <input type="text" id="fone" name="fone" maxlength="16" class="form-control"
+      placeholder="Digite seu telefone para contato" value="<%= preenchido?.fone || '' %>" />
+  </div>
 
-        <h6 style="color:#909090">Endereço</h6>
+  <hr>
+  <h6 style="color:#909090">Endereço</h6>
 
-        <div class="mb-3">
-          <label for="rua" class="form-label">Rua</label>
-          <input type="text" id="rua" name="rua" required class="form-control" placeholder="Digite a rua da sua residência" />
-        </div>
+  <div class="mb-3">
+    <label for="rua" class="form-label">Rua</label>
+    <input type="text" id="rua" name="rua" required class="form-control"
+      placeholder="Digite a rua da sua residência" value="<%= preenchido?.rua || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="numero" class="form-label">Número</label>
-          <input type="text" id="numero" name="numero" required class="form-control" placeholder="Digite o número da sua residência" />
-        </div>
+  <div class="mb-3">
+    <label for="numero" class="form-label">Número</label>
+    <input type="text" id="numero" name="numero" required class="form-control"
+      placeholder="Digite o número da sua residência" value="<%= preenchido?.numero || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="bairro" class="form-label">Bairro</label>
-          <input type="text" id="bairro" name="bairro" required class="form-control" placeholder="Digite o bairro da sua residência" />
-        </div>
+  <div class="mb-3">
+    <label for="bairro" class="form-label">Bairro</label>
+    <input type="text" id="bairro" name="bairro" required class="form-control"
+      placeholder="Digite o bairro da sua residência" value="<%= preenchido?.bairro || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="cidade" class="form-label">Cidade</label>
-          <input type="text" id="cidade" name="cidade" required class="form-control" placeholder="Digite a cidade da sua residência" />
-        </div>
+  <div class="mb-3">
+    <label for="cidade" class="form-label">Cidade</label>
+    <input type="text" id="cidade" name="cidade" required class="form-control"
+      placeholder="Digite a cidade da sua residência" value="<%= preenchido?.cidade || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="uf" class="form-label">Estado (UF)</label>
-          <select id="uf" name="uf" required class="form-select">
-            <option selected disabled>Não selecionado</option>
-                <option value="SC">SC</option>
-                <option value="PR">PR</option>
-                <option value="RS">RS</option>
-                <option value="SP">SP</option>
-                <option value="RJ">RJ</option>
-                <option value="MG">MG</option>
-                <option value="ES">ES</option>
-                <option value="DF">DF</option>
-                <option value="GO">GO</option>
-                <option value="MT">MT</option>
-                <option value="MS">MS</option>
-                <option value="AL">AL</option>
-                <option value="BA">BA</option>
-                <option value="CE">CE</option>
-                <option value="MA">MA</option>
-                <option value="PB">PB</option>
-                <option value="PE">PE</option>
-                <option value="PI">PI</option>
-                <option value="RN">RN</option>
-                <option value="SE">SE</option>
-                <option value="AC">AC</option>
-                <option value="AP">AP</option>
-                <option value="AM">AM</option>
-                <option value="PA">PA</option>
-                <option value="RO">RO</option>
-                <option value="RR">RR</option>
-                <option value="TO">TO</option>
-          </select>
-        </div>
+  <div class="mb-3">
+    <label for="uf" class="form-label">Estado (UF)</label>
+    <select id="uf" name="uf" required class="form-select">
+      <option disabled <%= !preenchido?.uf ? 'selected' : '' %>>Não selecionado</option>
+      <% const estados = ['SC','PR','RS','SP','RJ','MG','ES','DF','GO','MT','MS','AL','BA','CE','MA','PB','PE','PI','RN','SE','AC','AP','AM','PA','RO','RR','TO']; %>
+      <% estados.forEach(estado => { %>
+        <option value="<%= estado %>" <%= preenchido?.uf === estado ? 'selected' : '' %>><%= estado %></option>
+      <% }); %>
+    </select>
+  </div>
 
-        <div class="mb-3">
-          <label for="cep" class="form-label">CEP</label>
-          <input type="text" id="cep" name="cep" required class="form-control" placeholder="Digite o número do seu CEP" />
-        </div>
-        <hr>
-        <div class="mb-3">
-          <label for="SUS" class="form-label">Cartão SUS (CNS - Cartão Nacional de Saúde)</label>
-          <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control" placeholder="Digite o número do seu cartão SUS" />
-        </div>
+  <div class="mb-3">
+    <label for="cep" class="form-label">CEP</label>
+    <input type="text" id="cep" name="cep" required class="form-control"
+      placeholder="Digite o número do seu CEP" value="<%= preenchido?.cep || '' %>" />
+  </div>
 
-        <div class="mb-3">
-          <label for="senha" class="form-label">Senha</label>
-          <input type="password" id="senha" name="senha" maxlength="16" required class="form-control" placeholder="Crie uma senha" />
-        </div>
+  <hr>
 
-        <!--<div class="mb-3">
-          <label for="confirmar_senha" class="form-label">Confirme a senha</label>
-          <input type="password" id="confirmar_senha" name="confirmar_senha" required class="form-control" placeholder="Digite a senha novamente" />
-        </div>  -->
+  <div class="mb-3">
+    <label for="SUS" class="form-label">Cartão SUS (CNS)</label>
+    <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control <% if (erroSUS) { %>is-invalid<% } %>"
+      placeholder="Digite o número do seu cartão SUS" value="<%= preenchido?.SUS || '' %>" />
+      <% if (erroSUS) { %>
+      <div class="invalid-feedback"><%= erroSUS %></div>
+    <% } %>
+  </div>
 
-        <div class="d-flex justify-content-between">
-            <a href="#" onclick="window.history.back(); return false;" class="botao-cadastro">Voltar</a>
-            <button type="submit" class="botao-cadastro">Cadastrar</button>
-        </div> 
-      </form>
+  <div class="mb-3">
+    <label for="senha" class="form-label">Senha</label>
+    <input type="password" id="senha" name="senha" maxlength="16" required class="form-control"
+      placeholder="Crie uma senha" />
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <a href="#" onclick="window.history.back(); return false;" class="botao-cadastro">Voltar</a>
+    <button type="submit" class="botao-cadastro">Cadastrar</button>
+  </div>
+</form>
+
     </div>
   </div> 
 <script>
@@ -154,9 +147,11 @@
   document.addEventListener("DOMContentLoaded", function () {
     const cpfInput = document.getElementById('CPF');
     const foneInput = document.getElementById('fone');
+    const numeroInput = document.getElementById('numero');
     const cepInput = document.getElementById('cep');
+    const susInput = document.getElementById('SUS');
 
-    // Máscara para CPF
+    // Máscara para CPF  
     cpfInput.addEventListener('input', function (e) {
       let value = e.target.value.replace(/\D/g, '');
       if (value.length <= 11) {
@@ -180,12 +175,23 @@
       e.target.value = value;
     });
 
+    
+    // Máscara para numero da residencia -> /\D/g -> remove caracteres globalmente e substitui por ''
+    numeroInput.addEventListener('input', function (e) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+
     // Máscara para CEP 
      cepInput.addEventListener('input', function (e) {
        let value = e.target.value.replace(/\D/g, '');
        if (value.length > 8) value = value.slice(0, 8);
        value = value.replace(/^(\d{5})(\d)/, '$1-$2');
        e.target.value = value;
+     });
+
+     susInput.addEventListener('input', function (e){
+      e.target.value = e.target.value.replace(/\D/g,'');
      });
 
     // Antes de enviar o formulário, remove as máscaras
@@ -195,7 +201,9 @@
       // Remove qualquer caractere não numérico antes de enviar
       cpfInput.value = cpfInput.value.replace(/\D/g, '');
       foneInput.value = foneInput.value.replace(/\D/g, '');
+      numeroInput.value = numeroInput.value.replace(/\D/g,'');
       cepInput.value = cepInput.value.replace(/\D/g, '');
+      susInput.value = susInput.value.replace(/\D/g,'');
 
     });
   });
