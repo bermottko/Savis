@@ -5,209 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savis</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
+ 
+     <!-- FULLCALENDAR CSS - ADICIONADO AQUI -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+</head>
     <style>
+        /* ------------------------- */
+        /*         BASE             */
+        /* ------------------------- */
 
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f8f9fa;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    /* NAVBAR */
-
-    .navbar {
-        background-color: #00204c;
-        height: 80px;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-    .logo-nome-nav {
-        font-family: 'League Spartan', sans-serif;
-        font-weight: bold;
-        font-size: 30px;
-        color: #f8f9fa;
-        padding-top: 20px;
+        main {
+            flex: 1;
         }
 
-     .logo-img {
-        height: 50px;
-        width: auto;
-        max-height: none;
-    }
-    .navbar-nav .nav-link {
-        color: #f8f9fa;
-        font-weight: bold;
-        position: relative;
-        display: flex;
-        align-items: center;
-        height: 80px;
-         margin: 0 8px;
+        /* ------------------------- */
+        /*         NAVBAR           */
+        /* ------------------------- */
+
+        .navbar {
+            background-color: #00204c;
+            height: 80px;
         }
 
-        /* Sublinhado da aba ativa, fixo no fim da navbar 
-    .navbar-nav .nav-link.active-nav::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 6px;
-        right: 6px;
-        height: 4px;
-        background-color: #a2c3f2;
+        .logo-nome-nav {
+            font-family: 'League Spartan', sans-serif;
+            font-weight: bold;
+            font-size: 30px;
+            color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .logo-img {
+            height: 50px;
+            width: auto;
+            max-height: none;
+        }
+
+        .navbar-nav .nav-link {
+            color: #f8f9fa;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 80px;
+            margin: 0 8px;
+        }
+
+        /* .navbar-nav .nav-link.active-nav::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 6px;
+            right: 6px;
+            height: 4px;
+            background-color: #a2c3f2;
         } */
 
-    .navbar-nav .nav-link.active-nav {
-        color: #a2c3f2; 
+        .navbar-nav .nav-link.active-nav {
+            color: #a2c3f2;
         }
 
-    /*BOTÕES*/
+        /* ------------------------- */
+        /*         BOTÕES           */
+        /* ------------------------- */
 
-    .botao {
-        display: inline-block;
-        background-color: #00204c;
-        color: white;
-        padding: 8px 25px;
-        border-radius: 5px;
-        text-decoration: none;
-        border: none; 
-        box-shadow: none;
-         transition: background-color 0.3s ease;
-        font-weight: bold;
-    }
+        .botao {
+            display: inline-block;
+            background-color: #00204c;
+            color: white;
+            padding: 8px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            box-shadow: none;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
 
-    .botao:hover {
-        background-color: #001129;
-    }
-    .bg-vermelho {
-            background-color: #9d1421; 
-            }
-    .bg-vermelho:hover {
-            background-color: #701019; 
-            }
+        .botao:hover {
+            background-color: #001129;
+        }
 
-    .botao-cadastro {
-        background-color: #ffffff;
-        color: #93b2dd;
-        padding: 10px 25px;
-        border-radius: 5px;
-        text-decoration: none;
-        border: 1px solid #a2c3f2; 
-        box-shadow: none;
-        transition: background-color 0.3s ease;
-        font-weight: bold;
-        line-height: 1;          
-        height: 38px;          
-    }
+        .bg-vermelho {
+            background-color: #9d1421;
+        }
 
-    .botao-cadastro:hover {
-        background-color: #a2c3f2;
-        color: #fff;
-    }
+        .bg-vermelho:hover {
+            background-color: #701019;
+        }
 
-        /*BARRA DE PESQUISA*/
+        .botao-cadastro {
+            background-color: #ffffff;
+            color: #93b2dd;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: 1px solid #a2c3f2;
+            box-shadow: none;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            line-height: 1;
+            height: 38px;
+        }
 
-    .pesquisa-custom {
-        width: 400px;               
-        border: 1px solid #a2c3f2; 
-        text-transform: uppercase;
-        margin-top: 17px;
-    }
+        .botao-cadastro:hover {
+            background-color: #a2c3f2;
+            color: #fff;
+        }
 
-    .pesquisa-custom::placeholder {
-        text-transform: none;       
-    }
+        /* ------------------------- */
+        /*     BARRA DE PESQUISA    */
+        /* ------------------------- */
 
-        /*CARD DO USUÁRIO*/
+        .pesquisa-custom {
+            width: 400px;
+            border: 1px solid #a2c3f2;
+            text-transform: uppercase;
+            margin-top: 17px;
+        }
 
-    .foto-perfil {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
+        .pesquisa-custom::placeholder {
+            text-transform: none;
+        }
 
-    .nome-perfil {
-        font-size: 16px;
-        text-transform: uppercase;
-    }
+        /* ------------------------- */
+        /*     CARD DO USUÁRIO      */
+        /* ------------------------- */
 
-    .detalhes {
-        overflow: hidden;
-        transition: all 0.4s ease;
-        height: 0;
-        opacity: 0;
-        margin-top: 0;
-    }
+        .foto-perfil {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
 
-    .detalhes.expandido {
-        opacity: 1;
-    }
-    /*EDIÇÃO*/
-    .input-transparente {
-        max-width: auto;
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 300px;
-    }
+        .nome-perfil {
+            font-size: 16px;
+            text-transform: uppercase;
+        }
 
+        .detalhes {
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
 
-    form label {
-     font-weight: bold;
-    }
+        .detalhes.expandido {
+            opacity: 1;
+        }
 
-    .espaco-card-edit {
-     padding-top: 50px;
-     padding-bottom: 70px;
-    }
+        /* ------------------------- */
+        /*         EDIÇÃO           */
+        /* ------------------------- */
 
-    /*FOOTER*/
-    .footer-custom {
-    background-color: #a1c3f2;
-    color: #fff;
-    padding: 30px 20px;
-    text-align: center;
-    /* sem margin-top:auto aqui, pois quem empurra o footer é o flex do body */
-    }
+        .input-transparente {
+            max-width: auto;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 300px;
+        }
 
-    .footer-links {
-    margin-bottom: 20px;
-    }
+        .form-bold {
+            font-weight: bold;
+        }
 
-    .footer-links a {
-    margin: 0 15px;
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-    }
+        .espaco-card-edit {
+            padding-top: 50px;
+            padding-bottom: 70px;
+        }
 
-    .footer-icons {
-    font-size: 0px;
-    margin-bottom: 15px;
-    }
+        /* ------------------------- */
+        /*          FOOTER          */
+        /* ------------------------- */
 
-    .footer-icons a {
-    margin: 0 10px;
-    }
+        .footer-custom {
+            background-color: #a1c3f2;
+            color: #fff;
+            padding: 30px 20px;
+            text-align: center;
+        }
 
-    .footer-copy {
-    margin-top: 10px;
-    }
-    
-    main {
-        flex: 1;
-    }
-    
-</style>
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            margin: 0 15px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-icons {
+            font-size: 0px;
+            margin-bottom: 15px;
+        }
+
+        .footer-icons a {
+            margin: 0 10px;
+        }
+
+        .footer-copy {
+            margin-top: 10px;
+        }
+
+        /* ------------------------- */
+        /*         CALENDÁRIO       */
+        /* ------------------------- */
+
+        #calendario {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            border: 1px solid #a2c3f2;
+        }
+
+        /* TOPO */
+        .fc-header-toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00204c;
+        }
+
+        .fc-toolbar-title::first-letter {
+            text-transform: uppercase;
+        }
+
+        /* BOTÕES */
+        .fc .fc-button {
+            background-color: #00204c !important;
+            border-radius: 6px;
+            color: #fff !important;
+            font-weight: bold;
+            text-transform: capitalize;
+            transition: background-color 0.3s ease;
+        }
+
+        .fc-button:hover {
+            background-color: #001129;
+        }
+
+        .fc .fc-button:hover {
+            background-color: #00122c !important;
+        }
+
+        .fc .fc-button-active {
+            background-color: #00122c !important;
+        }
+
+        /* CABEÇALHO (dias da semana) */
+        .fc-col-header-cell-cushion {
+            font-weight: bold;
+            color: #00204c;
+            padding: 10px 0;
+        }
+
+        .fc .fc-col-header-cell a {
+            text-decoration: none !important;
+            color: #00204c;
+            font-weight: bold;
+        }
+
+        /* NÚMEROS DOS DIAS */
+        .fc-daygrid-day-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #00204c;
+            padding: 6px 8px;
+            text-align: right;
+            text-decoration: none !important;
+        }
+
+        /* EVENTOS */
+        .fc-event {
+            background-color: #a2c3f2 !important;
+            border-radius: 3px;
+            color: #00204c;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            margin: 4px 6px 2px;
+            font-weight: bold;
+            border: 1px solid #87afe6;
+            transition: transform 0.2s ease;
+        }
+
+        .fc-event:hover {
+            transform: scale(1.05);
+        }
+
+        /* ------------------------- */
+        /*   NOVA VIAGEM CADASTRO    */
+        /* ------------------------- */
+        
+        .titulo {
+            font-family: 'League Spartan', sans-serif;
+            font-size: 25px;
+            color: #00204c;
+            font-weight: bold;
+            text-align: center;
+        }
+        .campos {
+           font-weight: none;
+           color:#00204c
+        }
+  </style>
 </head>
 <body>
     <%- include('../partials/navbar') %>
@@ -218,5 +350,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </body>
 </html>

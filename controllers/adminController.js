@@ -134,7 +134,7 @@ exports.salvarEdicaoUsuario = async (req, res) => {
 
 
 exports.renderMotoristas = (req, res) => {
-    res.render('admin/motoristas', {
+    res.render('admin/motoristas/index', {
         layout: 'layouts/layoutAdmin',
         paginaAtual: 'motoristas'
     });
@@ -148,8 +148,18 @@ exports.renderSolicitacoes = (req, res) => {
 };
 
 exports.renderViagens = (req, res) => {
-    res.render('admin/viagens', {
+    res.render('admin/viagens/index', {
         layout: 'layouts/layoutAdmin',
         paginaAtual: 'viagens'
+    });
+};
+
+exports.renderNovaViagem = (req,res) => {
+    const dataSelecionada = req.query.data_viagem || ''; 
+
+    res.render('admin/viagens/nova-viagem', {
+        layout: 'layouts/layoutAdmin',
+        paginaAtual: 'viagens',
+        dataSelecionada
     });
 };

@@ -15,8 +15,9 @@ router.get('/usuarios/buscar', adminController.buscarUsuarios);
 router.delete('/usuarios/deletar/:cod', adminController.deletarUsuarios);
 router.get('/usuarios/editar/:cod', adminController.editarUsuario);
 router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), adminController.salvarEdicaoUsuario);
-router.get('/motoristas', adminController.renderMotoristas);
+router.get('/motoristas/index', adminController.renderMotoristas);
 router.get('/solicitacoes', adminController.renderSolicitacoes);
-router.get('/viagens', adminController.renderViagens);
+router.get('/viagens/index', adminController.renderViagens);
+router.get('/viagens/nova-viagem', adminController.renderNovaViagem);
 
 module.exports = router;
