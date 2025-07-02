@@ -32,7 +32,7 @@ CREATE TABLE usuarios (
     CPF CHAR(14) UNIQUE NOT NULL,
     genero INT NOT NULL,
     email VARCHAR(30) NOT NULL,
-    fone CHAR(16) NOT NULL,
+    fone CHAR(11) NOT NULL,
     endereco INT NOT NULL,
     SUS CHAR(15) NOT NULL,
     senha VARCHAR(16) NOT NULL,
@@ -77,12 +77,12 @@ CREATE TABLE documentos (
 
 CREATE TABLE motoristas (
     cod INT NOT NULL AUTO_INCREMENT,
-    matricula INT UNIQUE,
+    matricula CHAR(4) UNIQUE,
     img BLOB,
     nome VARCHAR(40),
     data_nasc DATE,
     CPF CHAR(14) UNIQUE,
-    fone CHAR(16),
+    fone CHAR(11) NOT NULL,
     email VARCHAR(30),
     endereco INT, 
     genero INT, 

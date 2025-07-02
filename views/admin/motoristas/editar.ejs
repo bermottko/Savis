@@ -1,0 +1,136 @@
+<div class="col-12 d-flex justify-content-center espaco-card-edit">
+  <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+    <form action="/admin/motoristas/editar/<%= usuario.cod %>?_method=PUT" method="POST" enctype="multipart/form-data" class="form-bold">
+
+      <div class="d-flex flex-row align-items-center mb-3">
+        <label for="foto_perfil" class="me-3 ">
+          <img id="preview_foto" src="<%= usuario.img ? '/uploads/' + usuario.img : '/assets/default-profile.jpg' %>"  alt="Foto de perfil" class="foto-perfil" />
+        </label>
+        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center">
+            <input type="text" id="nome" name="nome" maxlength="40" required class="form-control input-transparente" value="<%= usuario.nome %>" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="data_nasc" class="me-2" >Data de nascimento:</label>
+        <input type="date" id="data_nasc" name="data_nasc" required class="form-control input-transparente" style="width: 110px;" value="<%= usuario.data_nasc %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="CPF" class="me-2" >CPF:</label>
+        <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control input-transparente" value="<%= usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")  %>" />
+      </div>
+
+      <hr> 
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="genero" class="me-2" >Gênero:</label>
+        <select id="genero" name="genero" required class="form-select input-transparente" style="width: auto;">
+          <option disabled>Não selecionado</option>
+          <option value="1" <%= usuario.generoID == 1 ? 'selected' : '' %>>Masculino</option>
+          <option value="2" <%= usuario.generoID == 2 ? 'selected' : '' %>>Feminino</option>
+          <option value="3" <%= usuario.generoID == 3 ? 'selected' : '' %>>Não-binário</option>
+          <option value="4" <%= usuario.generoID == 4 ? 'selected' : '' %>>Outro</option>
+        </select>
+      </div>
+
+      <hr> 
+
+      <!-- Campo: Email -->
+      <div class="mb-3 d-flex align-items-center">
+        <label for="email" class="me-2" >Email:</label>
+        <input type="email" id="email" name="email" maxlength="30" required class="form-control input-transparente"  value="<%= usuario.email %>" />
+      </div>
+
+      <hr> 
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="fone" class="me-2" >Telefone:</label>
+        <input type="text" id="fone" name="fone" maxlength="16" class="form-control input-transparente"  value="<%= usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="rua" class="me-2" >Rua:</label>
+        <input type="text" id="rua" name="rua" required class="form-control input-transparente" style="max-width: 300px;" value="<%= usuario.endereco?.rua || '' %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="numero" class="me-2" >Número:</label>
+        <input type="text" id="numero" name="numero" required class="form-control input-transparente"  value="<%= usuario.endereco?.numero || '' %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="bairro" class="me-2" >Bairro:</label>
+        <input type="text" id="bairro" name="bairro" required class="form-control input-transparente"  value="<%= usuario.endereco?.bairro || '' %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="cidade" class="me-2" >Cidade:</label>
+        <input type="text" id="cidade" name="cidade" required class="form-control input-transparente" value="<%= usuario.endereco?.cidade || '' %>" />
+      </div>
+
+      <hr>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="uf" class="me-2" >Estado (UF):</label>
+        <select id="uf" name="uf" required class="form-select input-transparente" style="width: 60px;">
+          <option disabled>Não selecionado</option>
+          <% ['SC', 'PR', 'RS', 'SP', 'RJ', 'MG', 'ES', 'DF', 'GO', 'MT', 'MS', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'].forEach(estado => { %>
+            <option value="<%= estado %>" <%= usuario.endereco?.UF === estado ? 'selected' : '' %>><%= estado %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <hr> 
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="cep" class="me-2">CEP:</label>
+        <input type="text" id="cep" name="cep" required class="form-control input-transparente" value="<%= usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') %>" />
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="/admin/motoristas/index" class="botao">Cancelar</a>
+        <button type="submit" class="botao">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  function previewImagem(event) {
+  const input = event.target;
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const preview = document.getElementById('preview_foto');
+    preview.src = reader.result;
+  };
+
+  reader.readAsDataURL(input.files[0]);
+}
+
+ document.querySelector('form').addEventListener('submit', function (e) {
+    const cpfInput = document.getElementById('CPF');
+    const foneInput = document.getElementById('fone');
+    const cepInput = document.getElementById('cep');
+
+    cpfInput.value = cpfInput.value.replace(/\D/g, '');   
+    foneInput.value = foneInput.value.replace(/\D/g, '');
+    cepInput.value = cepInput.value.replace(/\D/g, '');
+  });
+
+</script>

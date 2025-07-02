@@ -1,0 +1,208 @@
+<div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;"> 
+  <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
+    <form action="/auth/add-motorista" method="POST" enctype="multipart/form-data">
+      <div class="text-center mb-4">
+        <img src="/assets/logo.png" alt="Logo" style="width: 50px; height: 70px;">
+        <h5 class="mt-2 logo-nome-cadastro">Cadastrar motorista</h5>
+
+        <label for="foto_perfil">
+          <img id="preview_foto" src="/assets/default-profile.jpg" alt="Foto de perfil"
+            class="rounded-circle mt-3 mb-2"
+            style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
+        </label> 
+
+        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
+      </div>
+
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" id="nome" name="nome" maxlength="40" required class="form-control"
+          placeholder="Digite o nome completo" value="<%= preenchido?.nome || '' %>" />
+      </div>
+
+      <div class="mb-3">
+        <label for="data_nasc" class="form-label">Data de nascimento</label>
+        <input type="date" id="data_nasc" name="data_nasc" required class="form-control"
+          value="<%= preenchido?.data_nasc || '' %>" />
+      </div>
+
+     <div class="mb-3">
+        <label for="CPF" class="form-label">CPF</label>
+        <input type="text" id="CPF" name="CPF" maxlength="14" required
+            class="form-control <% if (erroCPF) { %>is-invalid<% } %>" placeholder="Digite o CPF"
+            value="<%= preenchido?.CPF || '' %>" />
+        <% if (erroCPF) { %>
+            <div class="invalid-feedback"><%= erroCPF %></div>
+        <% } %>
+    </div>
+
+      <div class="mb-3">
+        <label for="genero" class="form-label">Gênero</label>
+        <select id="genero" name="genero" required class="form-select">
+          <option value="" disabled <%= !preenchido?.genero ? 'selected' : '' %>>Não selecionado</option>
+          <option value="1" <%= preenchido?.genero == '1' ? 'selected' : '' %>>Masculino</option>
+          <option value="2" <%= preenchido?.genero == '2' ? 'selected' : '' %>>Feminino</option>
+          <option value="3" <%= preenchido?.genero == '3' ? 'selected' : '' %>>Não-binário</option>
+          <option value="4" <%= preenchido?.genero == '4' ? 'selected' : '' %>>Outro</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="email" maxlength="30" required class="form-control"
+          placeholder="Digite o e-mail" value="<%= preenchido?.email || '' %>" />
+      </div>
+
+     <div class="mb-3">
+        <label for="fone" class="form-label">Telefone</label>
+        <input type="text" id="fone" name="fone" maxlength="15"
+            class="form-control <% if (erroFone) { %>is-invalid<% } %>"
+            placeholder="Digite seu telefone para contato"
+            value="<%= preenchido?.fone || '' %>" />
+        <% if (erroFone) { %>
+            <div class="invalid-feedback"><%= erroFone %></div>
+        <% } %>
+    </div>
+
+      <hr>
+      <h6 style="color:#909090">Endereço</h6>
+
+      <div class="mb-3">
+        <label for="rua" class="form-label">Rua</label>
+        <input type="text" id="rua" name="rua" required class="form-control"
+          placeholder="Rua da residência" value="<%= preenchido?.rua || '' %>" />
+      </div>
+
+      <div class="mb-3">
+        <label for="numero" class="form-label">Número</label>
+        <input type="text" id="numero" name="numero" required class="form-control"
+          placeholder="Número da residência" value="<%= preenchido?.numero || '' %>" />
+      </div>
+
+      <div class="mb-3">
+        <label for="bairro" class="form-label">Bairro</label>
+        <input type="text" id="bairro" name="bairro" required class="form-control"
+          placeholder="Bairro da residência" value="<%= preenchido?.bairro || '' %>" />
+      </div>
+
+      <div class="mb-3">
+        <label for="cidade" class="form-label">Cidade</label>
+        <input type="text" id="cidade" name="cidade" required class="form-control"
+          placeholder="Cidade da residência" value="<%= preenchido?.cidade || '' %>" />
+      </div>
+
+      <div class="mb-3">
+        <label for="uf" class="form-label">Estado (UF)</label>
+        <select id="uf" name="uf" required class="form-select">
+          <option disabled <%= !preenchido?.uf ? 'selected' : '' %>>Não selecionado</option>
+          <% const estados = ['SC','PR','RS','SP','RJ','MG','ES','DF','GO','MT','MS','AL','BA','CE','MA','PB','PE','PI','RN','SE','AC','AP','AM','PA','RO','RR','TO']; %>
+          <% estados.forEach(estado => { %>
+            <option value="<%= estado %>" <%= preenchido?.uf === estado ? 'selected' : '' %>><%= estado %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="cep" class="form-label">CEP</label>
+        <input type="text" id="cep" name="cep" required class="form-control"
+            placeholder="Digite o CEP" value="<%= preenchido?.cep || '' %>" />
+    </div>
+
+      <hr>
+
+      <div class="mb-3">
+        <label for="matricula" class="form-label">Matrícula</label>
+        <input type="text" id="matricula" name="matricula" maxlength="4" required
+          class="form-control <% if (erroMatricula) { %>is-invalid<% } %>" placeholder="Matrícula com 4 dígitos"
+          value="<%= preenchido?.matricula || '' %>" />
+        <% if (erroMatricula) { %>
+          <div class="invalid-feedback"><%= erroMatricula %></div>
+        <% } %>
+      </div>
+
+      <div class="mb-3">
+        <label for="senha" class="form-label">Senha</label>
+        <input type="password" id="senha" name="senha" maxlength="16" required class="form-control"
+          placeholder="Crie uma senha" />
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="#" onclick="window.history.back(); return false;" class="botao-cadastro">Voltar</a>
+        <button type="submit" class="botao-cadastro">Cadastrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function previewImagem(event) {
+    const input = event.target;
+    const img = document.getElementById('preview_foto');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const cpfInput = document.getElementById('CPF');
+    const foneInput = document.getElementById('fone');
+    const numeroInput = document.getElementById('numero');
+    const cepInput = document.getElementById('cep');
+    const matriculaInput = document.getElementById('matricula');
+
+    // Máscara para CPF  
+    cpfInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length <= 11) {
+        value = value
+          .replace(/^(\d{3})(\d)/, '$1.$2')
+          .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+          .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+      }
+      e.target.value = value;
+    });
+
+    // Máscara para telefone
+    foneInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+      value = value
+        .replace(/^(\d{2})(\d)/g, '($1) $2')
+        .replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+      e.target.value = value;
+    });
+
+    // Máscara para número da residência
+    numeroInput.addEventListener('input', function (e) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Máscara para CEP
+    cepInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 8) value = value.slice(0, 8);
+      value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+      e.target.value = value;
+    });
+
+    // Máscara para matrícula
+    matriculaInput.addEventListener('input', function (e) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Antes de enviar o formulário, remove todas as máscaras (deixa só números)
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function () {
+      cpfInput.value = cpfInput.value.replace(/\D/g, '');
+      foneInput.value = foneInput.value.replace(/\D/g, '');
+      numeroInput.value = numeroInput.value.replace(/\D/g, '');
+      cepInput.value = cepInput.value.replace(/\D/g, '');
+      matriculaInput.value = matriculaInput.value.replace(/\D/g, '');
+    });
+  });
+</script>
+
