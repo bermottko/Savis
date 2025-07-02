@@ -141,7 +141,7 @@ exports.renderMotoristas = (req, res) => {
 };
 
 exports.renderSolicitacoes = (req, res) => {
-    res.render('admin/solicitacoes', {
+    res.render('admin/solicitacoes/index', {
         layout: 'layouts/layoutAdmin',
         paginaAtual: 'solicitacoes'
     });

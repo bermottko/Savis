@@ -10,14 +10,19 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
 router.get('/usuarios/index', adminController.renderUsuarios);
 router.get('/usuarios/buscar', adminController.buscarUsuarios);
 router.delete('/usuarios/deletar/:cod', adminController.deletarUsuarios);
 router.get('/usuarios/editar/:cod', adminController.editarUsuario);
 router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), adminController.salvarEdicaoUsuario);
+
 router.get('/motoristas/index', adminController.renderMotoristas);
-router.get('/solicitacoes', adminController.renderSolicitacoes);
+
 router.get('/viagens/index', adminController.renderViagens);
 router.get('/viagens/nova-viagem', adminController.renderNovaViagem);
+
+router.get('/solicitacoes/index', adminController.renderSolicitacoes);
+
 
 module.exports = router;
