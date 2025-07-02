@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento } = require('../models');
 const { Op } = require('sequelize'); 
 
 exports.renderUsuarios = (req, res) => {
@@ -133,11 +133,134 @@ exports.salvarEdicaoUsuario = async (req, res) => {
 };
 
 
-exports.renderMotoristas = (req, res) => {
+/*exports.renderMotoristas = (req, res) => {
     res.render('admin/motoristas/index', {
         layout: 'layouts/layoutAdmin',
         paginaAtual: 'motoristas'
     });
+};*/
+
+// Renderizar lista motoristas ódio
+exports.renderMotoristas = (req, res) => {
+  Motorista.findAll({
+    include: [
+      { model: Endereco },
+      { model: Genero }
+    ]
+  })
+  .then(function(motoristas) {
+    motoristas.sort((a, b) => b.cod - a.cod);
+    res.render('admin/motoristas/index', {
+      posts: motoristas,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'motoristas'
+    });
+  })
+  .catch(function(erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao buscar motoristas: ' + erro);
+  });
+};
+
+exports.buscarMotoristas = async (req, res) => {
+  try {
+    const termo = req.query.q || '';
+    const motoristas = await Motorista.findAll({
+      where: {
+        nome: {
+          [Op.like]: `%${termo}%`
+        }
+      },
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
+    });
+    res.json(motoristas);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: 'Erro ao buscar motoristas' });
+  }
+};
+
+// Deletar motorista
+exports.deletarMotoristas = async (req, res) => {
+  try {
+    const { cod } = req.params;
+    const motorista = await Motorista.findByPk(cod);
+    if (!motorista) return res.status(404).send('Motorista não encontrado');
+    await motorista.destroy();
+    res.redirect('/admin/motoristas/index');
+  } catch (error) {
+    console.error('Erro ao deletar motorista:', error);
+    res.status(500).send('Erro interno no servidor');
+  }
+};
+
+// Editar motorista - renderizar formulário de edição
+exports.editarMotorista = async (req, res) => {
+  const cod = req.params.cod;
+  try {
+    const motorista = await Motorista.findOne({
+      where: { cod },
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
+    });
+    if (!motorista) return res.status(404).send('Motorista não encontrado');
+
+    res.render('admin/motoristas/editar', {
+      usuario: motorista, 
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'motoristas'
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar motorista para edição');
+  }
+};
+
+// Salvar edição motorista
+exports.salvarEdicaoMotorista = async (req, res) => {
+  try {
+    const cod = req.params.cod;
+    const motorista = await Motorista.findByPk(cod);
+    if (!motorista) return res.status(404).send('Motorista não encontrado');
+
+    const foneLimpo = req.body.fone.replace(/\D/g, '');
+
+    // Atualiza endereço
+    await Endereco.update({
+      rua: req.body.rua,
+      numero: req.body.numero,
+      bairro: req.body.bairro,
+      cidade: req.body.cidade,
+      UF: req.body.uf,
+      CEP: req.body.cep
+    }, {
+      where: { cod: motorista.enderecoID }
+    });
+
+    // Atualiza motorista
+    await Motorista.update({
+      img: req.file ? req.file.filename : motorista.img,
+      nome: req.body.nome,
+      data_nasc: req.body.data_nasc,
+      CPF: req.body.CPF,
+      generoID: req.body.genero,
+      email: req.body.email,
+      fone: foneLimpo
+      // docsID e senha ficaram como estão, pois geralmente não se edita aqui
+    }, {
+      where: { cod }
+    });
+
+    res.redirect('/admin/motoristas/index');
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao salvar edição: ' + erro);
+  }
 };
 
 exports.renderSolicitacoes = (req, res) => {

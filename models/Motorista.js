@@ -11,7 +11,7 @@ const Motorista = db.sequelize.define('Motorista', {
     allowNull: false
   },
   matricula: {
-    type: db.Sequelize.INTEGER,
+    type: db.Sequelize.STRING(4),
     unique: true,
     allowNull: false
   },
