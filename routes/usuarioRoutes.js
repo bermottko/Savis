@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authController = require('../controllers/usuarioController');
@@ -14,4 +14,4 @@ const upload = multer({ storage });
 
 router.get('/inicio/index', usuarioController.renderInicio);
 
-module.exports = router;
+module.exports = router;*/

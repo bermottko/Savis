@@ -10,8 +10,8 @@ const expressLayouts = require('express-ejs-layouts');
 const indexRoutes = require('./routes/indexRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const usuarioRoutes = require('./routes/usuarioRoutes');
-const motoristaRoutes = require('./routes/motoristaRoutes');
+//const usuarioRoutes = require('./routes/usuarioRoutes');
+//const motoristaRoutes = require('./routes/motoristaRoutes');
 
 // Inicializa app
 const app = express();
@@ -38,8 +38,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
-app.use('/usuario', usuarioRoutes);
-app.use('/motorista', motoristaRoutes);
+//app.use('/usuario', usuarioRoutes);
+//app.use('/motorista', motoristaRoutes);
 
 
 // Inicializa o servidor

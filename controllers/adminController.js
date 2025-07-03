@@ -228,7 +228,8 @@ exports.salvarEdicaoMotorista = async (req, res) => {
     const motorista = await Motorista.findByPk(cod);
     if (!motorista) return res.status(404).send('Motorista não encontrado');
 
-    const foneLimpo = req.body.fone.replace(/\D/g, '');
+    const cpfVerificando = req.body.CPF.replace(/\D/g, '');
+    const foneVerificando = req.body.fone.replace(/\D/g, ''); 
 
     // Atualiza endereço
     await Endereco.update({
@@ -247,10 +248,10 @@ exports.salvarEdicaoMotorista = async (req, res) => {
       img: req.file ? req.file.filename : motorista.img,
       nome: req.body.nome,
       data_nasc: req.body.data_nasc,
-      CPF: req.body.CPF,
+      CPF: cpfVerificando,
       generoID: req.body.genero,
       email: req.body.email,
-      fone: foneLimpo
+      fone: foneVerificando,
       // docsID e senha ficaram como estão, pois geralmente não se edita aqui
     }, {
       where: { cod }

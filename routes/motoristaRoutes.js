@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authController = require('../controllers/motoristaController');
@@ -13,4 +13,4 @@ const upload = multer({ storage });
 
 router.get('/usuarios/index', motoristaController.renderUsuarios);
 
-module.exports = router;
+module.exports = router;*/
