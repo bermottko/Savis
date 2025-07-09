@@ -1,116 +1,99 @@
-const { Usuario, Endereco, Genero, Motorista, Documento } = require('../models');
-const { Op } = require('sequelize'); 
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem } = require('../models');
+const { Op } = require('sequelize');
 
-exports.renderUsuarios = (req, res) => {
-    Usuario.findAll({
-        include: [
-            { model: Endereco },
-            { model: Genero }
-        ]
-    })
-    .then(function (posts) {
-        posts.sort((a, b) => b.cod - a.cod);
-        res.render('admin/usuarios/index', {
-            posts: posts,
-            layout: 'layouts/layoutAdmin',
-            paginaAtual: 'usuarios'
-        });
-    })
-    .catch(function (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao buscar usuários: ' + erro);
+exports.renderUsuarios = async (req, res) => {
+  try {
+    const posts = await Usuario.findAll({
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
     });
+    posts.sort((a, b) => b.cod - a.cod);
+    res.render('admin/usuarios/index', {
+      posts,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'usuarios'
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao buscar usuários: ' + erro);
+  }
 };
 
 exports.buscarUsuarios = async (req, res) => {
-    try {
-        const termo = req.query.q || '';  // pega o termo da URL: ?q=mar
-        const usuarios = await Usuario.findAll({
-            where: {
-                nome: {
-                    [Op.like]: `%${termo}%`   // busca nome contendo o termo
-                }
-            },
-        }); 
-
-        res.json(usuarios);  // retorna a lista em JSON
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: 'Erro ao buscar usuários' });
-    }
+  try {
+    const termo = req.query.q || '';
+    const usuarios = await Usuario.findAll({
+      where: {
+        nome: {
+          [Op.like]: `%${termo}%`
+        }
+      },
+    });
+    res.json(usuarios);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: 'Erro ao buscar usuários' });
+  }
 };
 
 exports.deletarUsuarios = async (req, res) => {
   try {
     const { cod } = req.params;
-
     const usuario = await Usuario.findByPk(cod);
     if (!usuario) {
       return res.status(404).send('Usuário não encontrado');
     }
-
     await usuario.destroy();
-
-    res.redirect('/admin/usuarios/index'); 
+    res.redirect('/admin/usuarios/index');
   } catch (error) {
     console.error('Erro ao deletar usuário:', error);
     res.status(500).send('Erro interno no servidor');
   }
 };
 
-
 exports.editarUsuario = async (req, res) => {
+  try {
     const cod = req.params.cod;
-
-    try {
-        const usuario = await Usuario.findOne({
-            where: { cod },
-            include: [
-                { model: Endereco },
-                { model: Genero }
-            ]
-        });
-
-        if (!usuario) {
-            return res.status(404).send('Usuário não encontrado');
-        }
-
-        res.render('admin/usuarios/editar', {
-            usuario: usuario,
-            layout: 'layouts/layoutAdmin',
-            paginaAtual: 'usuarios'
-        });
-
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar usuário para edição');
+    const usuario = await Usuario.findOne({
+      where: { cod },
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
+    });
+    if (!usuario) {
+      return res.status(404).send('Usuário não encontrado');
     }
+    res.render('admin/usuarios/editar', {
+      usuario,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'usuarios'
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar usuário para edição');
+  }
 };
 
 exports.salvarEdicaoUsuario = async (req, res) => {
   try {
     const cod = req.params.cod;
-
-    // Busca o usuário para pegar o enderecoID
     const usuario = await Usuario.findByPk(cod);
-
     if (!usuario) {
       return res.status(404).send('Usuário não encontrado');
     }
-
-    // Atualiza o endereço (assumindo que sempre existe)
     await Endereco.update({
       rua: req.body.rua,
       numero: req.body.numero,
       bairro: req.body.bairro,
       cidade: req.body.cidade,
-      UF: req.body.uf,   
+      UF: req.body.uf,
       CEP: req.body.cep
     }, {
       where: { cod: usuario.enderecoID }
     });
-
-    // Atualiza o usuário
     await Usuario.update({
       img: req.file ? req.file.filename : usuario.img,
       nome: req.body.nome,
@@ -123,43 +106,31 @@ exports.salvarEdicaoUsuario = async (req, res) => {
     }, {
       where: { cod }
     });
-
     res.redirect('/admin/usuarios/index');
-
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao salvar edição: ' + erro);
   }
 };
 
-
-/*exports.renderMotoristas = (req, res) => {
-    res.render('admin/motoristas/index', {
-        layout: 'layouts/layoutAdmin',
-        paginaAtual: 'motoristas'
+exports.renderMotoristas = async (req, res) => {
+  try {
+    const motoristas = await Motorista.findAll({
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
     });
-};*/
-
-// Renderizar lista motoristas ódio
-exports.renderMotoristas = (req, res) => {
-  Motorista.findAll({
-    include: [
-      { model: Endereco },
-      { model: Genero }
-    ]
-  })
-  .then(function(motoristas) {
     motoristas.sort((a, b) => b.cod - a.cod);
     res.render('admin/motoristas/index', {
       posts: motoristas,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'motoristas'
     });
-  })
-  .catch(function(erro) {
+  } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao buscar motoristas: ' + erro);
-  });
+  }
 };
 
 exports.buscarMotoristas = async (req, res) => {
@@ -183,12 +154,13 @@ exports.buscarMotoristas = async (req, res) => {
   }
 };
 
-// Deletar motorista
 exports.deletarMotoristas = async (req, res) => {
   try {
     const { cod } = req.params;
     const motorista = await Motorista.findByPk(cod);
-    if (!motorista) return res.status(404).send('Motorista não encontrado');
+    if (!motorista) {
+      return res.status(404).send('Motorista não encontrado');
+    }
     await motorista.destroy();
     res.redirect('/admin/motoristas/index');
   } catch (error) {
@@ -197,10 +169,9 @@ exports.deletarMotoristas = async (req, res) => {
   }
 };
 
-// Editar motorista - renderizar formulário de edição
 exports.editarMotorista = async (req, res) => {
-  const cod = req.params.cod;
   try {
+    const cod = req.params.cod;
     const motorista = await Motorista.findOne({
       where: { cod },
       include: [
@@ -208,10 +179,11 @@ exports.editarMotorista = async (req, res) => {
         { model: Genero }
       ]
     });
-    if (!motorista) return res.status(404).send('Motorista não encontrado');
-
+    if (!motorista) {
+      return res.status(404).send('Motorista não encontrado');
+    }
     res.render('admin/motoristas/editar', {
-      usuario: motorista, 
+      usuario: motorista,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'motoristas'
     });
@@ -221,17 +193,17 @@ exports.editarMotorista = async (req, res) => {
   }
 };
 
-// Salvar edição motorista
 exports.salvarEdicaoMotorista = async (req, res) => {
   try {
     const cod = req.params.cod;
     const motorista = await Motorista.findByPk(cod);
-    if (!motorista) return res.status(404).send('Motorista não encontrado');
+    if (!motorista) {
+      return res.status(404).send('Motorista não encontrado');
+    }
 
     const cpfVerificando = req.body.CPF.replace(/\D/g, '');
-    const foneVerificando = req.body.fone.replace(/\D/g, ''); 
+    const foneVerificando = req.body.fone.replace(/\D/g, '');
 
-    // Atualiza endereço
     await Endereco.update({
       rua: req.body.rua,
       numero: req.body.numero,
@@ -243,7 +215,6 @@ exports.salvarEdicaoMotorista = async (req, res) => {
       where: { cod: motorista.enderecoID }
     });
 
-    // Atualiza motorista
     await Motorista.update({
       img: req.file ? req.file.filename : motorista.img,
       nome: req.body.nome,
@@ -252,7 +223,7 @@ exports.salvarEdicaoMotorista = async (req, res) => {
       generoID: req.body.genero,
       email: req.body.email,
       fone: foneVerificando,
-      // docsID e senha ficaram como estão, pois geralmente não se edita aqui
+      // docsID e senha não alterados
     }, {
       where: { cod }
     });
@@ -264,26 +235,66 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
-exports.renderSolicitacoes = (req, res) => {
+exports.renderSolicitacoes = async (req, res) => {
+  try {
     res.render('admin/solicitacoes/index', {
-        layout: 'layouts/layoutAdmin',
-        paginaAtual: 'solicitacoes'
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'solicitacoes'
     });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar solicitações');
+  }
 };
 
 exports.renderViagens = (req, res) => {
     res.render('admin/viagens/index', {
-        layout: 'layouts/layoutAdmin',
-        paginaAtual: 'viagens'
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens',
     });
 };
 
-exports.renderNovaViagem = (req,res) => {
-    const dataSelecionada = req.query.data_viagem || ''; 
+exports.renderBuscarEventos = async (req, res) => {
+    const viagens = await Viagem.findAll();
 
+    const eventos = viagens.map(v => ({
+      title: v.destino_cid,
+      start: v.data_viagem
+    }));
+    res.json(eventos);
+}
+ 
+exports.renderNovaViagem = async (req, res) => {
+  try {
+    const motoristas = await Motorista.findAll();
+    const dataSelecionada = req.query.data_viagem || '';
     res.render('admin/viagens/nova-viagem', {
-        layout: 'layouts/layoutAdmin',
-        paginaAtual: 'viagens',
-        dataSelecionada
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens',
+      dataSelecionada,
+      motoristas
     });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar motoristas: ' + erro);
+  }
+};
+
+exports.renderCadastrarViagem = async (req, res) => {
+  try {
+    await Viagem.create({
+      destino_cid: req.body.destino_cid,
+      data_viagem: req.body.data_viagem,
+      horario_saida: req.body.horario_saida,
+      lugares_dispo: req.body.lugares_dispo,
+      modelo_car: req.body.modelo_car,
+      placa: req.body.placa,
+      motoristaID: req.body.motoristaID,
+      statusID: 1
+    });
+    res.redirect('/admin/viagens/index');
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao cadastrar viagem: ' + erro);
+  }
 };

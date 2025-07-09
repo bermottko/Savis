@@ -24,7 +24,10 @@ router.put('/motoristas/editar/:cod', upload.single('foto_perfil'), adminControl
 router.delete('/motoristas/deletar/:cod', adminController.deletarMotoristas);
 
 router.get('/viagens/index', adminController.renderViagens);
+router.get('/viagens/buscar-eventos', adminController.renderBuscarEventos);
 router.get('/viagens/nova-viagem', adminController.renderNovaViagem);
+router.post('/viagens/add-nova-viagem', adminController.renderCadastrarViagem);
+
 
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
 

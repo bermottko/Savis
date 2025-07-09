@@ -21,14 +21,10 @@
             week: 'Semana',
             day: 'Dia',
         },
-        events: [
-          { title: 'Porto Alegre + Criciuma + bla bla bla', start: '2025-06-30' },
-          { title: 'Criciúma', start: '2025-06-29'},
-          { title: 'Porto Alegre + Criciuma + bla bla bla', start: '2025-06-30' },
-        ],
+        events: '/admin/viagens/buscar-eventos',
+
         dateClick: function(info) {
           const dataSelecionada = info.dateStr; // formato: 'YYYY-MM-DD'
-          
           // redireciona para a página de nova viagem, passando a data como parâmetro 
           window.location.href = `/admin/viagens/nova-viagem?data_viagem=${dataSelecionada}`;
         },
