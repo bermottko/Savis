@@ -139,10 +139,21 @@ exports.cadastrarMotorista = async (req, res) => {
       CEP: req.body.cep
     });
 
-    const docsCriado = await Documento.create({});
+    const arquivos = req.files;
+
+    const docsCriado = await Documento.create({
+      carteira_trab: arquivos?.carteira_trab?.[0]?.filename,
+      cursos: arquivos?.cursos?.[0]?.filename,
+      habilitacao: arquivos?.habilitacao?.[0]?.filename,
+      comprov_resid: arquivos?.comprov_resid?.[0]?.filename,
+      comprov_escola: arquivos?.comprov_escola?.[0]?.filename,
+      titulo_eleitor: arquivos?.titulo_eleitor?.[0]?.filename,
+      ant_crim: arquivos?.ant_crim?.[0]?.filename,
+      exame_tox: arquivos?.exame_tox?.[0]?.filename
+    });
 
     await Motorista.create({
-      img: req.file ? req.file.filename : null,
+      img: req.files['foto_perfil']?.[0].filename || null,
       nome: req.body.nome,
       data_nasc: req.body.data_nasc,
       CPF: cpfVerificando,

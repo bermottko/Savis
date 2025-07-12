@@ -26,7 +26,7 @@ CREATE TABLE status (
 
 CREATE TABLE usuarios (
     cod INT NOT NULL AUTO_INCREMENT,
-    img BLOB,
+    img VARCHAR(50),
     nome VARCHAR(40) NOT NULL,
     data_nasc DATE NOT NULL,
     CPF CHAR(14) UNIQUE NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE solicitacoes (
     local_consul VARCHAR(50) NOT NULL,
     data_consul DATE NOT NULL,
     hora_consul TIME NOT NULL,
-    encaminhamento BLOB NOT NULL,
+    encaminhamento VARCHAR(50) NOT NULL,
     status INT, 
     objetivo VARCHAR(30) NOT NULL,
     obs VARCHAR(255), 
@@ -64,21 +64,21 @@ CREATE TABLE solicitacoes (
 
 CREATE TABLE documentos (
     cod INT NOT NULL AUTO_INCREMENT,
-    carteira_trab BLOB,
-    cursos BLOB,
-    habilitacao BLOB,
-    comprov_resid BLOB,
-    comprov_escola BLOB,
-    titulo_eleitor BLOB,
-    ant_crim BLOB,
-    exame_tox BLOB,
+    carteira_trab VARCHAR(50) NOT NULL,
+    cursos VARCHAR(50) NOT NULL,
+    habilitacao VARCHAR(50) NOT NULL,
+    comprov_resid VARCHAR(50) NOT NULL,
+    comprov_escola VARCHAR(50) NOT NULL,
+    titulo_eleitor VARCHAR(50) NOT NULL,
+    ant_crim VARCHAR(50) NOT NULL,
+    exame_tox VARCHAR(50) NOT NULL,
     CONSTRAINT pk_documentos PRIMARY KEY (cod)
 );
 
 CREATE TABLE motoristas (
     cod INT NOT NULL AUTO_INCREMENT,
     matricula CHAR(4) UNIQUE,
-    img BLOB,
+    img VARCHAR(50),
     nome VARCHAR(40),
     data_nasc DATE,
     CPF CHAR(14) UNIQUE,

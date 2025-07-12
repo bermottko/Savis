@@ -102,6 +102,44 @@
       </div>
 
       <hr>
+
+      <h6 class="mt-4 mb-3" style="color:#00204c; font-weight: bold;">Atualizar Documentos (PDF)</h6>
+
+      <div class="row row-cols-1 row-cols-md-2 g-2 mb-4">
+
+        <% const documentos = [
+          { campo: 'carteira_trab', label: 'Carteira de Trabalho' },
+          { campo: 'cursos', label: 'Cursos' },
+          { campo: 'habilitacao', label: 'Habilitação' },
+          { campo: 'comprov_resid', label: 'Comprovante de Residência' },
+          { campo: 'comprov_escola', label: 'Comprovante Escolar' },
+          { campo: 'titulo_eleitor', label: 'Título de Eleitor' },
+          { campo: 'ant_crim', label: 'Antecedentes Criminais' },
+          { campo: 'exame_tox', label: 'Exame Toxicológico' }
+        ]; %>
+
+        <% documentos.forEach(doc => { %>
+          <div class="col">
+            <div class="bg-white border rounded px-3 py-2 h-100 d-flex flex-column justify-content-between">
+              <label for="<%= doc.campo %>" class="form-label mb-1" style="font-weight: bold; font-size: 14px;">
+                <%= doc.label %>
+              </label>
+
+              <% if (usuario.documento?.[doc.campo]) { %>
+                <small class="text-muted mb-2">Atual: 
+                  <a href="/uploads/<%= usuario.documento[doc.campo] %>" target="_blank" class="botao-visualizar">Visualizar</a>
+                </small>
+              <% } else { %>
+                <small class="text-muted mb-2">Documento atual não enviado</small>
+              <% } %>
+
+              <input type="file" name="<%= doc.campo %>" id="<%= doc.campo %>" accept="application/pdf" class="form-control form-control-sm" />
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+      <hr>
       
       <div class="d-flex justify-content-between">
         <a href="/admin/motoristas/index" class="botao">Cancelar</a>
