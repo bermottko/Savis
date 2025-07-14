@@ -118,7 +118,8 @@ exports.renderMotoristas = async (req, res) => {
     const motoristas = await Motorista.findAll({
       include: [
         { model: Endereco },
-        { model: Genero }
+        { model: Genero },
+        { model: Documento}
       ]
     });
     motoristas.sort((a, b) => b.cod - a.cod);
@@ -227,6 +228,34 @@ exports.salvarEdicaoMotorista = async (req, res) => {
     }, {
       where: { cod }
     });
+
+    if (req.files) {
+      const camposDocumentos = [
+        'carteira_trab',
+        'cursos',
+        'habilitacao',
+        'comprov_resid',
+        'comprov_escola',
+        'titulo_eleitor',
+        'ant_crim',
+        'exame_tox'
+      ];
+
+      const novosDados = {};
+
+      camposDocumentos.forEach((campo) => {
+        if (req.files[campo]) {
+          novosDados[campo] = req.files[campo][0].filename;
+        }
+      });
+
+      if (Object.keys(novosDados).length > 0 && motorista.docsID) {
+        await Documento.update(novosDados, {
+          where: { cod: motorista.docsID }
+        });
+      }
+    }
+
 
     res.redirect('/admin/motoristas/index');
   } catch (erro) {

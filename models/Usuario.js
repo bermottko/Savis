@@ -10,7 +10,7 @@ const Usuario = db.sequelize.define('Usuario', {
         allowNull: false
     },
     img: {
-        type: db.Sequelize.BLOB 
+        type: db.Sequelize.STRING(50), 
     },
     nome: {
         type: db.Sequelize.STRING(40),

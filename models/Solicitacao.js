@@ -31,7 +31,7 @@ const Solicitacao = db.sequelize.define('solicitacao', {
     allowNull: false
   },
   encaminhamento: {
-    type: db.Sequelize.BLOB,
+    type: db.Sequelize.STRING(50),
     allowNull: false
   },
   statusID: {

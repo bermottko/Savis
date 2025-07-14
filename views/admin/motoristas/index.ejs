@@ -51,6 +51,34 @@
                     %>
             </p>
             <hr>
+            <p class="mb-2"><strong>Documentos:</strong></p>
+
+            <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+              <% const documentos = [
+                { campo: 'carteira_trab', label: 'Carteira de Trabalho' },
+                { campo: 'cursos', label: 'Cursos' },
+                { campo: 'habilitacao', label: 'Habilitação' },
+                { campo: 'comprov_resid', label: 'Comprovante de Residência' },
+                { campo: 'comprov_escola', label: 'Comprovante Escolar' },
+                { campo: 'titulo_eleitor', label: 'Título de Eleitor' },
+                { campo: 'ant_crim', label: 'Antecedentes Criminais' },
+                { campo: 'exame_tox', label: 'Exame Toxicológico' },
+              ]; %>
+
+              <% documentos.forEach(doc => { %>
+                <div class="col">
+                  <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2 bg-white">
+                    <span style="font-size: 14px;"><%= doc.label %>:</span>
+                    <% if (post.documento?.[doc.campo]) { %>
+                      <a href="/uploads/<%= post.documento[doc.campo] %>" target="_blank" class="botao-visualizar">Visualizar</a>
+                    <% } else { %>
+                      <span class="text-muted" style="font-size: 13px;">Não enviado</span>
+                    <% } %>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+            <hr>
 
 <div class="d-flex justify-content-end gap-3">
   <a href="/admin/motoristas/editar/<%= post.cod %>" class="botao">Editar</a>
