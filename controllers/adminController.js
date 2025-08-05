@@ -338,7 +338,6 @@ exports.renderVerViagem = async (req, res) => {
         { model: Status }
       ]
     });
-    console.log(viagem.toJSON());
 
     res.render('admin/viagens/ver-viagem', {
       usuario: viagem,
