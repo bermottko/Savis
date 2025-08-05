@@ -30,7 +30,6 @@ const Viagem = db.sequelize.define('viagem', {
   motoristaID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'motorista',
     references: {
       model: Motorista,
       key: 'cod'
@@ -39,7 +38,6 @@ const Viagem = db.sequelize.define('viagem', {
   statusID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'status',
     references: {
       model: Status,
       key: 'cod'

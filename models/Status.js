@@ -10,9 +10,6 @@ const Status = db.sequelize.define('status', {
   descricao: {
     type: db.Sequelize.STRING(9),
     allowNull: false,
-    validate: {
-      isIn: [['Cancelada', 'Concluída', 'Pendente']]
-    }
   }
 }, {
   timestamps: false

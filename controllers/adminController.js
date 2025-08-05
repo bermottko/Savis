@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Motorista, Documento, Viagem } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status } = require('../models');
 const { Op } = require('sequelize');
 
 exports.renderUsuarios = async (req, res) => {
@@ -288,7 +288,8 @@ exports.renderBuscarEventos = async (req, res) => {
 
     const eventos = viagens.map(v => ({
       title: v.destino_cid,
-      start: v.data_viagem
+      start: v.data_viagem,
+      url: `/admin/viagens/ver-viagem/${v.cod}`
     }));
     res.json(eventos);
 }
@@ -327,3 +328,19 @@ exports.renderCadastrarViagem = async (req, res) => {
     res.status(500).send('Erro ao cadastrar viagem: ' + erro);
   }
 };
+
+exports.renderVerViagem = async (req, res) => {
+    const cod = req.params.cod;
+    const viagem = await Viagem.findOne({
+      where: { cod },
+      include: [
+        { model:  Motorista },
+        { model: Status }
+      ]
+    });
+    res.render('admin/viagens/ver-viagem', {
+      usuario: viagem,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens'
+    });
+}

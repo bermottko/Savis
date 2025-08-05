@@ -42,7 +42,6 @@ const Motorista = db.sequelize.define('Motorista', {
   enderecoID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'endereco',
     references: {
       model: Endereco,
       key: 'cod'
@@ -51,7 +50,6 @@ const Motorista = db.sequelize.define('Motorista', {
   generoID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'genero',
     references: {
       model: Genero,
       key: 'cod'
@@ -60,7 +58,6 @@ const Motorista = db.sequelize.define('Motorista', {
   docsID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'docs',
     references: {
       model: Documento,
       key: 'cod'
@@ -71,7 +68,7 @@ const Motorista = db.sequelize.define('Motorista', {
           allowNull: false
   }
 }, {
-  timestamps: false
+  timestamps: false,
 });
 
 module.exports = Motorista;

@@ -12,7 +12,6 @@ const Solicitacao = db.sequelize.define('solicitacao', {
   usuarioID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    field: 'usuario',
     references: {
       model: Usuario,
       key: 'cod'
@@ -37,7 +36,6 @@ const Solicitacao = db.sequelize.define('solicitacao', {
   statusID: {
     type: db.Sequelize.INTEGER,
     allowNull: true,
-    field: 'status',
     references: {
       model: Status,
       key: 'cod'

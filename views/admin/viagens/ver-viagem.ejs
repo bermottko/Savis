@@ -1,0 +1,31 @@
+<div class="col-12 d-flex justify-content-center espaco-card-edit">
+  <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+    <h2 class="mb-4 titulo">
+      <%= usuario.destino_cid %> - <%= usuario.data_viagem.split('-').reverse().join('/') %>
+    </h2>
+    
+    <p><strong>Horário de saída:</strong> <%= usuario.horario_saida %></p>
+
+    <hr>
+
+    <p><strong>Lugares disponíveis:</strong> <%= usuario.lugares_dispo %></p>
+
+    <hr>
+
+    <p><strong>Modelo do carro:</strong> <%= usuario.modelo_car %></p>
+    
+    <hr>
+
+    <p><strong>Placa:</strong> <%= usuario.placa %></p>
+    
+    <hr>
+
+    <p><strong>Motorista:</strong> <%= usuario.Motorista.nome %></p>
+
+    <hr>
+
+    <p><strong>Status:</strong> <%= usuario.status.descricao %></p>
+
+    <hr>
+  </div>
+</div>

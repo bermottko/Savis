@@ -28,7 +28,6 @@ const Usuario = db.sequelize.define('Usuario', {
     generoID: { 
         type: db.Sequelize.INTEGER, 
         allowNull: false, 
-        field: 'genero', //nome de verda no banco
         references: { 
             model: Genero, 
             key: 'cod' } 
@@ -44,7 +43,6 @@ const Usuario = db.sequelize.define('Usuario', {
     enderecoID: {
         type: db.Sequelize.INTEGER,
         allowNull: false,
-        field: 'endereco', //nome de verda no banco
         references: {
             model: Endereco,
             key: 'cod'
