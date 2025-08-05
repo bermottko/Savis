@@ -334,10 +334,12 @@ exports.renderVerViagem = async (req, res) => {
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [
-        { model:  Motorista },
+        { model:  Motorista, as: 'Motorista' },
         { model: Status }
       ]
     });
+    console.log(viagem.toJSON());
+
     res.render('admin/viagens/ver-viagem', {
       usuario: viagem,
       layout: 'layouts/layoutAdmin',

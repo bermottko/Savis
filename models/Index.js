@@ -93,6 +93,7 @@ Documento.hasMany(Motorista, {
 //viagenss
 Viagem.belongsTo(Motorista, { 
     foreignKey: 'motoristaID', 
+     as: 'Motorista', // nome amigável da associação
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });

@@ -3,7 +3,7 @@ const Endereco = require('./Endereco');
 const Genero = require('./Genero');
 const Documento = require('./Documento');
 
-const Motorista = db.sequelize.define('Motorista', {
+const Motorista = db.sequelize.define('motorista', {
   cod: {
     type: db.Sequelize.INTEGER,
     primaryKey: true,
@@ -68,6 +68,7 @@ const Motorista = db.sequelize.define('Motorista', {
           allowNull: false
   }
 }, {
+  tableName: 'motorista',
   timestamps: false,
 });
 
