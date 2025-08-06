@@ -1,16 +1,10 @@
-/*const express = require('express');
+const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const authController = require('../controllers/motoristaController');
-
-// Configuração do Multer
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'public/uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + ".jpg")
-});
-
-const upload = multer({ storage });
+const motoristaController = require('../controllers/motoristaController');
 
 router.get('/usuarios/index', motoristaController.renderUsuarios);
+router.get('/viagens/index', motoristaController.renderViagens);
+router.get('/viagens/buscar-eventos', motoristaController.renderBuscarEventos);
+router.get('/viagens/ver-viagem/:cod', motoristaController.renderVerViagem);
 
-module.exports = router;*/
+module.exports = router;
