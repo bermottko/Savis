@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar px-4">
+  <a class="navbar-brand d-flex align-items-center" href="/">
+    <img src="/assets/logo-branco.png" class="logo-img me-2" alt="Logo">
+    <span class="logo-nome-nav">Savis</span>
+  </a>
+
+  <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link <%= paginaAtual === 'usuarios' ? 'active-nav' : '' %>" href="/motorista/usuarios/index">Usuários</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= paginaAtual === 'viagens' ? 'active-nav' : '' %>" href="/motorista/viagens/index">Viagens</a>
+      </li>
+      <li class="nav-item ms-lg-3">
+        <a class="nav-link p-0" href="/#">
+          <img src="/assets/pessoa.png" alt="Ícone de Usuário"
+               class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

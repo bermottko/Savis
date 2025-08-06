@@ -11,7 +11,7 @@ const indexRoutes = require('./routes/indexRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 //const usuarioRoutes = require('./routes/usuarioRoutes');
-//const motoristaRoutes = require('./routes/motoristaRoutes');
+const motoristaRoutes = require('./routes/motoristaRoutes');
 
 // Inicializa app
 const app = express();
@@ -39,7 +39,7 @@ app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 //app.use('/usuario', usuarioRoutes);
-//app.use('/motorista', motoristaRoutes);
+app.use('/motorista', motoristaRoutes);
 
 
 // Inicializa o servidor
