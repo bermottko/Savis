@@ -30,7 +30,7 @@
 
       <div class="mb-3 d-flex align-items-center">
         <label for="genero" class="me-2" >Gênero:</label>
-        <select id="genero" name="genero" required class="form-select input-transparente" style="width: auto;">
+        <select id="genero" name="genero" required class="form-select w-auto" >
           <option disabled>Não selecionado</option>
           <option value="1" <%= usuario.generoID == 1 ? 'selected' : '' %>>Masculino</option>
           <option value="2" <%= usuario.generoID == 2 ? 'selected' : '' %>>Feminino</option>
@@ -86,7 +86,7 @@
 
       <div class="mb-3 d-flex align-items-center">
         <label for="uf" class="me-2" >Estado (UF):</label>
-        <select id="uf" name="uf" required class="form-select input-transparente" style="width: 60px;">
+        <select id="uf" name="uf" required class="form-select w-auto">
           <option disabled>Não selecionado</option>
           <% ['SC', 'PR', 'RS', 'SP', 'RJ', 'MG', 'ES', 'DF', 'GO', 'MT', 'MS', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'].forEach(estado => { %>
             <option value="<%= estado %>" <%= usuario.endereco?.UF === estado ? 'selected' : '' %>><%= estado %></option>

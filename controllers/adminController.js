@@ -345,3 +345,70 @@ exports.renderVerViagem = async (req, res) => {
       paginaAtual: 'viagens'
     });
 }
+
+exports.editarViagem = async (req, res) => {
+  try {
+    const cod = req.params.cod;
+
+    const viagem = await Viagem.findOne({
+      where: { cod },
+      include: [
+        { model: Motorista, as: 'Motorista' },
+        { model: Status }
+      ]
+    });
+
+    const motoristas = await Motorista.findAll();
+    const statusLista = await Status.findAll(); // Renomeado para combinar com o EJS
+
+    res.render('admin/viagens/editar', {
+      usuario: viagem,              // chamada de "usuario" no EJS
+      motoristas,                   // lista de motoristas para o <select>
+      statusLista,                   // lista de status para o <select>
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens'
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar edição da viagem: ' + erro);
+  }
+};
+
+
+exports.salvarEdicaoViagem = async (req, res) => {
+  try {
+    const cod = req.params.cod;
+
+    // Busca a viagem pelo código
+    const viagem = await Viagem.findByPk(cod);
+    if (!viagem) {
+      return res.status(404).send('Viagem não encontrada');
+    }
+
+    // Atualiza os dados da viagem
+    await Viagem.update({
+      destino_cid: req.body.destino_cid,
+      data_viagem: req.body.data_viagem,
+      horario_saida: req.body.horario_saida,
+      lugares_dispo: req.body.lugares_dispo,
+      modelo_car: req.body.modelo_car,
+      placa: req.body.placa,
+      motoristaID: req.body.motoristaID,
+      statusID: req.body.statusID,
+      combustivel: req.body.combustivel,
+      km_inicial: req.body.km_inicial,
+      km_final: req.body.km_final,
+      paradas: req.body.paradas,
+      horario_chega: req.body.horario_chega,
+      obs: req.body.obs
+    }, {
+      where: { cod }
+    });
+
+    // Redireciona após salvar
+    res.redirect('/admin/viagens/index');
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao salvar edição da viagem: ' + erro);
+  }
+};

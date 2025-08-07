@@ -57,6 +57,8 @@ router.get('/viagens/buscar-eventos', adminController.renderBuscarEventos);
 router.get('/viagens/nova-viagem', adminController.renderNovaViagem);
 router.post('/viagens/add-nova-viagem', adminController.renderCadastrarViagem);
 router.get('/viagens/ver-viagem/:cod', adminController.renderVerViagem);
+router.get('/viagens/editar/:cod', adminController.editarViagem);
+router.put('/viagens/editar/:cod', adminController.salvarEdicaoViagem);
 
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
 
