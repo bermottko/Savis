@@ -59,6 +59,10 @@ router.post('/viagens/add-nova-viagem', adminController.renderCadastrarViagem);
 router.get('/viagens/ver-viagem/:cod', adminController.renderVerViagem);
 router.get('/viagens/editar/:cod', adminController.editarViagem);
 router.put('/viagens/editar/:cod', adminController.salvarEdicaoViagem);
+router.put('/viagens/cancelar/:cod', adminController.cancelarViagem );
+router.get('/viagens/participantes/:cod', adminController.verParticipantes);
+router.get('/viagens/adicionar-participante/:cod', adminController.adicionarParticipante);
+router.post('/viagens/vincular-usuario/:cod', adminController.vincularUsuario);
 
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
 

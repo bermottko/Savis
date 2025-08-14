@@ -1,7 +1,4 @@
 const db = require('./db');
-const Endereco = require('./Endereco');
-const Genero = require('./Genero');
-const Documento = require('./Documento');
 
 const Motorista = db.sequelize.define('motorista', {
   cod: {
@@ -42,29 +39,17 @@ const Motorista = db.sequelize.define('motorista', {
   enderecoID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    references: {
-      model: Endereco,
-      key: 'cod'
-    }
   },
   generoID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    references: {
-      model: Genero,
-      key: 'cod'
-    }
   },
   docsID: {
     type: db.Sequelize.INTEGER,
-    allowNull: false,
-    references: {
-      model: Documento,
-      key: 'cod'
-    }
+    allowNull: false
   },
   senha: {
-          type: db.Sequelize.STRING(16), 
+          type: db.Sequelize.STRING(255), 
           allowNull: false
   }
 }, {

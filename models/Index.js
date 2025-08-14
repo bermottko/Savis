@@ -9,6 +9,7 @@ const Motorista = require('./Motorista');
 const Documento = require('./Documento');
 const Viagem = require('./Viagem');
 const Chefe = require('./Chefe');
+const Acompanhante = require('./Acompanhante');
 
 //usuário
 Usuario.belongsTo(Endereco, { 
@@ -33,6 +34,18 @@ Genero.hasMany(Usuario, {
     onUpdate: 'CASCADE' 
 });
 
+Usuario.hasMany(Solicitacao, {
+  foreignKey: 'usuarioID',  
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
+Solicitacao.belongsTo(Usuario, {
+  foreignKey: 'usuarioID',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
 //solicitação
 Solicitacao.belongsTo(Usuario, { 
     foreignKey: 'usuarioID', 
@@ -52,6 +65,17 @@ Solicitacao.belongsTo(Status, {
 });
 Status.hasMany(Solicitacao, { 
     foreignKey: 'statusID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
+Solicitacao.belongsTo(Acompanhante, { 
+    foreignKey: 'acompanhanteID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Acompanhante.hasMany(Solicitacao, { 
+    foreignKey: 'acompanhanteID', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
@@ -93,7 +117,7 @@ Documento.hasMany(Motorista, {
 //viagenss
 Viagem.belongsTo(Motorista, { 
     foreignKey: 'motoristaID', 
-     as: 'Motorista', // nome amigável da associação
+     as: 'Motorista', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
@@ -114,6 +138,19 @@ Status.hasMany(Viagem, {
     onUpdate: 'CASCADE' 
 });
 
+Viagem.belongsToMany(Usuario, { 
+    through: 'viagem_usuario',
+    foreignKey: 'viagemID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Usuario.belongsToMany(Viagem, { 
+    through: 'viagem_usuario',
+    foreignKey: 'usuarioID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
 //sincroniza as tabelas no banco
 db.sequelize.sync({force: false})
     .then(() => {
@@ -124,4 +161,4 @@ db.sequelize.sync({force: false})
     });
 
 console.log('Arquivo models/index.js executado');
-module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe};
+module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe, Acompanhante};

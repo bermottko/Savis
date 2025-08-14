@@ -129,24 +129,20 @@
         }
 
         .botao-visualizar {
-            background-color: #ffffff;
-            color: #235284;
-            /*border: 1px solid #235284;*/
-            padding: 4px 14px;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-            height: auto;
-            line-height: 1.2;
-            display: inline-block;
-            }
+  color: #00204c;
+  text-decoration: none;
+  display: inline-block;
+  transition: 0.3s ease;
+}
 
-        .botao-visualizar:hover {
-            background-color: #a2c3f2;
-            color: white;
-            }
+.botao-visualizar:hover {
+  color: #001129
+}
+.bg-visualizar-docs {
+  font-size: 14px;
+}
+
+
 
         /* ------------------------- */
         /*     BARRA DE PESQUISA    */
@@ -359,6 +355,20 @@
         .campos {
            font-weight: none;
            color:#00204c
+        }
+
+        .usuario-checkbox {
+        appearance: none; /* remove o estilo padrão */
+        width: 20px; /* largura parecida com o "Ver mais" */
+        height: 20px;
+        border: 2px solid #87afe6; /* borda azul */
+        border-radius: 6px;
+        background-color: transparent;
+        }
+
+        /* quando marcada */
+        .usuario-checkbox:checked {
+        background-color: #87afe6; /* azul do site */
         }
 
   </style>

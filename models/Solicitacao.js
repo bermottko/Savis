@@ -1,6 +1,4 @@
 const db = require('./db');
-const Usuario = require('./Usuario');
-const Status = require('./Status');
 
 const Solicitacao = db.sequelize.define('solicitacao', {
   cod: {
@@ -11,11 +9,7 @@ const Solicitacao = db.sequelize.define('solicitacao', {
   },
   usuarioID: {
     type: db.Sequelize.INTEGER,
-    allowNull: false,
-    references: {
-      model: Usuario,
-      key: 'cod'
-    }
+    allowNull: false
   },
   local_consul: {
     type: db.Sequelize.STRING(50),
@@ -33,29 +27,21 @@ const Solicitacao = db.sequelize.define('solicitacao', {
     type: db.Sequelize.STRING(50),
     allowNull: false
   },
-  statusID: {
-    type: db.Sequelize.INTEGER,
-    allowNull: true,
-    references: {
-      model: Status,
-      key: 'cod'
-    }
-  },
   objetivo: {
-    type: db.Sequelize.STRING(30),
+    type: db.Sequelize.STRING(60),
     allowNull: false
   },
   obs: {
     type: db.Sequelize.STRING(255),
     allowNull: true
   },
-  data_solicita: {
-    type: db.Sequelize.DATEONLY,
-    allowNull: true
+  acompanhanteID: {
+    type: db.Sequelize.INTEGER,
+    allowNull: true,
   },
-  hora_solicita: {
-    type: db.Sequelize.TIME,
-    allowNull: true
+  statusID: {
+    type: db.Sequelize.INTEGER,
+    allowNull: true,
   }
 }, {
   timestamps: false

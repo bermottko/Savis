@@ -1,6 +1,7 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status } = require('../models');
 
 exports.renderUsuarios = async (req, res) => {
+
   try {
     const usuarios = await Usuario.findAll({
       include: [

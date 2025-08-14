@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS savisdb;
+USE savisdb;
+
 CREATE TABLE enderecos (
     cod INT NOT NULL AUTO_INCREMENT,
     rua VARCHAR(50) NOT NULL,
@@ -117,6 +120,16 @@ CREATE TABLE viagens (
     CONSTRAINT fk_viagens_motorista FOREIGN KEY (motorista) REFERENCES motoristas(cod)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_viagens_status FOREIGN KEY (status) REFERENCES status(cod)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE usuarios_viagens (
+    usuario_id INT NOT NULL,
+    viagem_id INT NOT NULL,
+    PRIMARY KEY (usuario_id, viagem_id),
+    CONSTRAINT fk_usuarios_viagens_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(cod)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_usuarios_viagens_viagem FOREIGN KEY (viagem_id) REFERENCES viagens(cod)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 

@@ -1,42 +1,42 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
   <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
-    <form action="/admin/viagens/editar/<%= usuario.cod %>?_method=PUT" method="POST" class="form-bold">
+    <form action="/admin/viagens/editar/<%= viagem.cod %>?_method=PUT" method="POST" class="form-bold">
 
       <div class="mb-3 d-flex align-items-center">
         <label for="destino_cid" class="me-2">Destino:</label>
-        <input type="text" id="destino_cid" name="destino_cid" required class="form-control input-transparente" style="width: 200px;" value="<%= usuario.destino_cid %>" />
+        <input type="text" id="destino_cid" name="destino_cid" required class="form-control input-transparente" style="width: 200px;" value="<%= viagem.destino_cid %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="data_viagem" class="me-2">Data da Viagem:</label>
-        <input type="date" id="data_viagem" name="data_viagem" required class="form-control input-transparente" style="width: 110px;" value="<%= usuario.data_viagem %>" />
+        <input type="date" id="data_viagem" name="data_viagem" required class="form-control input-transparente" style="width: 110px;" value="<%= viagem.data_viagem %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="horario_saida" class="me-2">Horário de Saída:</label>
-        <input type="time" id="horario_saida" name="horario_saida" class="form-control input-transparente" style="width: 75px;" value="<%= usuario.horario_saida %>" />
+        <input type="time" id="horario_saida" name="horario_saida" class="form-control input-transparente" style="width: 75px;" value="<%= viagem.horario_saida %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="lugares_dispo" class="me-2">Lugares:</label>
-        <input type="text" id="lugares_dispo" name="lugares_dispo" class="form-control input-transparente" style="width: 120px;" value="<%= usuario.lugares_dispo %>" />
+        <input type="text" id="lugares_dispo" name="lugares_dispo" class="form-control input-transparente" style="width: 120px;" value="<%= viagem.lugares_dispo %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="modelo_car" class="me-2">Modelo:</label>
-        <input type="text" id="modelo_car" name="modelo_car" class="form-control input-transparente" style="width: 180px;" value="<%= usuario.modelo_car %>" />
+        <input type="text" id="modelo_car" name="modelo_car" class="form-control input-transparente" style="width: 180px;" value="<%= viagem.modelo_car %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="placa" class="me-2">Placa:</label>
-        <input type="text" id="placa" name="placa" class="form-control input-transparente" style="width: 100px;" value="<%= usuario.placa %>" />
+        <input type="text" id="placa" name="placa" class="form-control input-transparente" style="width: 100px;" value="<%= viagem.placa %>" />
       </div>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="motoristaID" class="me-2">Motorista:</label>
         <select id="motoristaID" name="motoristaID" class="form-select w-auto">
           <% motoristas.forEach(m => { %>
-            <option value="<%= m.cod %>" <%= m.cod === usuario.motoristaID ? 'selected' : '' %>><%= m.nome %></option>
+            <option value="<%= m.cod %>" <%= m.cod === viagem.motoristaID ? 'selected' : '' %>><%= m.nome %></option>
           <% }) %>
         </select>
       </div>
@@ -45,7 +45,7 @@
         <label for="statusID" class="me-2">Status:</label>
         <select id="statusID" name="statusID" class="form-select w-auto" >
           <% statusLista.forEach(s => { %>
-            <option value="<%= s.cod %>" <%= s.cod === usuario.statusID ? 'selected' : '' %>><%= s.descricao %></option>
+            <option value="<%= s.cod %>" <%= s.cod === viagem.statusID ? 'selected' : '' %>><%= s.descricao %></option>
           <% }) %>
         </select>
       </div>

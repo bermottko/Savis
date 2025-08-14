@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Savis</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <%- typeof head !== 'undefined' ? head : '' %>
+
+  <style>
+    /* ---- MESMO STYLE DO layoutAdmin ---- */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+
+    .navbar {
+      background-color: #00204c;
+      height: 80px;
+    }
+
+    .logo-nome-nav {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: bold;
+      font-size: 30px;
+      color: #f8f9fa;
+      padding-top: 20px;
+    }
+
+    .logo-img {
+      height: 50px;
+      width: auto;
+      max-height: none;
+    }
+
+    .navbar-nav .nav-link {
+      color: #f8f9fa;
+      font-weight: bold;
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 80px;
+      margin: 0 8px;
+    }
+
+    .navbar-nav .nav-link.active-nav {
+      color: #a2c3f2;
+    }
+
+    .botao {
+      display: inline-block;
+      background-color: #00204c;
+      color: white;
+      padding: 8px 25px;
+      border-radius: 5px;
+      text-decoration: none;
+      border: none;
+      box-shadow: none;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+    }
+
+    .botao:hover {
+      background-color: #001129;
+    }
+
+    .bg-vermelho {
+      background-color: #9d1421;
+    }
+
+    .bg-vermelho:hover {
+      background-color: #701019;
+    }
+
+    .botao-cadastro {
+      background-color: #ffffff;
+      color: #93b2dd;
+      padding: 10px 25px;
+      border-radius: 5px;
+      text-decoration: none;
+      border: 1px solid #a2c3f2;
+      box-shadow: none;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+      line-height: 1;
+      height: 38px;
+    }
+
+    .botao-cadastro:hover {
+      background-color: #a2c3f2;
+      color: #fff;
+    }
+
+    .botao-visualizar {
+      background-color: #ffffff;
+      color: #235284;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      height: auto;
+      line-height: 1.2;
+      display: inline-block;
+    }
+
+    .botao-visualizar:hover {
+      background-color: #a2c3f2;
+      color: white;
+    }
+
+    .pesquisa-custom {
+      width: 400px;
+      border: 1px solid #a2c3f2;
+      text-transform: uppercase;
+      margin-top: 17px;
+    }
+
+    .pesquisa-custom::placeholder {
+      text-transform: none;
+    }
+
+   
+
+    .nome-perfil {
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    .detalhes {
+      overflow: hidden;
+      transition: all 0.4s ease;
+      height: 0;
+      opacity: 0;
+      margin-top: 0;
+    }
+
+    .detalhes.expandido {
+      opacity: 1;
+    }
+
+    .input-transparente {
+      max-width: auto;
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 300px;
+    }
+
+    .form-bold {
+      font-weight: bold;
+    }
+
+    .espaco-card-edit {
+      padding-top: 50px;
+      padding-bottom: 70px;
+    }
+
+    .footer-custom {
+      background-color: #a1c3f2;
+      color: #fff;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .footer-links {
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .footer-icons {
+      font-size: 0px;
+      margin-bottom: 15px;
+    }
+
+    .footer-icons a {
+      margin: 0 10px;
+    }
+
+    .footer-copy {
+      margin-top: 10px;
+    }
+
+    #calendario {
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      border: 1px solid #a2c3f2;
+    }
+
+    .fc-header-toolbar {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #00204c;
+    }
+
+    .fc-toolbar-title::first-letter {
+      text-transform: uppercase;
+    }
+
+    .fc .fc-button {
+      background-color: #00204c !important;
+      border-radius: 6px;
+      color: #fff !important;
+      font-weight: bold;
+      text-transform: capitalize;
+      transition: background-color 0.3s ease;
+    }
+
+    .fc-button:hover {
+      background-color: #001129;
+    }
+
+    .fc .fc-button:hover {
+      background-color: #00122c !important;
+    }
+
+    .fc .fc-button-active {
+      background-color: #00122c !important;
+    }
+
+    .fc-col-header-cell-cushion {
+      font-weight: bold;
+      color: #00204c;
+      padding: 10px 0;
+    }
+
+    .fc .fc-col-header-cell a {
+      text-decoration: none !important;
+      color: #00204c;
+      font-weight: bold;
+    }
+
+    .fc-daygrid-day-number {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #00204c;
+      padding: 6px 8px;
+      text-align: right;
+      text-decoration: none !important;
+    }
+
+    .fc-event {
+      background-color: #a2c3f2 !important;
+      border-radius: 3px;
+      color: #00204c;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      margin: 4px 6px 2px;
+      font-weight: bold;
+      border: 1px solid #87afe6;
+      transition: transform 0.2s ease;
+    }
+
+    .fc-event:hover {
+      transform: scale(1.05);
+    }
+
+    .titulo {
+      font-family: 'League Spartan', sans-serif;
+      font-size: 25px;
+      color: #00204c;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .campos {
+      font-weight: none;
+      color: #00204c;
+    }
+
+    .nome-usuario {
+  font-family: 'League Spartan', sans-serif;
+  font-size: 50px;
+  font-weight: bold;
+  color: #00204c;
+  margin-bottom: 15px;
+  }
+
+  .pag-inicial {
+  margin-top: 5%;
+  text-align: center;
+  }
+
+   .foto-perfil {
+      margin-bottom: 1%;
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 130px;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbarUsuario') %>
+  <main>
+    <%- body %>
+  </main>
+  <%- include('../partials/footer') %>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/inputmask.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+</body>
+</html>

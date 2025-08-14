@@ -1,6 +1,4 @@
 const db = require('./db');
-const Motorista = require('./Motorista');
-const Status = require('./Status');
 
 const Viagem = db.sequelize.define('viagem', {
   cod: {
@@ -30,18 +28,13 @@ const Viagem = db.sequelize.define('viagem', {
   motoristaID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    references: {
-      model: Motorista,
-      key: 'cod'
-    }
   },
   statusID: {
     type: db.Sequelize.INTEGER,
     allowNull: false,
-    references: {
-      model: Status,
-      key: 'cod'
-    }
+  },
+  usuarioID: {
+    type: db.Sequelize.INTEGER,
   },
   combustivel: {
     type: db.Sequelize.FLOAT,

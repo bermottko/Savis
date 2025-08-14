@@ -1,10 +1,55 @@
+const bcrypt = require('bcrypt');
+
 const Usuario = require('../models/Usuario');
 const Endereco = require('../models/Endereco');
 const Motorista = require('../models/Motorista');
 const Documento = require('../models/Documento');
 
 exports.renderEntrada = (req, res) => {
-  res.render('auth/entrada', { layout: 'layouts/layoutAuth' });
+  res.render('auth/entrada', { 
+    layout: 'layouts/layoutAuth' 
+  });
+};
+
+exports.verificarUsuario = async (req, res) => {
+  const { cpf, matricula, senha } = req.body;
+
+  try {
+    let usuario;
+    let redirectPath;
+
+    if (cpf) {
+      // Buscar paciente pelo cpf
+      usuario = await Usuario.findOne({ where: { cpf } });
+      redirectPath = '/usuario/inicio/index'; // redireciona paciente
+    } else if (matricula) {
+      // Buscar motorista pela matricula
+      usuario = await Motorista.findOne({ where: { matricula } });
+      redirectPath = '/motorista/usuarios/index'; // redireciona motorista
+    } else {
+      return res.send("Por favor, informe CPF ou Matrícula.");
+    }
+
+    if (!usuario) {
+      return res.send("Usuário não encontrado");
+    }
+
+    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+    if (!senhaCorreta) {
+      return res.send("Senha incorreta");
+    }
+
+    // Cria sessão
+    req.session.usuario = {
+      cod: usuario.cod,
+      nome: usuario.nome,
+    };
+
+    res.redirect(redirectPath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro no servidor");
+  }
 };
 
 exports.renderCadastro = (req, res) => {
@@ -54,6 +99,8 @@ exports.cadastrarUsuario = async (req, res) => {
       });
     }
 
+    const senhaCriptografada = await bcrypt.hash(req.body.senha, 10);
+
     // Criação do endereço
     const enderecoCriado = await Endereco.create({
       rua: req.body.rua,
@@ -75,7 +122,7 @@ exports.cadastrarUsuario = async (req, res) => {
       fone: foneVerificando,
       enderecoID: enderecoCriado.cod,
       SUS: susVerificando,
-      senha: req.body.senha
+      senha: senhaCriptografada
     });
 
     // Sucesso
@@ -130,6 +177,8 @@ exports.cadastrarMotorista = async (req, res) => {
       });
     }
 
+    const senhaCriptografada = await bcrypt.hash(req.body.senha, 10);
+
     const enderecoCriado = await Endereco.create({
       rua: req.body.rua,
       numero: req.body.numero,
@@ -162,7 +211,7 @@ exports.cadastrarMotorista = async (req, res) => {
       generoID: req.body.genero,
       enderecoID: enderecoCriado.cod,
       docsID: docsCriado.cod,
-      senha: req.body.senha,
+      senha: senhaCriptografada,
       matricula: matriculaVerificando
     });
 

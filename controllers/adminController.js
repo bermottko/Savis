@@ -1,5 +1,6 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status } = require('../models');
 const { Op } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 exports.renderUsuarios = async (req, res) => {
   try {
@@ -340,7 +341,7 @@ exports.renderVerViagem = async (req, res) => {
     });
 
     res.render('admin/viagens/ver-viagem', {
-      usuario: viagem,
+      viagem,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -362,7 +363,7 @@ exports.editarViagem = async (req, res) => {
     const statusLista = await Status.findAll(); // Renomeado para combinar com o EJS
 
     res.render('admin/viagens/editar', {
-      usuario: viagem,              // chamada de "usuario" no EJS
+      viagem,              // chamada de "usuario" no EJS
       motoristas,                   // lista de motoristas para o <select>
       statusLista,                   // lista de status para o <select>
       layout: 'layouts/layoutAdmin',
@@ -412,3 +413,133 @@ exports.salvarEdicaoViagem = async (req, res) => {
     res.status(500).send('Erro ao salvar edição da viagem: ' + erro);
   }
 };
+
+exports.cancelarViagem = async (req, res) => {
+  const cod = req.params.cod;
+
+  await Viagem.update(
+      { statusID: 2 },          
+      { where: { cod: cod } }    
+  );
+
+  res.redirect('/admin/viagens/index');
+};
+
+exports.verParticipantes = async (req, res) => {
+  try {
+    const cod = req.params.cod;
+
+    // Busca a viagem incluindo os usuários associados
+    const viagem = await Viagem.findOne({
+      where: { cod },
+      include: [
+        {
+          model: Usuario,
+          include: [
+           { model: Genero },
+           { model: Endereco }
+          ]
+        }
+      ]
+    });
+
+    if (!viagem) {
+      return res.status(404).send('Viagem não encontrada');
+    }
+
+    // 'viagem.Usuarios' terá o array de usuários participantes
+    res.render('admin/viagens/participantes', {
+      viagem,
+      participantes: viagem.Usuarios, // array de usuários da viagem
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens'
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar participantes:', error);
+    res.status(500).send('Erro ao buscar participantes da viagem');
+  }
+};
+
+
+exports.adicionarParticipante = async (req, res) => {
+  const cod = req.params.cod;
+
+  try {
+    // 1. Buscar a viagem e os usuários já vinculados
+    const viagem = await Viagem.findOne({
+      where: { cod },
+      include: [{ model: Usuario }]
+    });
+
+    if (!viagem) {
+      return res.status(404).send('Viagem não encontrada');
+    }
+
+    // 2. Extrair os códigos dos usuários já vinculados
+    const codUsuariosVinculados = viagem.Usuarios.map(u => u.cod);
+
+    // 3. Buscar usuários que NÃO estão vinculados
+    const usuariosNaoVinculados = await Usuario.findAll({
+      where: {
+        cod: {
+          [Sequelize.Op.notIn]: codUsuariosVinculados.length ? codUsuariosVinculados : [0]
+        }
+      },
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ]
+    });
+
+    usuariosNaoVinculados.sort((a, b) => b.cod - a.cod);
+
+    // 4. Renderizar a página só com usuários não vinculados
+    res.render('admin/viagens/adicionar-participante', {
+      cod,
+      posts: usuariosNaoVinculados,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens'
+    });
+
+  } catch (error) {
+    console.error('Erro ao carregar participantes:', error);
+    res.status(500).send('Erro ao carregar participantes');
+  }
+};
+
+
+exports.vincularUsuario = async (req, res) => {
+  try {
+    const cod = req.params.cod; // código da viagem
+    let usuariosSelecionados = req.body.usuariosSelecionados;
+
+    if (!usuariosSelecionados) {
+      return res.status(400).send('Nenhum usuário selecionado');
+    }
+
+    if (!Array.isArray(usuariosSelecionados)) {
+      usuariosSelecionados = [usuariosSelecionados];
+    }
+
+    const viagem = await Viagem.findOne({ where: { cod } });
+    if (!viagem) {
+      return res.status(404).send('Viagem não encontrada');
+    }
+
+    const usuarios = await Usuario.findAll({
+      where: {
+        cod: usuariosSelecionados
+      }
+    });
+
+    await viagem.addUsuarios(usuarios); 
+
+    res.redirect(`/admin/viagens/participantes/${cod}`);
+
+  } catch (error) {
+    console.error('Erro ao vincular usuários:', error);
+    res.status(500).send('Erro ao vincular usuários à viagem');
+  }
+};
+ 

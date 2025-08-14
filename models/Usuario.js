@@ -1,6 +1,4 @@
 const db = require('./db');
-const Endereco = require('./Endereco');
-const Genero = require('./Genero');
 
 const Usuario = db.sequelize.define('Usuario', {
     cod: {
@@ -27,10 +25,7 @@ const Usuario = db.sequelize.define('Usuario', {
     },
     generoID: { 
         type: db.Sequelize.INTEGER, 
-        allowNull: false, 
-        references: { 
-            model: Genero, 
-            key: 'cod' } 
+        allowNull: false
     },
     email: {
         type: db.Sequelize.STRING(30),
@@ -42,20 +37,19 @@ const Usuario = db.sequelize.define('Usuario', {
     },
     enderecoID: {
         type: db.Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-            model: Endereco,
-            key: 'cod'
-        }
+        allowNull: false
     },
     SUS: {
         type: db.Sequelize.CHAR(15), 
         allowNull: false
     },
     senha: {
-        type: db.Sequelize.STRING(16), 
+        type: db.Sequelize.STRING(255), 
         allowNull: false
-    }
+    },
+    viagemID: {
+        type: db.Sequelize.INTEGER,
+    },
 },{
   timestamps: false   
   });

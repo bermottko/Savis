@@ -70,7 +70,7 @@
                   <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2 bg-white">
                     <span style="font-size: 14px;"><%= doc.label %>:</span>
                     <% if (post.documento?.[doc.campo]) { %>
-                      <a href="/uploads/<%= post.documento[doc.campo] %>" target="_blank" class="botao-visualizar">Visualizar</a>
+                      <a href="/uploads/<%= post.documento[doc.campo] %>" target="_blank" class="botao-visualizar bg-visualizar-docs">Visualizar</a>
                     <% } else { %>
                       <span class="text-muted" style="font-size: 13px;">Não enviado</span>
                     <% } %>

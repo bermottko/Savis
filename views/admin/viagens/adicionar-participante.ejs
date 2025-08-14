@@ -1,0 +1,168 @@
+<div class="container mt-4">
+  <div class="row justify-content-center mb-5">
+   <form action="/admin/viagens/vincular-usuario/<%= cod %>" method="POST">
+    <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
+      <input type="search" 
+      id="pesquisa" 
+      placeholder="Pesquisar usuário por nome ou CPF" 
+      class="form-control pesquisa-custom mb-3">
+      <button id="btnVincular" type="submit" class="botao-cadastro">Vincular</button>
+    </div>
+
+      <% posts.forEach(function(post) { %>
+
+        <div class="col-12 d-flex justify-content-center">
+          <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+            <div class="d-flex flex-row align-items-center">
+
+              <img 
+                src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
+                alt="Foto de perfil" 
+                class="foto-perfil me-3">
+
+              <div class="flex-grow-1">
+                <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
+              </div>
+
+              <input type="checkbox" 
+              class="usuario-checkbox me-3" 
+              value="<%= post.cod %>"
+              name="usuariosSelecionados" >
+              
+    
+
+              <button class="botao ver-mais-btn" type="button">Ver mais</button> 
+              </div>
+
+              <!--VER MAIS-->
+              <div class="detalhes">
+              <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
+              <hr>
+              <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
+              <hr>
+              <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
+              <hr>
+              <p><strong>Email: </strong> <%= post.email %></p>
+              <hr>
+              <p><strong>Telefone: </strong><%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
+              %></p>
+              <hr>
+              <p><strong>Endereço: </strong>
+                <%= post.endereco?.rua || '' %>, 
+                <%= post.endereco?.numero || '' %> - 
+                <%= post.endereco?.bairro || '' %> - 
+                <%= post.endereco?.cidade || '' %> 
+                (<%= post.endereco?.UF || '' %>) 
+                CEP: <%= post.endereco?.CEP 
+                            ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
+                            : '' 
+                      %>
+              </p>
+              <hr>
+              <p><strong>SUS: </strong> <%= post.SUS %></p>
+              <hr>
+
+            </div>
+          </div>
+        </div>
+
+      <% }) %>
+    </form>
+  </div>
+</div>
+
+<script>
+  const inputPesquisa = document.getElementById('pesquisa');
+  const cards = Array.from(document.querySelectorAll('.card')); // colocando os cards dentro de uma array
+  const row = document.querySelector('.row');
+  
+
+  cards.forEach((card, index) => {                         
+    card.setAttribute('data-original-index', index);            // salva o index(posição) original dos cards
+  });
+
+  inputPesquisa.addEventListener('input', function () {
+    const termo = this.value.trim().toLowerCase();              // padronizando: trim = remove espaços toLowerCase = deixa tudo minusculo
+
+    if (termo.length === 0) {                                   // se a barra de pesquisa ta vazia mostra todos os cards
+      cards.forEach(card => {
+        card.style.display = 'block';
+        card.setAttribute('data-relevancia', '0');              // tira a relevancia 
+      });
+    
+   const fragment = document.createDocumentFragment();
+
+      cards
+        .sort((a, b) => a.getAttribute('data-original-index') - b.getAttribute('data-original-index'))    // .sort serve pra reordenar a array
+        .forEach(card => fragment.appendChild(card));           // pega os cards e coloca dentro do fragment
+
+      row.appendChild(fragment);                                // colocando o fragment na row
+
+    } else {
+      cards.forEach(card => {
+        const nomeELemento = card.querySelector('.nome-perfil');  
+        const nome = nomeELemento ? nomeELemento.textContent.toLowerCase() : '';  // se o nomeELemento existe transforma em lowercase e guarda no nome se não guarda ' '
+
+        const cpfElemento = card.querySelector('.cpf-perfil');
+        const cpf = cpfElemento ? cpfElemento.textContent.replace(/[.\-]/g, '') : '';
+
+        if (nome.startsWith(termo) || cpf.startsWith(termo)) {
+          card.style.display = 'block';
+          card.setAttribute('data-relevancia', '1');
+        } else if (nome.includes(termo) || cpf.includes(termo)) {
+          card.style.display = 'block';
+          card.setAttribute('data-relevancia', '2');
+        } else {
+          card.style.display = 'none';
+          card.setAttribute('data-relevancia', '99');
+        }
+
+      });
+
+      const fragment = document.createDocumentFragment();
+
+      cards
+        .filter(card => card.style.display === 'block')
+        .sort((a, b) => a.getAttribute('data-relevancia') - b.getAttribute('data-relevancia'))
+        .forEach(card => fragment.appendChild(card));
+
+      row.appendChild(fragment);
+    }
+  });
+
+  // VER MAIS / VER MENOS
+  document.querySelectorAll('.ver-mais-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const card = this.closest('.card');
+      const detalhes = card.querySelector('.detalhes');
+      const estaExpandido = detalhes.classList.contains('expandido');
+
+      if (estaExpandido) {
+        detalhes.style.height = '0px';
+        detalhes.style.marginTop = '0';
+        detalhes.classList.remove('expandido');
+        this.textContent = 'Ver mais';
+      } else {
+        detalhes.style.height = detalhes.scrollHeight + 'px';
+        detalhes.style.marginTop = '16px';
+        detalhes.classList.add('expandido');
+        this.textContent = 'Ver menos';
+      }
+    });
+  });
+
+  const btnVincular = document.getElementById('btnVincular');
+  const checkboxes = document.querySelectorAll('.usuario-checkbox');
+
+  function atualizarEstadoBotao() {
+  const algumaSelecionada = Array.from(checkboxes).some(chk => chk.checked);
+  btnVincular.disabled = !algumaSelecionada;
+  }
+  
+  checkboxes.forEach(chk => {
+    chk.addEventListener('change', atualizarEstadoBotao);
+  });
+
+  atualizarEstadoBotao();
+</script>
+
