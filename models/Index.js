@@ -10,6 +10,7 @@ const Documento = require('./Documento');
 const Viagem = require('./Viagem');
 const Chefe = require('./Chefe');
 const Acompanhante = require('./Acompanhante');
+const CidadeConsul = require('./CidadeConsul');
 
 //usuário
 Usuario.belongsTo(Endereco, { 
@@ -76,6 +77,16 @@ Solicitacao.belongsTo(Acompanhante, {
 });
 Acompanhante.hasMany(Solicitacao, { 
     foreignKey: 'acompanhanteID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Solicitacao.belongsTo(CidadeConsul, { 
+    foreignKey: 'cidadeconsulID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+CidadeConsul.hasMany(Solicitacao, { 
+    foreignKey: 'cidadeconsulID', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
@@ -151,6 +162,17 @@ Usuario.belongsToMany(Viagem, {
     onUpdate: 'CASCADE' 
 });
 
+Viagem.belongsTo(CidadeConsul, { 
+    foreignKey: 'cidadeconsulID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+CidadeConsul.hasMany(Viagem, { 
+    foreignKey: 'cidadeconsulID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
 //sincroniza as tabelas no banco
 db.sequelize.sync({force: false})
     .then(() => {
@@ -161,4 +183,4 @@ db.sequelize.sync({force: false})
     });
 
 console.log('Arquivo models/index.js executado');
-module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe, Acompanhante};
+module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe, Acompanhante, CidadeConsul};

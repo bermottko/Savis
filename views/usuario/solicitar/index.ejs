@@ -5,8 +5,18 @@
       <h2 class="mb-4 titulo">Solicitar Agendamento</h2>
 
       <div class="mb-3">
-        <label for="destino_cid" class="form-label">Destino</label>
-        <input type="text" name="local_consul" class="form-control" maxlength="30" required placeholder="Digite o local da consulta">
+        <label for="cidadeconsulID" class="form-label">Cidade</label>
+        <select name="cidadeconsulID" class="form-control" required>
+          <option value="" disabled selected>Selecione uma cidade</option>
+          <% cidadeconsul.forEach(cidadeconsul => { %>
+            <option value="<%= cidadeconsul.cod %>"><%= cidadeconsul.descricao %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Hospital</label>
+        <input type="text" name="local_consul" class="form-control" maxlength="100" required placeholder="Digite o Hospital da Consulta">
       </div>
 
       <div class="mb-3">

@@ -7,8 +7,9 @@ const Viagem = db.sequelize.define('viagem', {
     autoIncrement: true,
     allowNull: false
   },
-  destino_cid: {
-    type: db.Sequelize.STRING(30),
+  cidadeconsulID: { 
+  type: db.Sequelize.INTEGER, 
+  allowNull: false
   },
   data_viagem: {
     type: db.Sequelize.DATEONLY,

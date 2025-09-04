@@ -1,0 +1,55 @@
+    <% viagens.forEach(function(viagens) { %>
+
+      <div class="col-12 d-flex justify-content-center">
+        <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+          <div class="d-flex flex-row align-items-center">
+
+            <div class="flex-grow-1">
+              <h5 class="nome-perfil mb-0"><%= viagens.destino_cid %></h5>
+            </div>
+
+            <button class="botao ver-mais-btn">Ver mais</button> 
+            </div>
+
+            <!--VER MAIS-->
+            <div class="detalhes">
+            
+            <div class="d-flex justify-content-end gap-3">
+            <a href="#" class="botao">Editar</a>
+            
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    <% }) %>
+
+  </div>
+</div>
+
+<script>
+
+  // VER MAIS / VER MENOS
+  document.querySelectorAll('.ver-mais-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const card = this.closest('.card');
+      const detalhes = card.querySelector('.detalhes');
+      const estaExpandido = detalhes.classList.contains('expandido');
+
+      if (estaExpandido) {
+        detalhes.style.height = '0px';
+        detalhes.style.marginTop = '0';
+        detalhes.classList.remove('expandido');
+        this.textContent = 'Ver mais';
+      } else {
+        detalhes.style.height = detalhes.scrollHeight + 'px';
+        detalhes.style.marginTop = '16px';
+        detalhes.classList.add('expandido');
+        this.textContent = 'Ver menos';
+      }
+    });
+  });
+</script>
+
+

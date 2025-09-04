@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul } = require('../models');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 
@@ -285,10 +285,14 @@ exports.renderViagens = (req, res) => {
 };
 
 exports.renderBuscarEventos = async (req, res) => {
-    const viagens = await Viagem.findAll();
+    const viagens = await Viagem.findAll({
+      include: [{
+        model: CidadeConsul
+      }]
+    });
 
     const eventos = viagens.map(v => ({
-      title: v.destino_cid,
+      title: v.cidadeconsul.descricao,
       start: v.data_viagem,
       url: `/admin/viagens/ver-viagem/${v.cod}`
     }));
@@ -297,13 +301,15 @@ exports.renderBuscarEventos = async (req, res) => {
  
 exports.renderNovaViagem = async (req, res) => {
   try {
+    const cidadeconsul = await CidadeConsul.findAll();
     const motoristas = await Motorista.findAll();
     const dataSelecionada = req.query.data_viagem || '';
     res.render('admin/viagens/nova-viagem', {
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens',
       dataSelecionada,
-      motoristas
+      motoristas,
+      cidadeconsul
     });
   } catch (erro) {
     console.error(erro);
@@ -314,7 +320,7 @@ exports.renderNovaViagem = async (req, res) => {
 exports.renderCadastrarViagem = async (req, res) => {
   try {
     await Viagem.create({
-      destino_cid: req.body.destino_cid,
+      cidadeconsulID: req.body.cidadeconsulID,
       data_viagem: req.body.data_viagem,
       horario_saida: req.body.horario_saida,
       lugares_dispo: req.body.lugares_dispo,
@@ -336,7 +342,8 @@ exports.renderVerViagem = async (req, res) => {
       where: { cod },
       include: [
         { model:  Motorista, as: 'Motorista' },
-        { model: Status }
+        { model: Status },
+        { model: CidadeConsul }
       ]
     });
 
@@ -360,12 +367,12 @@ exports.editarViagem = async (req, res) => {
     });
 
     const motoristas = await Motorista.findAll();
-    const statusLista = await Status.findAll(); // Renomeado para combinar com o EJS
+    const statusLista = await Status.findAll(); 
 
     res.render('admin/viagens/editar', {
-      viagem,              // chamada de "usuario" no EJS
-      motoristas,                   // lista de motoristas para o <select>
-      statusLista,                   // lista de status para o <select>
+      viagem,              
+      motoristas,                   
+      statusLista,                   
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -380,13 +387,11 @@ exports.salvarEdicaoViagem = async (req, res) => {
   try {
     const cod = req.params.cod;
 
-    // Busca a viagem pelo código
     const viagem = await Viagem.findByPk(cod);
     if (!viagem) {
       return res.status(404).send('Viagem não encontrada');
     }
 
-    // Atualiza os dados da viagem
     await Viagem.update({
       destino_cid: req.body.destino_cid,
       data_viagem: req.body.data_viagem,
@@ -406,7 +411,6 @@ exports.salvarEdicaoViagem = async (req, res) => {
       where: { cod }
     });
 
-    // Redireciona após salvar
     res.redirect('/admin/viagens/index');
   } catch (erro) {
     console.error(erro);
@@ -429,7 +433,6 @@ exports.verParticipantes = async (req, res) => {
   try {
     const cod = req.params.cod;
 
-    // Busca a viagem incluindo os usuários associados
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [
@@ -447,10 +450,9 @@ exports.verParticipantes = async (req, res) => {
       return res.status(404).send('Viagem não encontrada');
     }
 
-    // 'viagem.Usuarios' terá o array de usuários participantes
     res.render('admin/viagens/participantes', {
       viagem,
-      participantes: viagem.Usuarios, // array de usuários da viagem
+      participantes: viagem.Usuarios,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -466,7 +468,6 @@ exports.adicionarParticipante = async (req, res) => {
   const cod = req.params.cod;
 
   try {
-    // 1. Buscar a viagem e os usuários já vinculados
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [{ model: Usuario }]
@@ -476,10 +477,8 @@ exports.adicionarParticipante = async (req, res) => {
       return res.status(404).send('Viagem não encontrada');
     }
 
-    // 2. Extrair os códigos dos usuários já vinculados
     const codUsuariosVinculados = viagem.Usuarios.map(u => u.cod);
 
-    // 3. Buscar usuários que NÃO estão vinculados
     const usuariosNaoVinculados = await Usuario.findAll({
       where: {
         cod: {
@@ -494,7 +493,6 @@ exports.adicionarParticipante = async (req, res) => {
 
     usuariosNaoVinculados.sort((a, b) => b.cod - a.cod);
 
-    // 4. Renderizar a página só com usuários não vinculados
     res.render('admin/viagens/adicionar-participante', {
       cod,
       posts: usuariosNaoVinculados,
@@ -542,4 +540,18 @@ exports.vincularUsuario = async (req, res) => {
     res.status(500).send('Erro ao vincular usuários à viagem');
   }
 };
+
+exports.renderViagensLista = async (req, res) => {
+    const viagens = await Viagem.findAll({
+      include: [
+        { model: Motorista, as: 'Motorista' },
+        { model: Status }
+      ]
+    }); 
+    res.render('admin/viagens/lista', {
+      viagens,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens'
+    });
+}
  

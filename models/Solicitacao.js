@@ -11,6 +11,10 @@ const Solicitacao = db.sequelize.define('solicitacao', {
     type: db.Sequelize.INTEGER,
     allowNull: false
   },
+  cidadeconsulID: { 
+  type: db.Sequelize.INTEGER, 
+  allowNull: false
+  },
   local_consul: {
     type: db.Sequelize.STRING(50),
     allowNull: false

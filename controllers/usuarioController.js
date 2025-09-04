@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Solicitacao, Acompanhante } = require('../models');
+const { Usuario, Endereco, Genero, Solicitacao, Acompanhante, CidadeConsul } = require('../models');
 
 exports.renderInicio = async (req, res) => {
     const codUsuario = req.session.usuario.cod;
@@ -23,8 +23,10 @@ exports.renderAgenda = (req, res) => {
     });
 }
 
-exports.renderSolicitar = (req, res) => {
+exports.renderSolicitar = async (req, res) => {
+  const cidadeconsul = await CidadeConsul.findAll();
     res.render('usuario/solicitar/index', {
+      cidadeconsul,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'solicitar'
     });
@@ -51,6 +53,7 @@ exports.addSolicitar = async (req,res) => {
 
   await Solicitacao.create({
     usuarioID,
+    cidadeconsulID: req.body.cidadeconsulID,
     local_consul: req.body.local_consul,
     data_consul: req.body.data_consul,
     hora_consul: req.body.hora_consul,

@@ -5,10 +5,15 @@
       <h2 class="mb-4 titulo">Cadastrar Viagem</h2>
 
       <div class="mb-3">
-        <label for="destino_cid" class="form-label">Destino</label>
-        <input type="text" name="destino_cid" class="form-control" maxlength="30" required placeholder="Digite a cidade de destino">
+        <label for="cidadeconsulID" class="form-label">Cidade</label>
+        <select name="cidadeconsulID" class="form-control" required>
+          <option value="" disabled selected>Selecione uma cidade</option>
+          <% cidadeconsul.forEach(cidadeconsul => { %>
+            <option value="<%= cidadeconsul.cod %>"><%= cidadeconsul.descricao %></option>
+          <% }) %>
+        </select>
       </div>
-
+      
       <div class="mb-3">
         <label for="data_viagem" class="form-label">Data da Viagem</label>
         <input type="date" name="data_viagem" class="form-control" value="<%= dataSelecionada %>" required placeholder="Selecione a data">
