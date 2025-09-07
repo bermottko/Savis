@@ -6,9 +6,7 @@ const Motorista = require('../models/Motorista');
 const Documento = require('../models/Documento');
 
 exports.renderEntrada = (req, res) => {
-  res.render('auth/entrada', { 
-    layout: 'layouts/layoutAuth' 
-  });
+  res.render('auth/entrada', { layout: 'layouts/layoutAuth' });
 };
 
 exports.verificarUsuario = async (req, res) => {
@@ -19,33 +17,23 @@ exports.verificarUsuario = async (req, res) => {
     let redirectPath;
 
     if (cpf) {
-      // Buscar paciente pelo cpf
       usuario = await Usuario.findOne({ where: { cpf } });
-      redirectPath = '/usuario/inicio/index'; // redireciona paciente
+      redirectPath = '/usuario/inicio/index';
     } else if (matricula) {
-      // Buscar motorista pela matricula
       usuario = await Motorista.findOne({ where: { matricula } });
-      redirectPath = '/motorista/usuarios/index'; // redireciona motorista
+      redirectPath = '/motorista/usuarios/index';
     } else {
       return res.send("Por favor, informe CPF ou Matrícula.");
     }
 
-    if (!usuario) {
-      return res.send("Usuário não encontrado");
-    }
+    if (!usuario) return res.send("Usuário não encontrado");
 
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) {
-      return res.send("Senha incorreta");
-    }
+    if (!senhaCorreta) return res.send("Senha incorreta");
 
-    // Cria sessão
-    req.session.usuario = {
-      cod: usuario.cod,
-      nome: usuario.nome,
-    };
-
+    req.session.usuario = { cod: usuario.cod, nome: usuario.nome };
     res.redirect(redirectPath);
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Erro no servidor");
@@ -53,11 +41,15 @@ exports.verificarUsuario = async (req, res) => {
 };
 
 exports.renderCadastro = (req, res) => {
-  res.render('auth/cadastro', { 
-    layout: 'layouts/layoutAuth', 
+  res.render('auth/cadastro', {
+    layout: 'layouts/layoutAuth',
+    preenchido: req.body,
     erroCPF: null,
-    erroSUS: null,
-    preenchido: {}
+    erroEmail: null,
+    erroFone: null,
+    erroNumero: null,
+    erroCEP: null,
+    erroSUS: null
   });
 };
 
@@ -67,18 +59,26 @@ exports.renderCadastroSucesso = (req, res) => {
 
 exports.cadastrarUsuario = async (req, res) => {
   try {
-    const cpfVerificando = req.body.CPF.replace(/\D/g, '');
-    const susVerificando = req.body.SUS.replace(/\D/g, '');
-    const foneVerificando = req.body.fone.replace(/\D/g, '');
+    const { numero = '', cep = '', CPF, SUS, fone, email } = req.body;
 
-    const cpfExistente = await Usuario.findOne({ where: { CPF: cpfVerificando } });
-    const susExistente = await Usuario.findOne({ where: { SUS: susVerificando } });
+    const cpfVerificando = CPF.replace(/\D/g, '');
+    const susVerificando = SUS.replace(/\D/g, '');
+    const foneVerificando = fone.replace(/\D/g, '');
 
     const erros = {
       erroCPF: null,
       erroSUS: null,
       erroFone: null,
+      erroEmail: null,
+      erroNumero: null,
+      erroCEP: null
     };
+
+    if (!numero || numero.length > 4) erros.erroNumero = 'Número deve ter até 4 dígitos';
+    if (!cep || cep.replace(/\D/g,'').length !== 8) erros.erroCEP = 'CEP deve ter exatamente 8 dígitos';
+
+    const cpfExistente = await Usuario.findOne({ where: { CPF: cpfVerificando } });
+    const susExistente = await Usuario.findOne({ where: { SUS: susVerificando } });
 
     if (cpfExistente) erros.erroCPF = 'CPF já cadastrado.';
     else if (cpfVerificando.length !== 11) erros.erroCPF = 'CPF inválido.';
@@ -88,10 +88,10 @@ exports.cadastrarUsuario = async (req, res) => {
 
     if (foneVerificando.length < 11) erros.erroFone = 'Telefone inválido. Deve conter 11 dígitos.';
 
-    // Verifica se tem algum erro com valor (não null, não vazio)
-    const temErro = Object.values(erros).some(erro => erro && erro.length > 0);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) erros.erroEmail = "E-mail inválido. Digite um e-mail válido (ex: exemplo@email.com).";
 
-    if (temErro) {
+    if (Object.values(erros).some(e => e)) {
       return res.render('auth/cadastro', {
         layout: 'layouts/layoutAuth',
         ...erros,
@@ -101,31 +101,28 @@ exports.cadastrarUsuario = async (req, res) => {
 
     const senhaCriptografada = await bcrypt.hash(req.body.senha, 10);
 
-    // Criação do endereço
     const enderecoCriado = await Endereco.create({
       rua: req.body.rua,
-      numero: req.body.numero,
+      numero,
       bairro: req.body.bairro,
       cidade: req.body.cidade,
       UF: req.body.uf,
-      CEP: req.body.cep
+      CEP: cep
     });
 
-    // Criação do usuário
     await Usuario.create({
-      img: req.file ? req.file.filename : null,
+      img: req.file?.filename || null,
       nome: req.body.nome,
       data_nasc: req.body.data_nasc,
       CPF: cpfVerificando,
       generoID: req.body.genero,
-      email: req.body.email,
+      email,
       fone: foneVerificando,
       enderecoID: enderecoCriado.cod,
       SUS: susVerificando,
       senha: senhaCriptografada
     });
 
-    // Sucesso
     res.redirect('/auth/cadastro-sucesso');
 
   } catch (erro) {
@@ -134,30 +131,42 @@ exports.cadastrarUsuario = async (req, res) => {
   }
 };
 
+// Motorista
 exports.renderCadastroMotorista = (req, res) => {
   res.render('auth/cadastro-motorista', {
     layout: 'layouts/layoutAuth',
     erroCPF: null,
     erroMatricula: null,
-    preenchido: {},
-    erroFone: null
+    erroFone: null,
+    erroEmail: null,
+    erroNumero: null,
+    erroCEP: null,
+    preenchido: req.body
   });
 };
 
 exports.cadastrarMotorista = async (req, res) => {
   try {
-    const cpfVerificando = req.body.CPF.replace(/\D/g, '');
-    const matriculaVerificando = req.body.matricula.replace(/\D/g, '');
-    const foneVerificando = req.body.fone.replace(/\D/g, ''); 
+    const { numero = '', cep = '', CPF, matricula, fone, email } = req.body;
 
-    const cpfExistente = await Motorista.findOne({ where: { CPF: cpfVerificando } });
-    const matriculaExistente = await Motorista.findOne({ where: { matricula: matriculaVerificando } });
+    const cpfVerificando = CPF.replace(/\D/g, '');
+    const matriculaVerificando = matricula.replace(/\D/g, '');
+    const foneVerificando = fone.replace(/\D/g, '');
 
     const erros = {
       erroCPF: null,
       erroMatricula: null,
       erroFone: null,
+      erroEmail: null,
+      erroNumero: null,
+      erroCEP: null
     };
+
+    if (!numero || numero.length > 4) erros.erroNumero = 'Número deve ter até 4 dígitos';
+    if (!cep || cep.replace(/\D/g,'').length !== 8) erros.erroCEP = 'CEP deve ter exatamente 8 dígitos';
+
+    const cpfExistente = await Motorista.findOne({ where: { CPF: cpfVerificando } });
+    const matriculaExistente = await Motorista.findOne({ where: { matricula: matriculaVerificando } });
 
     if (cpfExistente) erros.erroCPF = 'CPF já cadastrado.';
     else if (cpfVerificando.length !== 11) erros.erroCPF = 'CPF inválido.';
@@ -167,9 +176,10 @@ exports.cadastrarMotorista = async (req, res) => {
 
     if (foneVerificando.length < 11) erros.erroFone = 'Telefone inválido. Deve conter 11 dígitos.';
 
-    const temErro = Object.values(erros).some(erro => erro);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) erros.erroEmail = "E-mail inválido. Digite um e-mail válido (ex: exemplo@email.com).";
 
-    if (temErro) {
+    if (Object.values(erros).some(e => e)) {
       return res.render('auth/cadastro-motorista', {
         layout: 'layouts/layoutAuth',
         ...erros,
@@ -181,15 +191,14 @@ exports.cadastrarMotorista = async (req, res) => {
 
     const enderecoCriado = await Endereco.create({
       rua: req.body.rua,
-      numero: req.body.numero,
+      numero,
       bairro: req.body.bairro,
       cidade: req.body.cidade,
       UF: req.body.uf,
-      CEP: req.body.cep
+      CEP: cep
     });
 
     const arquivos = req.files;
-
     const docsCriado = await Documento.create({
       carteira_trab: arquivos?.carteira_trab?.[0]?.filename,
       cursos: arquivos?.cursos?.[0]?.filename,
@@ -202,12 +211,12 @@ exports.cadastrarMotorista = async (req, res) => {
     });
 
     await Motorista.create({
-      img: req.files['foto_perfil']?.[0].filename || null,
+      img: arquivos?.foto_perfil?.[0]?.filename || null,
       nome: req.body.nome,
       data_nasc: req.body.data_nasc,
       CPF: cpfVerificando,
       fone: foneVerificando,
-      email: req.body.email,
+      email,
       generoID: req.body.genero,
       enderecoID: enderecoCriado.cod,
       docsID: docsCriado.cod,

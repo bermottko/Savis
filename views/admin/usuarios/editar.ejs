@@ -22,8 +22,13 @@
       <hr>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="CPF" class="me-2" >CPF:</label>
-        <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control input-transparente" value="<%= usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")  %>" />
+        <label for="CPF" class="me-2">CPF:</label>
+        <input type="text" id="CPF" name="CPF" maxlength="14"
+          class="form-control input-transparente <% if (erros?.erroCPF) { %>is-invalid<% } %>"
+          value="<%= preenchido?.CPF || usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4') %>" />
+        <% if (erros?.erroCPF) { %>
+          <div class="invalid-feedback"><%= erros.erroCPF %></div>
+        <% } %>
       </div>
 
       <hr> 
@@ -41,17 +46,27 @@
 
       <hr> 
 
-      <!-- Campo: Email -->
+      <!-- Email -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="email" class="me-2" >Email:</label>
-        <input type="email" id="email" name="email" maxlength="30" required class="form-control input-transparente"  value="<%= usuario.email %>" />
+        <label for="email" class="me-2">Email:</label>
+        <input type="text" id="email" name="email" maxlength="30"
+          class="form-control input-transparente <% if (erros?.erroEmail) { %>is-invalid<% } %>"
+          value="<%= preenchido?.email || usuario.email %>" />
+        <% if (erros?.erroEmail) { %>
+          <div class="invalid-feedback"><%= erros.erroEmail %></div>
+        <% } %>
       </div>
-
       <hr> 
 
+      <!-- Telefone -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="fone" class="me-2" >Telefone:</label>
-        <input type="text" id="fone" name="fone" maxlength="16" class="form-control input-transparente"  value="<%= usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %>" />
+        <label for="fone" class="me-2">Telefone:</label>
+        <input type="text" id="fone" name="fone" maxlength="15"
+          class="form-control input-transparente <% if (erros?.erroFone) { %>is-invalid<% } %>"
+          value="<%= preenchido?.fone || usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') %>" />
+        <% if (erros?.erroFone) { %>
+          <div class="invalid-feedback"><%= erros.erroFone %></div>
+        <% } %>
       </div>
 
       <hr>
@@ -96,16 +111,28 @@
 
       <hr> 
 
+      <!-- CEP -->
       <div class="mb-3 d-flex align-items-center">
         <label for="cep" class="me-2">CEP:</label>
-        <input type="text" id="cep" name="cep" required class="form-control input-transparente" value="<%= usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') %>" />
+        <input type="text" id="cep" name="cep" maxlength="9"
+          class="form-control input-transparente <% if (erros?.erroCEP) { %>is-invalid<% } %>"
+          value="<%= preenchido?.cep || usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') %>" />
+        <% if (erros?.erroCEP) { %>
+          <div class="invalid-feedback"><%= erros.erroCEP %></div>
+        <% } %>
       </div>
 
       <hr>
 
+      <!-- SUS -->
       <div class="mb-3 d-flex align-items-center">
         <label for="SUS" class="me-2">SUS:</label>
-        <input type="text" id="SUS" name="SUS" maxlength="15" required class="form-control input-transparente" value="<%= usuario.SUS%>" />
+        <input type="text" id="SUS" name="SUS" maxlength="15"
+          class="form-control input-transparente <% if (erros?.erroSUS) { %>is-invalid<% } %>"
+          value="<%= preenchido?.SUS || usuario.SUS %>" />
+        <% if (erros?.erroSUS) { %>
+          <div class="invalid-feedback"><%= erros.erroSUS %></div>
+        <% } %>
       </div>
 
       <hr> 
@@ -118,28 +145,61 @@
   </div>
 </div>
 
-
 <script>
   function previewImagem(event) {
-  const input = event.target;
-  const reader = new FileReader();
+    const input = event.target;
+    const reader = new FileReader();
+    reader.onload = function () {
+      const preview = document.getElementById('preview_foto');
+      preview.src = reader.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
 
-  reader.onload = function () {
-    const preview = document.getElementById('preview_foto');
-    preview.src = reader.result;
-  };
-
-  reader.readAsDataURL(input.files[0]);
-}
-
- document.querySelector('form').addEventListener('submit', function (e) {
+  // Limpar caracteres ao enviar
+  document.querySelector('form').addEventListener('submit', function (e) {
     const cpfInput = document.getElementById('CPF');
     const foneInput = document.getElementById('fone');
     const cepInput = document.getElementById('cep');
+    const susInput = document.getElementById('SUS');
 
-    cpfInput.value = cpfInput.value.replace(/\D/g, '');   
+    cpfInput.value = cpfInput.value.replace(/\D/g, '');
     foneInput.value = foneInput.value.replace(/\D/g, '');
     cepInput.value = cepInput.value.replace(/\D/g, '');
+    susInput.value = susInput.value.replace(/\D/g, ''); // SUS só números
   });
 
+  // MÁSCARA CPF
+  document.getElementById('CPF').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    e.target.value = value;
+  });
+
+  // MÁSCARA CEP
+  document.getElementById('cep').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+    value = value.replace(/^(\d{5})(\d)/, "$1-$2");
+    e.target.value = value;
+  });
+
+  // MÁSCARA TELEFONE
+  document.getElementById('fone').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
+    value = value.replace(/(\d{5})(\d)/, "$1-$2");
+    e.target.value = value;
+  });
+
+  // MÁSCARA SUS (apenas números, máximo 15 dígitos)
+  document.getElementById('SUS').addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 15);
+  });
+
+  // NÚMERO ENDEREÇO (apenas 4 dígitos)
+  document.getElementById('numero').addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+  });
 </script>
