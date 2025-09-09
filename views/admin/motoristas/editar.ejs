@@ -3,34 +3,41 @@
     <form action="/admin/motoristas/editar/<%= usuario.cod %>?_method=PUT" method="POST" enctype="multipart/form-data" class="form-bold">
 
       <div class="d-flex flex-row align-items-center mb-3">
-        <label for="foto_perfil" class="me-3 ">
-          <img id="preview_foto" src="<%= usuario.img ? '/uploads/' + usuario.img : '/assets/default-profile.jpg' %>"  alt="Foto de perfil" class="foto-perfil" />
+        <label for="foto_perfil_motorista" class="me-3">
+          <img id="preview_foto_motorista" src="<%= usuario.img ? '/uploads/' + usuario.img : '/assets/default-profile.jpg' %>" alt="Foto de perfil" class="foto-perfil" />
         </label>
-        <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagem(event)">
+        <input type="file" id="foto_perfil_motorista" name="foto_perfil" accept="image/*" class="d-none" onchange="previewImagemMotorista(event)">
         <div class="flex-grow-1">
-          <div class="d-flex align-items-center">
-            <input type="text" id="nome" name="nome" maxlength="40" required class="form-control input-transparente" value="<%= usuario.nome %>" />
-          </div>
+          <input type="text" id="nome" name="nome" maxlength="40" required class="form-control input-transparente" value="<%= usuario.nome %>" />
         </div>
       </div>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="data_nasc" class="me-2" >Data de nascimento:</label>
+        <label for="data_nasc" class="me-2">Data de nascimento:</label>
         <input type="date" id="data_nasc" name="data_nasc" required class="form-control input-transparente" style="width: 110px;" value="<%= usuario.data_nasc %>" />
       </div>
 
       <hr>
 
+      <!-- CPF -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="CPF" class="me-2" >CPF:</label>
-        <input type="text" id="CPF" name="CPF" maxlength="14" required class="form-control input-transparente" value="<%= usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")  %>" />
+        <label for="cpf" class="me-2">CPF:</label>
+        <input type="text" id="cpf" name="CPF"
+          maxlength="14"
+          class="form-control input-transparente <% if (erros?.erroCPF) { %>is-invalid<% } %>"
+          value="<%= preenchido?.CPF || usuario.CPF %>" />
+        <% if (erros?.erroCPF) { %>
+          <div class="invalid-feedback"><%= erros.erroCPF %></div>
+        <% } %>
       </div>
 
-      <hr> 
 
+      <hr>
+
+      <!-- GÊNERO -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="genero" class="me-2" >Gênero:</label>
-        <select id="genero" name="genero" required class="form-select w-auto" >
+        <label for="genero" class="me-2">Gênero:</label>
+        <select id="genero" name="genero" required class="form-select w-auto">
           <option disabled>Não selecionado</option>
           <option value="1" <%= usuario.generoID == 1 ? 'selected' : '' %>>Masculino</option>
           <option value="2" <%= usuario.generoID == 2 ? 'selected' : '' %>>Feminino</option>
@@ -39,74 +46,95 @@
         </select>
       </div>
 
-      <hr> 
+      <hr>
 
-      <!-- Campo: Email -->
+      <!-- EMAIL -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="email" class="me-2" >Email:</label>
-        <input type="email" id="email" name="email" maxlength="30" required class="form-control input-transparente"  value="<%= usuario.email %>" />
-      </div>
-
-      <hr> 
-
-      <div class="mb-3 d-flex align-items-center">
-        <label for="fone" class="me-2" >Telefone:</label>
-        <input type="text" id="fone" name="fone" maxlength="16" class="form-control input-transparente"  value="<%= usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %>" />
+        <label for="email" class="me-2">Email:</label>
+        <input type="text" id="email" name="email" maxlength="30"
+          class="form-control input-transparente <% if (erros?.erroEmail) { %>is-invalid<% } %>"
+          value="<%= preenchido?.email || usuario.email %>" />
+        <% if (erros?.erroEmail) { %>
+          <div class="invalid-feedback">
+            <%= erros.erroEmail %>
+          </div>
+        <% } %>
       </div>
 
       <hr>
 
+      <!-- TELEFONE -->
       <div class="mb-3 d-flex align-items-center">
-        <label for="rua" class="me-2" >Rua:</label>
+        <label for="fone" class="me-2">Telefone:</label>
+        <input type="text" id="fone" name="fone"
+          maxlength="16"
+          class="form-control input-transparente <% if (erros?.erroFone) { %>is-invalid<% } %>"
+          value="<%= preenchido?.fone || usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') %>" />
+        <% if (erros?.erroFone) { %>
+          <div class="invalid-feedback"><%= erros.erroFone %></div>
+        <% } %>
+      </div>
+
+
+      <hr>
+
+      <!-- ENDEREÇO -->
+      <div class="mb-3 d-flex align-items-center">
+        <label for="rua" class="me-2">Rua:</label>
         <input type="text" id="rua" name="rua" required class="form-control input-transparente" style="max-width: 300px;" value="<%= usuario.endereco?.rua || '' %>" />
       </div>
 
       <hr>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="numero" class="me-2" >Número:</label>
-        <input type="text" id="numero" name="numero" required class="form-control input-transparente"  value="<%= usuario.endereco?.numero || '' %>" />
+        <label for="numero" class="me-2">Número:</label>
+        <input type="text" id="numero" name="numero" required class="form-control input-transparente" value="<%= usuario.endereco?.numero || '' %>" />
       </div>
 
       <hr>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="bairro" class="me-2" >Bairro:</label>
-        <input type="text" id="bairro" name="bairro" required class="form-control input-transparente"  value="<%= usuario.endereco?.bairro || '' %>" />
+        <label for="bairro" class="me-2">Bairro:</label>
+        <input type="text" id="bairro" name="bairro" required class="form-control input-transparente" value="<%= usuario.endereco?.bairro || '' %>" />
       </div>
 
       <hr>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="cidade" class="me-2" >Cidade:</label>
+        <label for="cidade" class="me-2">Cidade:</label>
         <input type="text" id="cidade" name="cidade" required class="form-control input-transparente" value="<%= usuario.endereco?.cidade || '' %>" />
       </div>
 
       <hr>
 
       <div class="mb-3 d-flex align-items-center">
-        <label for="uf" class="me-2" >Estado (UF):</label>
+        <label for="uf" class="me-2">Estado (UF):</label>
         <select id="uf" name="uf" required class="form-select w-auto">
           <option disabled>Não selecionado</option>
-          <% ['SC', 'PR', 'RS', 'SP', 'RJ', 'MG', 'ES', 'DF', 'GO', 'MT', 'MS', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'].forEach(estado => { %>
+          <% ['SC','PR','RS','SP','RJ','MG','ES','DF','GO','MT','MS','AL','BA','CE','MA','PB','PE','PI','RN','SE','AC','AP','AM','PA','RO','RR','TO'].forEach(estado => { %>
             <option value="<%= estado %>" <%= usuario.endereco?.UF === estado ? 'selected' : '' %>><%= estado %></option>
           <% }) %>
         </select>
       </div>
 
-      <hr> 
+      <hr>
 
       <div class="mb-3 d-flex align-items-center">
         <label for="cep" class="me-2">CEP:</label>
-        <input type="text" id="cep" name="cep" required class="form-control input-transparente" value="<%= usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') %>" />
+        <input type="text" id="cep" name="cep"
+          class="form-control input-transparente <% if (erros?.erroCEP) { %>is-invalid<% } %>"
+          value="<%= preenchido?.cep || (usuario.endereco?.CEP ? usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, '$1-$2') : '') %>" />
+        <% if (erros?.erroCEP) { %>
+          <div class="invalid-feedback"><%= erros.erroCEP %></div>
+        <% } %>
       </div>
+
 
       <hr>
 
+      <!-- DOCUMENTOS -->
       <h6 class="mt-4 mb-3" style="color:#00204c; font-weight: bold;">Atualizar Documentos (PDF)</h6>
-
       <div class="row row-cols-1 row-cols-md-2 g-2 mb-4">
-
         <% const documentos = [
           { campo: 'carteira_trab', label: 'Carteira de Trabalho' },
           { campo: 'cursos', label: 'Cursos' },
@@ -129,8 +157,6 @@
                 <small class="text-muted mb-2">Atual: 
                   <a href="/uploads/<%= usuario.documento[doc.campo] %>" target="_blank" class="botao-visualizar">Visualizar</a>
                 </small>
-              <% } else { %>
-                <small class="text-muted mb-2">Documento atual não enviado</small>
               <% } %>
 
               <input type="file" name="<%= doc.campo %>" id="<%= doc.campo %>" accept="application/pdf" class="form-control form-control-sm" />
@@ -140,7 +166,8 @@
       </div>
 
       <hr>
-      
+
+      <!-- BOTOES -->
       <div class="d-flex justify-content-between">
         <a href="/admin/motoristas/index" class="botao">Cancelar</a>
         <button type="submit" class="botao">Salvar</button>
@@ -149,28 +176,51 @@
   </div>
 </div>
 
-
 <script>
-  function previewImagem(event) {
-  const input = event.target;
-  const reader = new FileReader();
+  // PREVIEW DA FOTO
+  function previewImagemMotorista(event) {
+    const input = event.target;
+    const reader = new FileReader();
+    reader.onload = () => document.getElementById('preview_foto_motorista').src = reader.result;
+    reader.readAsDataURL(input.files[0]);
+  }
 
-  reader.onload = function () {
-    const preview = document.getElementById('preview_foto');
-    preview.src = reader.result;
-  };
-
-  reader.readAsDataURL(input.files[0]);
-}
-
- document.querySelector('form').addEventListener('submit', function (e) {
-    const cpfInput = document.getElementById('CPF');
+  // REMOVER MÁSCARAS ANTES DE ENVIAR
+  document.querySelector('form').addEventListener('submit', e => {
+    const cpfInput = document.getElementById('cpf');
     const foneInput = document.getElementById('fone');
     const cepInput = document.getElementById('cep');
 
-    cpfInput.value = cpfInput.value.replace(/\D/g, '');   
+    cpfInput.value = cpfInput.value.replace(/\D/g, '');
     foneInput.value = foneInput.value.replace(/\D/g, '');
     cepInput.value = cepInput.value.replace(/\D/g, '');
+  });
+
+  document.getElementById('cpf').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, ""); // remove tudo que não é número
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    e.target.value = value;
+  });
+
+    document.getElementById('cep').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, ""); // remove tudo que não é número
+    value = value.replace(/^(\d{5})(\d)/, "$1-$2"); // insere o traço depois do 5º dígito
+    e.target.value = value;
+  });
+
+    // MÁSCARA TELEFONE
+  document.getElementById('fone').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, ""); // só números
+    value = value.replace(/^(\d{2})(\d)/g, "($1) $2"); // DDD
+    value = value.replace(/(\d{5})(\d)/, "$1-$2"); // traço
+    e.target.value = value;
+  });
+
+    // MÁSCARA NÚMERO DO ENDEREÇO (apenas 4 dígitos)
+  document.getElementById('numero').addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
   });
 
 </script>
