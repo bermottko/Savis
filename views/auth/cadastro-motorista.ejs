@@ -48,9 +48,14 @@
       </div>
 
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" name="email" maxlength="30" required class="form-control"
-          placeholder="Digite o e-mail" value="<%= preenchido?.email || '' %>" />
+       <label for="email" class="form-label">E-mail</label>
+      <input type="email" id="email" name="email"
+            class="form-control <% if (erroEmail) { %>is-invalid<% } %>"
+            placeholder="Digite seu e-mail"
+            value="<%= preenchido?.email || '' %>">
+      <% if (erroEmail) { %>
+        <div class="invalid-feedback"><%= erroEmail %></div>
+      <% } %>
       </div>
 
      <div class="mb-3">
@@ -75,8 +80,13 @@
 
       <div class="mb-3">
         <label for="numero" class="form-label">Número</label>
-        <input type="text" id="numero" name="numero" required class="form-control"
-          placeholder="Número da residência" value="<%= preenchido?.numero || '' %>" />
+        <input type="text" id="numero" name="numero" required maxlength="4"
+          class="form-control <% if (erroNumero) { %>is-invalid<% } %>"
+          placeholder="Número da residência (até 4 dígitos)"
+          value="<%= preenchido?.numero || '' %>" />
+        <% if (erroNumero) { %>
+          <div class="invalid-feedback"><%= erroNumero %></div>
+        <% } %>
       </div>
 
       <div class="mb-3">
@@ -104,8 +114,13 @@
 
       <div class="mb-3">
         <label for="cep" class="form-label">CEP</label>
-        <input type="text" id="cep" name="cep" required class="form-control"
-            placeholder="Digite o CEP" value="<%= preenchido?.cep || '' %>" />
+        <input type="text" id="cep" name="cep" required
+          class="form-control <% if (erroCEP) { %>is-invalid<% } %>"
+          placeholder="Digite o CEP (8 dígitos)"
+          value="<%= preenchido?.cep || '' %>" />
+        <% if (erroCEP) { %>
+          <div class="invalid-feedback"><%= erroCEP %></div>
+        <% } %>
     </div>
 
       <hr>
@@ -239,6 +254,21 @@
       e.target.value = e.target.value.replace(/\D/g, '');
     });
 
+    // Número da residência
+    numeroInput.addEventListener('input', function(e){
+      let value = e.target.value.replace(/\D/g,'');
+      if(value.length > 4) value = value.slice(0,4);
+      e.target.value = value;
+    });
+
+    // CEP
+    cepInput.addEventListener('input', function(e){
+      let value = e.target.value.replace(/\D/g,'');
+      if(value.length > 8) value = value.slice(0,8);
+      value = value.replace(/^(\d{5})(\d)/,'$1-$2');
+      e.target.value = value;
+    });
+
     // Antes de enviar o formulário, remove todas as máscaras (deixa só números)
     const form = document.querySelector('form');
     form.addEventListener('submit', function () {
@@ -250,4 +280,3 @@
     });
   });
 </script>
-
