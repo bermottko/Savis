@@ -1,28 +1,29 @@
 
 
 <div class="container mt-4">
-  <div class="row justify-content-center mb-5">
+  <h1>Lista de participantes</h1>
+  <div class="row justify-content-center">
     <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
       <input type="search" 
       id="pesquisa" 
       placeholder="Pesquisar usuário por nome ou CPF" 
-      class="form-control pesquisa-custom mb-3">
+      class="form-control pesquisa-custom">
       <a href="/admin/viagens/adicionar-participante/<%= viagem.cod %>" class="botao-cadastro">Adicionar Participante</a>
     </div>
 
-    <% participantes.forEach(function(post) { %>
+    <% (participantes || []).forEach(function(participante) { %>
 
         <div class="col-12 d-flex justify-content-center">
           <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
             <div class="d-flex flex-row align-items-center">
 
               <img 
-                src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
+                src="<%= participante.Usuario.img ? '/uploads/' + participante.Usuario.img : '/assets/default-profile.jpg' %>" 
                 alt="Foto de perfil" 
                 class="foto-perfil me-3">
 
               <div class="flex-grow-1">
-                <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
+                <h5 class="nome-perfil mb-0"><%= participante.Usuario.nome %></h5>
               </div>
 
               <button class="botao ver-mais-btn" type="button">Ver mais</button> 
@@ -30,30 +31,30 @@
 
               <!--VER MAIS-->
               <div class="detalhes">
-              <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
+              <p><strong>Data de Nascimento: </strong><%= participante.Usuario.data_nasc.split('-').reverse().join('/') %></p>
               <hr>
-              <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
+              <p><strong>CPF: </strong><span class="cpf-perfil"><%= participante.Usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
               <hr>
-              <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
+              <p><strong>Gênero: </strong> <%= participante.Usuario.genero.descricao %></p>
               <hr>
-              <p><strong>Email: </strong> <%= post.email %></p>
+              <p><strong>Email: </strong> <%= participante.Usuario.email %></p>
               <hr>
-              <p><strong>Telefone: </strong><%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
+              <p><strong>Telefone: </strong><%= participante.Usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
               %></p>
               <hr>
               <p><strong>Endereço: </strong>
-                <%= post.endereco?.rua || '' %>, 
-                <%= post.endereco?.numero || '' %> - 
-                <%= post.endereco?.bairro || '' %> - 
-                <%= post.endereco?.cidade || '' %> 
-                (<%= post.endereco?.UF || '' %>) 
-                CEP: <%= post.endereco?.CEP 
-                            ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
+                <%= participante.Usuario.endereco?.rua || '' %>, 
+                <%= participante.Usuario.endereco?.numero || '' %> - 
+                <%= participante.Usuario.endereco?.bairro || '' %> - 
+                <%= participante.Usuario.endereco?.cidade || '' %> 
+                (<%= participante.Usuario.endereco?.UF || '' %>) 
+                CEP: <%= participante.Usuario.endereco?.CEP 
+                            ? participante.Usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
                             : '' 
                       %>
               </p>
               <hr>
-              <p><strong>SUS: </strong> <%= post.SUS %></p>
+              <p><strong>SUS: </strong> <%= participante.Usuario.SUS %></p>
               <hr>
 
             </div>

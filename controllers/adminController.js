@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante } = require('../models');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 
@@ -265,18 +265,6 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
-exports.renderSolicitacoes = async (req, res) => {
-  try {
-    res.render('admin/solicitacoes/index', {
-      layout: 'layouts/layoutAdmin',
-      paginaAtual: 'solicitacoes'
-    });
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao carregar solicitações');
-  }
-};
-
 exports.renderViagens = (req, res) => {
     res.render('admin/viagens/index', {
       layout: 'layouts/layoutAdmin',
@@ -382,7 +370,6 @@ exports.editarViagem = async (req, res) => {
   }
 };
 
-
 exports.salvarEdicaoViagem = async (req, res) => {
   try {
     const cod = req.params.cod;
@@ -437,10 +424,16 @@ exports.verParticipantes = async (req, res) => {
       where: { cod },
       include: [
         {
-          model: Usuario,
+          model: Participante,
+          as: 'participantes',
           include: [
-           { model: Genero },
-           { model: Endereco }
+            {
+              model: Usuario,
+              include: [
+                { model: Genero },
+                { model: Endereco }
+              ]
+            }
           ]
         }
       ]
@@ -452,7 +445,7 @@ exports.verParticipantes = async (req, res) => {
 
     res.render('admin/viagens/participantes', {
       viagem,
-      participantes: viagem.Usuarios,
+      participantes: viagem.participantes, // agora vem da tabela Participante
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -463,35 +456,36 @@ exports.verParticipantes = async (req, res) => {
   }
 };
 
-
 exports.adicionarParticipante = async (req, res) => {
   const cod = req.params.cod;
 
   try {
+    // Busca a viagem e os participantes já vinculados
     const viagem = await Viagem.findOne({
       where: { cod },
-      include: [{ model: Usuario }]
+      include: [{ model: Participante, required: false }]
     });
 
     if (!viagem) {
       return res.status(404).send('Viagem não encontrada');
     }
 
-    const codUsuariosVinculados = viagem.Usuarios.map(u => u.cod);
+    // Pega os IDs de usuários que já são participantes dessa viagem
+    const codUsuariosVinculados = viagem.Participantes ? viagem.Participantes.map(p => p.usuarioID) : [];
 
+    // Busca todos os usuários que não estão vinculados a essa viagem
     const usuariosNaoVinculados = await Usuario.findAll({
       where: {
         cod: {
-          [Sequelize.Op.notIn]: codUsuariosVinculados.length ? codUsuariosVinculados : [0]
+          [Op.notIn]: codUsuariosVinculados.length ? codUsuariosVinculados : [0]
         }
       },
       include: [
         { model: Endereco },
         { model: Genero }
-      ]
+      ],
+      order: [['cod', 'DESC']]
     });
-
-    usuariosNaoVinculados.sort((a, b) => b.cod - a.cod);
 
     res.render('admin/viagens/adicionar-participante', {
       cod,
@@ -506,38 +500,55 @@ exports.adicionarParticipante = async (req, res) => {
   }
 };
 
+exports.formularioParticipante = async (req, res) => {
+  const { cod } = req.params;
+  const { usuarioSelecionado } = req.query; // recebe o usuário escolhido
+
+  // Busca os dados do usuário para exibir no formulário
+  const usuario = await Usuario.findOne({
+    where: { cod: usuarioSelecionado },
+    include: [Genero, Endereco]
+  });
+
+  res.render('admin/viagens/formulario-participante', { 
+    cod,
+    usuario, // envia para a view
+    layout: 'layouts/layoutAdmin',
+    paginaAtual: 'viagens'
+  });
+};
 
 exports.vincularUsuario = async (req, res) => {
+  console.log('req.params.cod:', req.params.cod);
+ console.log('req.body:', req.body);
   try {
-    const cod = req.params.cod; // código da viagem
-    let usuariosSelecionados = req.body.usuariosSelecionados;
+    
+    const cod = req.params.cod;
+    const usuarioID = req.body.usuarioID; // <-- pega do input hidden
+    const { local_consul, data_consul, hora_consul, encaminhamento, objetivo, obs, acompanhanteID } = req.body;
 
-    if (!usuariosSelecionados) {
+    if (!usuarioID) {
       return res.status(400).send('Nenhum usuário selecionado');
     }
 
-    if (!Array.isArray(usuariosSelecionados)) {
-      usuariosSelecionados = [usuariosSelecionados];
-    }
-
-    const viagem = await Viagem.findOne({ where: { cod } });
-    if (!viagem) {
-      return res.status(404).send('Viagem não encontrada');
-    }
-
-    const usuarios = await Usuario.findAll({
-      where: {
-        cod: usuariosSelecionados
-      }
+    await Participante.create({
+      usuarioID,
+      viagemID: cod,
+      local_consul,
+      data_consul,
+      hora_consul,
+      encaminhamento: req.file ? req.file.filename : encaminhamento, // arquivo enviado via multer
+      objetivo,
+      obs: obs || null,
+      acompanhanteID: acompanhanteID || null,
+      statusID: 1
     });
-
-    await viagem.addUsuarios(usuarios); 
 
     res.redirect(`/admin/viagens/participantes/${cod}`);
 
   } catch (error) {
-    console.error('Erro ao vincular usuários:', error);
-    res.status(500).send('Erro ao vincular usuários à viagem');
+    console.error('Erro ao vincular usuário:', error);
+    res.status(500).send('Erro ao vincular usuário à viagem');
   }
 };
 
@@ -555,3 +566,17 @@ exports.renderViagensLista = async (req, res) => {
     });
 }
  
+exports.renderSolicitacoes = async (req, res) => {
+    const solicitacoes = await Solicitacao.findAll({
+      include: [{model: Usuario},
+        {model: CidadeConsul},
+        {model: Status },
+        {model: Acompanhante}
+      ]
+    });
+    res.render('admin/solicitacoes/index', {
+      solicitacoes,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'solicitacoes'
+    });
+};

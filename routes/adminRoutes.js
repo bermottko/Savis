@@ -63,8 +63,12 @@ router.put('/viagens/editar/:cod', adminController.salvarEdicaoViagem);
 router.put('/viagens/cancelar/:cod', adminController.cancelarViagem );
 router.get('/viagens/participantes/:cod', adminController.verParticipantes);
 router.get('/viagens/adicionar-participante/:cod', adminController.adicionarParticipante);
-router.post('/viagens/vincular-usuario/:cod', adminController.vincularUsuario);
-
+router.get('/viagens/formulario-participante/:cod', adminController.formularioParticipante);
+router.post(
+  '/viagens/vincular-usuario/:cod',
+  upload.single('encaminhamento'),  
+  adminController.vincularUsuario
+);
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
 
 module.exports = router;

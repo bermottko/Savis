@@ -11,8 +11,9 @@ const Viagem = require('./Viagem');
 const Chefe = require('./Chefe');
 const Acompanhante = require('./Acompanhante');
 const CidadeConsul = require('./CidadeConsul');
+const Participante = require('./Participante');
 
-//usuário
+// =================== Usuário ===================
 Usuario.belongsTo(Endereco, { 
     foreignKey: 'enderecoID', 
     onDelete: 'CASCADE', 
@@ -40,25 +41,13 @@ Usuario.hasMany(Solicitacao, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
-
 Solicitacao.belongsTo(Usuario, {
   foreignKey: 'usuarioID',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
 
-//solicitação
-Solicitacao.belongsTo(Usuario, { 
-    foreignKey: 'usuarioID', 
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
-});
-Usuario.hasMany(Solicitacao, { 
-    foreignKey: 'usuarioID', 
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
-});
-
+// =================== Solicitação ===================
 Solicitacao.belongsTo(Status, { 
     foreignKey: 'statusID', 
     onDelete: 'CASCADE', 
@@ -80,6 +69,7 @@ Acompanhante.hasMany(Solicitacao, {
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
+
 Solicitacao.belongsTo(CidadeConsul, { 
     foreignKey: 'cidadeconsulID', 
     onDelete: 'CASCADE', 
@@ -91,7 +81,7 @@ CidadeConsul.hasMany(Solicitacao, {
     onUpdate: 'CASCADE' 
 });
 
-//motorista papai frança <3
+// =================== Motorista ===================
 Motorista.belongsTo(Endereco, { 
     foreignKey: 'enderecoID', 
     onDelete: 'CASCADE', 
@@ -125,10 +115,10 @@ Documento.hasMany(Motorista, {
     onUpdate: 'CASCADE' 
 });
 
-//viagenss
+// =================== Viagem ===================
 Viagem.belongsTo(Motorista, { 
     foreignKey: 'motoristaID', 
-     as: 'Motorista', 
+    as: 'Motorista', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
@@ -149,19 +139,6 @@ Status.hasMany(Viagem, {
     onUpdate: 'CASCADE' 
 });
 
-Viagem.belongsToMany(Usuario, { 
-    through: 'viagem_usuario',
-    foreignKey: 'viagemID', 
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
-});
-Usuario.belongsToMany(Viagem, { 
-    through: 'viagem_usuario',
-    foreignKey: 'usuarioID', 
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
-});
-
 Viagem.belongsTo(CidadeConsul, { 
     foreignKey: 'cidadeconsulID', 
     onDelete: 'CASCADE', 
@@ -173,6 +150,56 @@ CidadeConsul.hasMany(Viagem, {
     onUpdate: 'CASCADE' 
 });
 
+// =================== Participante ===================
+// Usuario <-> Participante
+Usuario.hasMany(Participante, { 
+    foreignKey: 'usuarioID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Participante.belongsTo(Usuario, { 
+    foreignKey: 'usuarioID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
+// Viagem <-> Participante
+Viagem.hasMany(Participante, { 
+    foreignKey: 'viagemID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Participante.belongsTo(Viagem, { 
+    foreignKey: 'viagemID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
+// Status <-> Participante
+Status.hasMany(Participante, { 
+    foreignKey: 'statusID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Participante.belongsTo(Status, { 
+    foreignKey: 'statusID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
+// Acompanhante <-> Participante
+Acompanhante.hasMany(Participante, { 
+    foreignKey: 'acompanhanteID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+Participante.belongsTo(Acompanhante, { 
+    foreignKey: 'acompanhanteID', 
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE' 
+});
+
+
 //sincroniza as tabelas no banco
 db.sequelize.sync({force: false})
     .then(() => {
@@ -183,4 +210,4 @@ db.sequelize.sync({force: false})
     });
 
 console.log('Arquivo models/index.js executado');
-module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe, Acompanhante, CidadeConsul};
+module.exports = { db, Usuario, Endereco, Genero, Status, Solicitacao, Motorista, Documento, Viagem, Chefe, Acompanhante, CidadeConsul, Participante};
