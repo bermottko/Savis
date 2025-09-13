@@ -1,119 +1,188 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
-  <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 600px; background-color: #ffffff;">
-
-    <form action="/admin/viagens/vincular-usuario/<%= cod %>" method="POST" class="container mt-4" enctype="multipart/form-data">
+  <div
+    class="card p-3 shadow-sm mt-2"
+    style="width: 100%; max-width: 600px; background-color: #ffffff"
+  >
+    <form
+      action="/admin/viagens/vincular-usuario/<%= cod %>"
+      method="POST"
+      class="container mt-4"
+      enctype="multipart/form-data"
+    >
       <h2 class="mb-4 titulo">Formulário do Participante</h2>
-      <input type="hidden" name="usuarioID" value="<%= usuario.cod %>">
+      <input type="hidden" name="usuarioID" value="<%= usuario.cod %>" />
 
       <div class="mb-3">
         <label class="form-label">Hospital</label>
-        <input type="text" name="local_consul" class="form-control" maxlength="100" required placeholder="Digite o Hospital da Consulta">
+        <input
+          type="text"
+          name="local_consul"
+          class="form-control"
+          maxlength="100"
+          required
+          placeholder="Digite o Hospital da Consulta"
+        />
       </div>
 
       <div class="mb-3">
-        <label for="data_viagem" class="form-label">Data da Consulta</label>
-        <input type="date" name="data_consul" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label for="horario_saida" class="form-label">Horário da Consulta</label>
-        <input type="time" name="hora_consul" class="form-control">
+        <label for="horario_consulta" class="form-label"
+          >Horário da Consulta</label
+        >
+        <input type="time" name="hora_consul" class="form-control" />
       </div>
 
       <div class="mb-3">
         <label for="encaminhamento" class="form-label">Encaminhamento</label>
-        <input type="file" id="encaminhamento" name="encaminhamento" accept="application/pdf" required class="form-control" />
+        <input
+          type="file"
+          id="encaminhamento"
+          name="encaminhamento"
+          accept="application/pdf"
+          required
+          class="form-control"
+        />
       </div>
 
       <div class="mb-3">
         <label for="objetivo" class="form-label">Objetivo da Consulta</label>
-        <input type="text" name="objetivo" class="form-control" maxlength="60" required placeholder="Digite o objetivo da consulta">
+        <input
+          type="text"
+          name="objetivo"
+          class="form-control"
+          maxlength="60"
+          required
+          placeholder="Digite o objetivo da consulta"
+        />
       </div>
 
       <div class="mb-3">
         <label for="obs" class="form-label">Observação</label>
-        <input type="text" name="obs" class="form-control" maxlength="255" required placeholder="Adicione uma observação caso necessário">
+        <input
+          type="text"
+          name="obs"
+          class="form-control"
+          maxlength="255"
+          required
+          placeholder="Adicione uma observação caso necessário"
+        />
       </div>
 
       <div class="mb-3">
-  <div>
-    <label for="obs" class="form-label">Acompanhante</label>
-    <input type="radio" id="temAcompSim" name="temAcompanhante" value="sim" style="transform: scale(0.85); margin-right: 4px;" onclick="toggleCamposAcomp()" />
-    <label for="temAcompSim" style="font-size: 14px;">Sim</label>
-    &nbsp;&nbsp;
-    <input type="radio" id="temAcompNao" name="temAcompanhante" value="nao" style="transform: scale(0.85); margin-right: 4px;" checked onclick="toggleCamposAcomp()" />
-    <label for="temAcompNao" style="font-size: 14px;">Não</label>
-  </div>
-</div>
+        <div>
+          <label for="obs" class="form-label me-2">Acompanhante</label>
+          <input
+            type="radio"
+            id="temAcompSim"
+            name="temAcompanhante"
+            value="sim"
+            style="transform: scale(0.85); margin-right: 4px"
+            onclick="toggleCamposAcomp()"
+          />
+          <label for="temAcompSim" style="font-size: 14px">Sim</label>
+          &nbsp;&nbsp;
+          <input
+            type="radio"
+            id="temAcompNao"
+            name="temAcompanhante"
+            value="nao"
+            style="transform: scale(0.85); margin-right: 4px"
+            checked
+            onclick="toggleCamposAcomp()"
+          />
+          <label for="temAcompNao" style="font-size: 14px">Não</label>
+        </div>
+      </div>
 
-<!-- Campos do acompanhante -->
-<div id="camposAcompanhante" style="display: none; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
-  <h5 class="mb-3">Dados do Acompanhante</h5>
+      <!-- Campos do acompanhante -->
+      <div id="camposAcompanhante" style="display: none">
+        <div class="text-center mb-4">
+          <label for="foto_acomp">
+            <img
+              id="preview_foto"
+              src="/assets/default-profile.jpg"
+              alt="Foto de perfil"
+              class="rounded-circle mt-3 mb-2"
+              style="
+                width: 90px;
+                height: 90px;
+                object-fit: cover;
+                cursor: pointer;
+                border: 2px solid #ccc;
+              "
+            />
+          </label>
+        </div>
+        <input
+          type="file"
+          id="foto_acomp"
+          name="foto_acomp"
+          accept="image/*"
+          class="d-none"
+          onchange="previewImagem(event)"
+        />
 
-   <label for="foto_acompanhante">
-      <img id="preview_foto" src="/assets/default-profile.jpg" alt="Foto de perfil"
-        class="rounded-circle mt-3 mb-2"
-        style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
-    </label> 
+        <div class="mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" name="nome" class="form-control" maxlength="100" />
+        </div>
 
-    <input type="file" id="foto_acompanhante" name="foto_acompanhante" accept="image/*" class="d-none" onchange="previewImagem(event)">
+        <div class="mb-3">
+          <label class="form-label">CPF</label>
+          <input type="text" name="cpf" class="form-control" maxlength="14" />
+        </div>
 
-  <div class="mb-3">
-    <label class="form-label">Nome</label>
-    <input type="text" name="acompanhante_nome" class="form-control" maxlength="100">
-  </div>
+        <div class="mb-3">
+          <label class="form-label">Data de Nascimento</label>
+          <input type="date" name="data_nasc" class="form-control" />
+        </div>
 
-  <div class="mb-3">
-    <label class="form-label">CPF</label>
-    <input type="text" name="acompanhante_cpf" class="form-control" maxlength="14">
-  </div>
+        <div class="mb-3">
+          <label class="form-label">Gênero</label>
+          <select name="generoID" class="form-select" required>
+            <option value="" disabled selected>Selecione</option>
+            <option value="1">Masculino</option>
+            <option value="2">Feminino</option>
+            <option value="3">Não-Binário</option>
+            <option value="4">Outro</option>
+          </select>
+        </div>
 
-  <div class="mb-3">
-    <label class="form-label">Data de Nascimento</label>
-    <input type="date" name="acompanhante_data_nasc" class="form-control">
-  </div>
+        <div class="mb-3">
+          <label class="form-label">Telefone</label>
+          <input
+            type="text"
+            name="telefone"
+            class="form-control"
+            maxlength="15"
+          />
+        </div>
+      </div>
 
-  <div class="mb-3">
-    <label class="form-label">Gênero</label>
-    <select name="acompanhante_generoID" class="form-select">
-      <option value="">Selecione</option>
-      <option value="1">Masculino</option>
-      <option value="2">Feminino</option>
-      <option value="3">Não-Binário</option>
-      <option value="4">Outro</option>
-    </select>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Telefone</label>
-    <input type="text" name="acompanhante_telefone" class="form-control" maxlength="15">
-  </div>
-</div>
-
-     
+      <div class="mb-3 d-flex justify-content-end">
         <button type="submit" class="botao">Vincular</button>
-  
+      </div>
     </form>
   </div>
 </div>
 
 <script>
   function toggleCamposAcomp() {
-    const sim = document.getElementById('temAcompSim').checked;
-    document.getElementById('camposAcompanhante').style.display = sim ? 'block' : 'none';
+    const sim = document.getElementById("temAcompSim").checked;
+    document.getElementById("camposAcompanhante").style.display = sim
+      ? "block"
+      : "none";
   }
 
   function previewImagem(event) {
     const input = event.target;
-    const img = document.getElementById('preview_foto');
+    const foto_acomp = document.getElementById("preview_foto");
 
     if (input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = function (e) {
-        img.src = e.target.result;
+        foto_acomp.src = e.target.result;
       };
       reader.readAsDataURL(input.files[0]);
     }
   }
-
 </script>

@@ -17,14 +17,9 @@ const Viagem = db.sequelize.define('viagem', {
   horario_saida: {
     type: db.Sequelize.TIME,
   },
-  lugares_dispo: {
+  veiculoID: {
     type: db.Sequelize.INTEGER,
-  },
-  modelo_car: {
-    type: db.Sequelize.STRING(30),
-  },
-  placa: {
-    type: db.Sequelize.CHAR(7),
+    allowNull: false,
   },
   motoristaID: {
     type: db.Sequelize.INTEGER,

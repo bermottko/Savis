@@ -25,18 +25,13 @@
       </div>
 
       <div class="mb-3">
-        <label for="lugares_dispo" class="form-label">Lugares Disponíveis</label>
-        <input type="text" name="lugares_dispo" class="form-control" required placeholder="Informe a quantidade de lugares">
-      </div>
-
-      <div class="mb-3">
-        <label for="modelo_car" class="form-label">Modelo do Veículo</label>
-        <input type="text" name="modelo_car" class="form-control" maxlength="30" required placeholder="Ex: Corolla, Uno, Civic">
-      </div>
-
-      <div class="mb-3">
-        <label for="placa" class="form-label">Placa</label>
-        <input type="text" name="placa" class="form-control" maxlength="7" required placeholder="Digite a placa do carro">
+        <label for="veiculoID" class="form-label">Veiculo</label>
+        <select name="veiculoID" class="form-control" required>
+          <option value="" disabled selected>Selecione um Veiculo</option>
+          <% veiculos.forEach(veiculo => { %>
+            <option value="<%= veiculo.cod %>"><%= veiculo.modelo_veiculo %></option>
+          <% }) %>
+        </select>
       </div>
 
       <div class="mb-3">

@@ -16,13 +16,15 @@ const storage = multer.diskStorage({
 function fileFilter(req, file, cb) {
   const isPDF = file.mimetype === 'application/pdf';
   const isFotoPerfil = file.fieldname === 'foto_perfil';
-  
-  if (isPDF || isFotoPerfil) {
-    cb(null, true); // Aceita o upload
+  const isFotoAcomp = file.fieldname === 'foto_acomp'; // novo nome
+
+  if (isPDF || isFotoPerfil || isFotoAcomp) {
+    cb(null, true);
   } else {
-    cb(new Error('Somente arquivos PDF ou imagem de perfil são permitidos.'));
+    cb(new Error('Somente arquivos PDF ou imagem de perfil/acompanhante são permitidos.'));
   }
 }
+
 
 const upload = multer({ storage, fileFilter });
 
@@ -66,9 +68,13 @@ router.get('/viagens/adicionar-participante/:cod', adminController.adicionarPart
 router.get('/viagens/formulario-participante/:cod', adminController.formularioParticipante);
 router.post(
   '/viagens/vincular-usuario/:cod',
-  upload.single('encaminhamento'),  
+  upload.fields([
+    { name: 'encaminhamento', maxCount: 1 },
+    { name: 'foto_acomp', maxCount: 1 }
+  ]),
   adminController.vincularUsuario
 );
+
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
 
 module.exports = router;

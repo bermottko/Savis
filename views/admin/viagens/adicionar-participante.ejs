@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <h1>Selecione um usuário para vincular à viagem</h1>
 
-  <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
+  <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
     <input type="search" 
            id="pesquisa" 
            placeholder="Pesquisar usuário por nome ou CPF" 
@@ -12,7 +12,9 @@
   <div class="row justify-content-center mb-5" id="row-usuarios">
     <% posts.forEach(function(post) { %>
       <div class="col-12 d-flex justify-content-center">
-        <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+        <div class="card card-viagem card-selecao p-3 shadow-sm mt-2" 
+          data-cod="<%= post.cod %>" 
+          >
           <div class="d-flex flex-row align-items-center">
 
             <img src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
@@ -24,10 +26,8 @@
             </div>
 
             <!-- RADIO BUTTON PARA SELEÇÃO -->
-            <input type="radio" 
-                   name="usuarioSelecionado" 
-                   class="usuario-radio me-3" 
-                   value="<%= post.cod %>">
+            <!-- RADIO BUTTON PARA SELEÇÃO -->
+<!-- <input type="radio" name="usuarioSelecionado" class="usuario-radio me-3" value="<%= post.cod %>"> -->
 
             <button class="botao ver-mais-btn" type="button">Ver mais</button>
           </div>
@@ -64,9 +64,10 @@
 <script>
 const inputPesquisa = document.getElementById('pesquisa');
 const row = document.getElementById('row-usuarios');
-const cards = Array.from(document.querySelectorAll('.card'));
-const radios = Array.from(document.querySelectorAll('.usuario-radio'));
+const cards = Array.from(document.querySelectorAll('.card-selecao'));
 const btnVincular = document.getElementById('btnVincular');
+
+let usuarioSelecionado = null;
 
 // Armazena o index original para reordenar
 cards.forEach((card, index) => card.setAttribute('data-original-index', index));
@@ -89,8 +90,9 @@ inputPesquisa.addEventListener('input', function () {
 
 // Ver mais / ver menos
 document.querySelectorAll('.ver-mais-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    const card = this.closest('.card');
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation(); // evita que o clique no card dispare a seleção
+    const card = this.closest('.card-selecao');
     const detalhes = card.querySelector('.detalhes');
     const expandido = detalhes.classList.contains('expandido');
 
@@ -108,19 +110,27 @@ document.querySelectorAll('.ver-mais-btn').forEach(btn => {
   });
 });
 
-// Ativa/desativa botão Vincular
-function atualizarBotao() {
-  btnVincular.disabled = !radios.some(r => r.checked);
-}
+// Seleção de card
+cards.forEach(card => {
+  card.addEventListener('click', function () {
+    // Remove seleção dos outros cards
+    cards.forEach(c => c.classList.remove('selecionado'));
 
-radios.forEach(r => r.addEventListener('change', atualizarBotao));
-atualizarBotao();
+    // Marca este card como selecionado
+    this.classList.add('selecionado');
 
-// Quando clicar em Vincular, vai para o formulário com GET
+    // Guarda o código do usuário
+    usuarioSelecionado = this.getAttribute('data-cod');
+
+    // Ativa botão Vincular
+    btnVincular.disabled = false;
+  });
+});
+
+// Vincular
 btnVincular.addEventListener('click', () => {
-  const selecionado = radios.find(r => r.checked);
-  if (!selecionado) return;
+  if (!usuarioSelecionado) return;
   const codViagem = "<%= cod %>";
-  window.location.href = `/admin/viagens/formulario-participante/${codViagem}?usuarioSelecionado=${selecionado.value}`;
+  window.location.href = `/admin/viagens/formulario-participante/${codViagem}?usuarioSelecionado=${usuarioSelecionado}`;
 });
 </script>

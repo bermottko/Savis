@@ -19,10 +19,6 @@ const Participante = db.sequelize.define('participante', {
     type: db.Sequelize.STRING(50),
     allowNull: false
   },
-  data_consul: {
-    type: db.Sequelize.DATEONLY,
-    allowNull: false
-  },
   hora_consul: {
     type: db.Sequelize.TIME,
     allowNull: false

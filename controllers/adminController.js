@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante, Veiculo} = require('../models');
 const { Op } = require('sequelize');
 const { Sequelize } = require('sequelize');
 
@@ -54,7 +54,6 @@ exports.deletarUsuarios = async (req, res) => {
   }
 };
 
-// EDITAR USUÁRIO
 exports.editarUsuario = async (req, res) => {
   try {
     const cod = req.params.cod;
@@ -81,7 +80,6 @@ exports.editarUsuario = async (req, res) => {
   }
 };
 
-// SALVAR EDIÇÃO USUÁRIO
 exports.salvarEdicaoUsuario = async (req, res) => {
   try {
     const cod = req.params.cod;
@@ -355,12 +353,18 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
-
 exports.renderSolicitacoes = async (req, res) => {
+  const solicitacoes = await Solicitacao.findAll({
+    include: [
+      {model: CidadeConsul},
+      {model: Usuario}
+    ]
+});
   try {
     res.render('admin/solicitacoes/index', {
       layout: 'layouts/layoutAdmin',
-      paginaAtual: 'solicitacoes'
+      paginaAtual: 'solicitacoes',
+      solicitacoes
     });
   } catch (erro) {
     console.error(erro);
@@ -394,10 +398,13 @@ exports.renderNovaViagem = async (req, res) => {
   try {
     const cidadeconsul = await CidadeConsul.findAll();
     const motoristas = await Motorista.findAll();
+    const veiculos = await Veiculo.findAll();
+
     const dataSelecionada = req.query.data_viagem || '';
     res.render('admin/viagens/nova-viagem', {
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens',
+      veiculos,
       dataSelecionada,
       motoristas,
       cidadeconsul
@@ -414,9 +421,7 @@ exports.renderCadastrarViagem = async (req, res) => {
       cidadeconsulID: req.body.cidadeconsulID,
       data_viagem: req.body.data_viagem,
       horario_saida: req.body.horario_saida,
-      lugares_dispo: req.body.lugares_dispo,
-      modelo_car: req.body.modelo_car,
-      placa: req.body.placa,
+      veiculoID: req.body.veiculoID,
       motoristaID: req.body.motoristaID,
       statusID: 1
     });
@@ -432,9 +437,10 @@ exports.renderVerViagem = async (req, res) => {
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [
-        { model:  Motorista, as: 'Motorista' },
+        { model: Motorista, as: 'Motorista' },
         { model: Status },
-        { model: CidadeConsul }
+        { model: CidadeConsul },
+        { model: Veiculo, as: 'veiculo' }
       ]
     });
 
@@ -453,17 +459,23 @@ exports.editarViagem = async (req, res) => {
       where: { cod },
       include: [
         { model: Motorista, as: 'Motorista' },
-        { model: Status }
+        { model: Status },
+        { model: CidadeConsul, as: 'cidadeconsul' },
+        { model: Veiculo, as: 'veiculo'}
       ]
     });
 
     const motoristas = await Motorista.findAll();
     const statusLista = await Status.findAll(); 
+    const cidades = await CidadeConsul.findAll();
+    const veiculos = await Veiculo.findAll();
 
     res.render('admin/viagens/editar', {
       viagem,              
       motoristas,                   
-      statusLista,                   
+      statusLista,
+      cidades,
+      veiculos,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -483,12 +495,10 @@ exports.salvarEdicaoViagem = async (req, res) => {
     }
 
     await Viagem.update({
-      destino_cid: req.body.destino_cid,
+      cidadeconsulID: req.body.cidadeconsulID,
       data_viagem: req.body.data_viagem,
       horario_saida: req.body.horario_saida,
-      lugares_dispo: req.body.lugares_dispo,
-      modelo_car: req.body.modelo_car,
-      placa: req.body.placa,
+      veiculoID: req.body.veiculoID,
       motoristaID: req.body.motoristaID,
       statusID: req.body.statusID,
       combustivel: req.body.combustivel,
@@ -523,24 +533,31 @@ exports.verParticipantes = async (req, res) => {
   try {
     const cod = req.params.cod;
 
-    const viagem = await Viagem.findOne({
-      where: { cod },
+   const viagem = await Viagem.findOne({
+  where: { cod },
+  include: [
+    {
+      model: Participante,
+      as: 'participantes',
       include: [
         {
-          model: Participante,
-          as: 'participantes',
+          model: Usuario,
           include: [
-            {
-              model: Usuario,
-              include: [
-                { model: Genero },
-                { model: Endereco }
-              ]
-            }
+            { model: Genero },
+            { model: Endereco },
           ]
+        },
+        {
+          model: Acompanhante,
+          include: [
+            {model: Genero }
+          ],
+          as: 'acompanhante' 
         }
       ]
-    });
+    }
+  ]
+});
 
     if (!viagem) {
       return res.status(404).send('Viagem não encontrada');
@@ -566,7 +583,7 @@ exports.adicionarParticipante = async (req, res) => {
     // Busca a viagem e os participantes já vinculados
     const viagem = await Viagem.findOne({
       where: { cod },
-      include: [{ model: Participante, required: false }]
+      include: [{ model: Participante, as: 'participantes', required: false }]
     });
 
     if (!viagem) {
@@ -574,7 +591,7 @@ exports.adicionarParticipante = async (req, res) => {
     }
 
     // Pega os IDs de usuários que já são participantes dessa viagem
-    const codUsuariosVinculados = viagem.Participantes ? viagem.Participantes.map(p => p.usuarioID) : [];
+    const codUsuariosVinculados = viagem.participantes ? viagem.participantes.map(p => p.usuarioID) : [];
 
     // Busca todos os usuários que não estão vinculados a essa viagem
     const usuariosNaoVinculados = await Usuario.findAll({
@@ -622,33 +639,63 @@ exports.formularioParticipante = async (req, res) => {
 };
 
 exports.vincularUsuario = async (req, res) => {
-  console.log('req.params.cod:', req.params.cod);
- console.log('req.body:', req.body);
   try {
-    
-    const cod = req.params.cod;
-    const usuarioID = req.body.usuarioID; // <-- pega do input hidden
-    const { local_consul, data_consul, hora_consul, encaminhamento, objetivo, obs, acompanhanteID } = req.body;
+    const cod = req.params.cod; // viagemID
+    const usuarioID = req.body.usuarioID; // vem do input hidden
+
+    const { 
+      local_consul, hora_consul,
+      encaminhamento, objetivo, obs,
+      temAcompanhante, nome, cpf, data_nasc, generoID, telefone
+    } = req.body;
 
     if (!usuarioID) {
       return res.status(400).send('Nenhum usuário selecionado');
     }
 
+    let acompanhanteID = null;
+
+    // pega a foto do acompanhante (se foi enviada)
+    let fotoAcomp = null;
+    if (req.files && req.files['foto_acomp'] && req.files['foto_acomp'][0]) {
+      fotoAcomp = req.files['foto_acomp'][0].filename;
+    }
+
+    // Se usuário marcou "Sim" no campo acompanhante
+    if (temAcompanhante === "sim") {
+      const novoAcomp = await Acompanhante.create({
+        img: fotoAcomp,  // salva o nome do arquivo no banco
+        nome,
+        cpf,
+        data_nasc,
+        generoID,
+        telefone
+      });
+
+      acompanhanteID = novoAcomp.cod; // pega a PK criada
+    }
+
+    // pega o arquivo de encaminhamento (se foi enviado)
+    let encaminhamentoFile = encaminhamento;
+    if (req.files && req.files['encaminhamento'] && req.files['encaminhamento'][0]) {
+      encaminhamentoFile = req.files['encaminhamento'][0].filename;
+    }
+
+    // Agora cria o participante
     await Participante.create({
       usuarioID,
       viagemID: cod,
       local_consul,
-      data_consul,
       hora_consul,
-      encaminhamento: req.file ? req.file.filename : encaminhamento, // arquivo enviado via multer
+      encaminhamento: encaminhamentoFile,
       objetivo,
       obs: obs || null,
-      acompanhanteID: acompanhanteID || null,
+      acompanhanteID, // se null, não vincula
       statusID: 1
     });
 
     res.redirect(`/admin/viagens/participantes/${cod}`);
-
+    
   } catch (error) {
     console.error('Erro ao vincular usuário:', error);
     res.status(500).send('Erro ao vincular usuário à viagem');
@@ -656,15 +703,17 @@ exports.vincularUsuario = async (req, res) => {
 };
 
 exports.renderViagensLista = async (req, res) => {
-    const viagens = await Viagem.findAll({
-      include: [
-        { model: Motorista, as: 'Motorista' },
-        { model: Status }
-      ]
-    }); 
-    res.render('admin/viagens/lista', {
-      viagens,
-      layout: 'layouts/layoutAdmin',
-      paginaAtual: 'viagens'
-    });
-  }
+  const viagens = await Viagem.findAll({
+    include: [
+      { model: Motorista, as: 'Motorista' },
+      { model: Status },
+      { model: CidadeConsul, as: 'cidadeconsul' }
+    ]
+  });
+
+  res.render('admin/viagens/lista', {
+    viagens,
+    layout: 'layouts/layoutAdmin',
+    paginaAtual: 'viagens'
+  });
+};

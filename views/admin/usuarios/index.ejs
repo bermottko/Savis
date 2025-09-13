@@ -1,6 +1,6 @@
-<div class="container mt-4">
+<div class="container mt-5">
   <div class="row justify-content-center mb-5">
-    <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
+    <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
       <input type="search" 
       id="pesquisa" 
       placeholder="Pesquisar usuário por nome ou CPF" 
@@ -11,9 +11,8 @@
     <% posts.forEach(function(post) { %>
 
       <div class="col-12 d-flex justify-content-center">
-        <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+        <div class="card p-3 shadow-sm mt-2 card-viagem">
           <div class="d-flex flex-row align-items-center">
-
             <img 
               src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
               alt="Foto de perfil" 

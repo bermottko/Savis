@@ -41,11 +41,11 @@ exports.addSolicitar = async (req,res) => {
     if (req.body.temAcompanhante === 'sim') {
       const acompanhanteCriado = await Acompanhante.create({
         img: foto_acompanhante,
-        nome: req.body.acompanhante_nome,
-        cpf: req.body.acompanhante_cpf,
-        data_nasc: req.body.acompanhante_data_nasc,
-        generoID: req.body.acompanhante_generoID,
-        telefone: req.body.acompanhante_telefone
+        nome: req.body.nome,
+        cpf: req.body.cpf,
+        data_nasc: req.body.data_nasc,
+        generoID: req.body.generoID,
+        telefone: req.body.telefone
       });
 
       acompanhanteID = acompanhanteCriado.cod;

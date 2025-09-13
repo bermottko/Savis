@@ -1,31 +1,39 @@
-    <% viagens.forEach(function(viagens) { %>
+<div class="col-12 d-flex flex-column align-items-center mt-5">
 
-      <div class="col-12 d-flex justify-content-center">
-        <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
-          <div class="d-flex flex-row align-items-center">
+  <% viagens.forEach(function(viagem) { %>
+    <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+      
+      <div class="d-flex flex-row align-items-center">
+        <div class="flex-grow-1">
+          <h5 class="nome-perfil mb-0">
+            <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %> <br>
+            3/<%= viagem.lugares_dispo %>
+          </h5>
+        </div>
+        <button class="botao ver-mais-btn">Ver mais</button>
+      </div>
 
-            <div class="flex-grow-1">
-              <h5 class="nome-perfil mb-0"><%= viagens.destino_cid %></h5>
-            </div>
-
-            <button class="botao ver-mais-btn">Ver mais</button> 
-            </div>
-
-            <!--VER MAIS-->
-            <div class="detalhes">
-            
-            <div class="d-flex justify-content-end gap-3">
-            <a href="#" class="botao">Editar</a>
-            
-            </div>
-
-          </div>
+      <div class="detalhes">
+        <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
+        <hr>
+        <p><strong>Modelo do carro:</strong> <%= viagem.modelo_car %></p>
+        <hr>
+        <p><strong>Placa:</strong> <%= viagem.placa %></p>
+        <hr>
+        <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+        <hr>
+        <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+        <hr>
+        <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
+        <br>
+        <div class="d-flex justify-content-end gap-3">
+          <a href="#" class="botao">Editar</a>
         </div>
       </div>
 
-    <% }) %>
+    </div>
+  <% }) %>
 
-  </div>
 </div>
 
 <script>

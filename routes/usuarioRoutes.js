@@ -18,7 +18,7 @@ const upload = multer({ storage });
 router.get('/inicio/index', usuarioController.renderInicio);
 router.get('/agenda/index', usuarioController.renderAgenda);
 router.get('/solicitar/index', usuarioController.renderSolicitar);
-router.post('/solicitar/add-solicitacao', upload.fields([{ name: 'foto_acompanhante', maxCount: 1 },{ name: 'encaminhamento', maxCount: 1 } ]), usuarioController.addSolicitar);
+router.post('/solicitar/add-solicitacao', upload.fields([{ name: 'foto_acomp', maxCount: 1 },{ name: 'encaminhamento', maxCount: 1 } ]), usuarioController.addSolicitar);
 
 router.get('/duvidas/index', usuarioController.renderDuvidas);
 

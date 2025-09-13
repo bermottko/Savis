@@ -24,6 +24,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
+
         h1 {
             font-family: 'League Spartan', sans-serif;
             color: #00204c;
@@ -163,7 +164,6 @@
 
         .botao-visualizar {
   color: #00204c;
-  text-decoration: none;
   display: inline-block;
   transition: 0.3s ease;
 }
@@ -195,7 +195,36 @@
         /* ------------------------- */
         /*     CARD DO USUÁRIO      */
         /* ------------------------- */
+        
+    .card-viagem {
+  width: 100%;
+  max-width: 720px;
+  background-color: #d1e3fd;
+}
 
+        .card-selecao {
+    border-radius: 8px;
+    transition: all 0.2s ease; /* animação suave */
+    cursor: pointer;
+    }
+
+    /* Hover */
+    .card-selecao:hover {
+    border: 3px solid #a1c3f2; /* azul similar ao botão bootstrap */
+    transform: scale(1.02); /* leve aumento */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Selecionado */
+    .card-viagem.selecionado {
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    background-color: #c9dcf7;
+    }
+
+    input[type="radio"] {
+  accent-color: #00204c; /* substitua pela cor do seu site */
+}
         .foto-perfil {
             width: 60px;
             height: 60px;

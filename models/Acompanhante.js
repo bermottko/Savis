@@ -18,7 +18,6 @@ const Acompanhante = db.sequelize.define('acompanhante', {
   cpf: {
     type: db.Sequelize.STRING(14), 
     allowNull: false,
-    unique: true
   },
   data_nasc: {
     type: db.Sequelize.DATEONLY,
