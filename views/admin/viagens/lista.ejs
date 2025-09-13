@@ -7,7 +7,7 @@
         <div class="flex-grow-1">
           <h5 class="nome-perfil mb-0">
             <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %> <br>
-            3/<%= viagem.lugares_dispo %>
+            <%= viagem.veiculo.lugares_dispo %>
           </h5>
         </div>
         <button class="botao ver-mais-btn">Ver mais</button>

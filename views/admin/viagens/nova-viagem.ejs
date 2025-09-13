@@ -4,15 +4,22 @@
     <form action="/admin/viagens/add-nova-viagem" method="POST" class="container mt-4">
       <h2 class="mb-4 titulo">Cadastrar Viagem</h2>
 
+      <input type="hidden" name="solicitacaoID" value="<%= solicitacaoID %>">
+
       <div class="mb-3">
         <label for="cidadeconsulID" class="form-label">Cidade</label>
         <select name="cidadeconsulID" class="form-control" required>
-          <option value="" disabled selected>Selecione uma cidade</option>
-          <% cidadeconsul.forEach(cidadeconsul => { %>
-            <option value="<%= cidadeconsul.cod %>"><%= cidadeconsul.descricao %></option>
+          <option value="" disabled <%= !cidadeSelecionada ? 'selected' : '' %>>
+            Selecione uma cidade
+          </option>
+          <% cidadeconsul.forEach(cidade => { %>
+            <option value="<%= cidade.cod %>" <%= cidadeSelecionada == cidade.cod ? 'selected' : '' %>>
+              <%= cidade.descricao %>
+            </option>
           <% }) %>
         </select>
       </div>
+
       
       <div class="mb-3">
         <label for="data_viagem" class="form-label">Data da Viagem</label>

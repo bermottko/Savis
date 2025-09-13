@@ -7,7 +7,7 @@
       <div class="card-header d-flex justify-content-between align-items-center" 
            style="background-color: #a7c9f9; border-top-left-radius: 10px; border-top-right-radius: 10px;">
         <span class="fw-bold" style="color: #062352; font-size: 16px;">
-          <%= solicitacao.cidadeconsul.descricao %>
+          <%= solicitacao.cidadeconsul.descricao %> - <%= solicitacao.local_consul %> - <%= solicitacao.hora_consul.slice(0,5) %> 
         </span>
         <span class="fw-bold" style="color: #062352; font-size: 15px;">
           <%= new Date(solicitacao.data_consul).toLocaleDateString('pt-BR') %>
@@ -25,18 +25,34 @@
             class="rounded-circle me-3"
             style="width: 40px; height: 40px; object-fit: cover;">
           <div>
-            <h6 class="mb-0" style="font-weight: bold; color: #062352;">
-              <%= solicitacao.Usuario.nome.toUpperCase() %>
+            <h6 class="mb-0">
+              <%= solicitacao.Usuario.nome.toUpperCase() %> 
+              <% if (solicitacao.acompanhanteID) { %>
+                + acompanhante
+              <% } %>
             </h6>
-            
+              <% if (solicitacao.encaminhamento) { %>
+              <a
+                href="/uploads/<%= solicitacao.encaminhamento %>"
+                target="_blank"
+                class="botao-visualizar"
+              >
+                Encaminhamento
+              </a>
+              <% } else { %>
+              <span class="text-muted" style="font-size: 13px"
+                >Não enviado</span
+              >
+              <% } %>
           </div>
         </div>
 
         <!-- Botões -->
         <div class="margem">
-          <button class="botao-soli ">
+          <a href="/admin/viagens/nova-viagem?data_viagem=<%= solicitacao.data_consul %>&cidade_consul=<%= solicitacao.cidadeconsul.cod %>&solicitacaoID=<%= solicitacao.cod %>" 
+            class="botao">
             Criar
-          </button>
+          </a>
           <button class="botao-soli bg-vermelho">
             Rejeitar
           </button>

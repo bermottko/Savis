@@ -353,25 +353,6 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
-exports.renderSolicitacoes = async (req, res) => {
-  const solicitacoes = await Solicitacao.findAll({
-    include: [
-      {model: CidadeConsul},
-      {model: Usuario}
-    ]
-});
-  try {
-    res.render('admin/solicitacoes/index', {
-      layout: 'layouts/layoutAdmin',
-      paginaAtual: 'solicitacoes',
-      solicitacoes
-    });
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao carregar solicitações');
-  }
-};
-
 exports.renderViagens = (req, res) => {
     res.render('admin/viagens/index', {
       layout: 'layouts/layoutAdmin',
@@ -401,14 +382,20 @@ exports.renderNovaViagem = async (req, res) => {
     const veiculos = await Veiculo.findAll();
 
     const dataSelecionada = req.query.data_viagem || '';
+    const cidadeSelecionada = req.query.cidade_consul || '';
+    const solicitacaoID = req.query.solicitacaoID || null;
+
     res.render('admin/viagens/nova-viagem', {
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens',
       veiculos,
-      dataSelecionada,
       motoristas,
-      cidadeconsul
+      cidadeconsul,
+      dataSelecionada,
+      cidadeSelecionada: cidadeSelecionada || '',
+      solicitacaoID
     });
+
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao carregar motoristas: ' + erro);
@@ -417,7 +404,9 @@ exports.renderNovaViagem = async (req, res) => {
 
 exports.renderCadastrarViagem = async (req, res) => {
   try {
-    await Viagem.create({
+     const { solicitacaoID } = req.body;
+
+     const novaViagem = await Viagem.create({
       cidadeconsulID: req.body.cidadeconsulID,
       data_viagem: req.body.data_viagem,
       horario_saida: req.body.horario_saida,
@@ -425,6 +414,25 @@ exports.renderCadastrarViagem = async (req, res) => {
       motoristaID: req.body.motoristaID,
       statusID: 1
     });
+
+    if (solicitacaoID) {
+    const solicitacao = await Solicitacao.findByPk(solicitacaoID);
+
+    if (solicitacao) {
+      await Participante.create({
+        usuarioID: solicitacao.usuarioID,
+        viagemID: novaViagem.cod,
+        local_consul: solicitacao.local_consul,
+        hora_consul: solicitacao.hora_consul,
+        encaminhamento: solicitacao.encaminhamento,
+        objetivo: solicitacao.objetivo,
+        obs: solicitacao.obs,
+        acompanhanteID: solicitacao.acompanhanteID
+      });
+      await solicitacao.destroy();
+    }
+  }
+
     res.redirect('/admin/viagens/index');
   } catch (erro) {
     console.error(erro);
@@ -707,7 +715,8 @@ exports.renderViagensLista = async (req, res) => {
     include: [
       { model: Motorista, as: 'Motorista' },
       { model: Status },
-      { model: CidadeConsul, as: 'cidadeconsul' }
+      { model: CidadeConsul, as: 'cidadeconsul' },
+      { model: Veiculo, as: 'veiculo'}
     ]
   });
 
@@ -716,4 +725,23 @@ exports.renderViagensLista = async (req, res) => {
     layout: 'layouts/layoutAdmin',
     paginaAtual: 'viagens'
   });
+};
+
+exports.renderSolicitacoes = async (req, res) => {
+  const solicitacoes = await Solicitacao.findAll({
+    include: [
+      {model: CidadeConsul},
+      {model: Usuario}
+    ]
+});
+  try {
+    res.render('admin/solicitacoes/index', {
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'solicitacoes',
+      solicitacoes
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao carregar solicitações');
+  }
 };
