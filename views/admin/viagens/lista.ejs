@@ -1,43 +1,59 @@
 <div class="col-12 d-flex flex-column align-items-center mt-5">
-
   <% viagens.forEach(function(viagem) { %>
-    <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
-      
-      <div class="d-flex flex-row align-items-center">
-        <div class="flex-grow-1">
-          <h5 class="nome-perfil mb-0">
-            <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %> <br>
-            <%= viagem.veiculo.lugares_dispo %>
-          </h5>
-        </div>
-        <button class="botao ver-mais-btn">Ver mais</button>
-      </div>
+    <div class="card shadow-sm mt-2" style="width: 100%; max-width: 720px; border-radius: 10px; background-color: #d1e3fd;">
 
-      <div class="detalhes">
-        <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
-        <hr>
-        <p><strong>Modelo do carro:</strong> <%= viagem.modelo_car %></p>
-        <hr>
-        <p><strong>Placa:</strong> <%= viagem.placa %></p>
-        <hr>
-        <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
-        <hr>
-        <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
-        <hr>
-        <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
-        <br>
-        <div class="d-flex justify-content-end gap-3">
-          <a href="#" class="botao">Editar</a>
-        </div>
+      <!-- Cabeçalho -->
+      <div class="card-header d-flex justify-content-between align-items-center"
+           style="background-color: #a7c9f9; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+        <span class="fw-bold" style="color: #062352; font-size: 16px;">
+          <%= viagem.cidadeconsul.descricao %> 
+        </span>
+        <span class="fw-bold" style="color: #062352; font-size: 15px;">
+          <%= viagem.data_viagem.split('-').reverse().join('/') %>
+        </span>
       </div>
+      <!-- Corpo -->
+      <div class="card-body">
+  
+        <!-- Linha principal com botão Ver mais -->
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="flex-grow-1">
+             <img src="/assets/pessoa-azul.png" alt="Ícone de Usuário"
+             style="width: 35px; height: 35px; object-fit: cover;">
+               <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %>
+          </div>
+          <button class="botao ver-mais-btn">Ver mais</button>
+        </div>
 
+        <!-- Detalhes expansíveis -->
+        <div class="detalhes" >
+          <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
+          <hr>
+          <p><strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %></p>
+          <hr>
+          <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
+          <hr>
+          <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+          <hr>
+          <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+          <hr>
+          <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
+          <br>
+
+          <div class="d-flex justify-content-end gap-3 mt-2">
+             <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
+            <button type="submit" class="botao bg-vermelho">Cancelar</button>
+            </form>
+            <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao">Editar</a>
+          </div>
+        </div>
+
+      </div>
     </div>
   <% }) %>
-
 </div>
 
 <script>
-
   // VER MAIS / VER MENOS
   document.querySelectorAll('.ver-mais-btn').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -59,5 +75,3 @@
     });
   });
 </script>
-
-

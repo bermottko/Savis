@@ -177,11 +177,13 @@ Participante.belongsTo(Usuario, {
 
 // Viagem <-> Participante
 Viagem.hasMany(Participante, { 
+    as: 'participantes',
     foreignKey: 'viagemID', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
 });
 Participante.belongsTo(Viagem, { 
+    as: 'viagem',
     foreignKey: 'viagemID', 
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE' 
@@ -199,16 +201,18 @@ Participante.belongsTo(Status, {
     onUpdate: 'CASCADE' 
 });
 
-// Acompanhante <-> Participante
-Acompanhante.hasMany(Participante, { 
-    foreignKey: 'acompanhanteID', 
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
-});
+// Participante <-> Acompanhante (1:1)
 Participante.belongsTo(Acompanhante, { 
-    foreignKey: 'acompanhanteID', 
+    as: 'acompanhante',
+    foreignKey: 'acompanhanteID',
     onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE' 
+    onUpdate: 'CASCADE'
+});
+Acompanhante.hasOne(Participante, { 
+    as: 'participante',
+    foreignKey: 'acompanhanteID',
+    onDelete: 'CASCADE', 
+    onUpdate: 'CASCADE'
 });
 
 // Acompanhante <-> Genero

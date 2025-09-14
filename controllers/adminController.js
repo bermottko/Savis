@@ -478,12 +478,15 @@ exports.editarViagem = async (req, res) => {
     const cidades = await CidadeConsul.findAll();
     const veiculos = await Veiculo.findAll();
 
+    const previousPage = req.get('Referer') || '/admin/viagens/index';
+
     res.render('admin/viagens/editar', {
       viagem,              
       motoristas,                   
       statusLista,
       cidades,
       veiculos,
+      previousPage,
       layout: 'layouts/layoutAdmin',
       paginaAtual: 'viagens'
     });
@@ -519,7 +522,8 @@ exports.salvarEdicaoViagem = async (req, res) => {
       where: { cod }
     });
 
-    res.redirect('/admin/viagens/index');
+    const redirectTo = req.body.previousPage || '/admin/viagens/index';
+    res.redirect(redirectTo);
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao salvar edição da viagem: ' + erro);
@@ -534,7 +538,8 @@ exports.cancelarViagem = async (req, res) => {
       { where: { cod: cod } }    
   );
 
-  res.redirect('/admin/viagens/index');
+   const previousPage = req.get('Referer') || '/admin/viagens/index';
+  res.redirect(previousPage);
 };
 
 exports.verParticipantes = async (req, res) => {
@@ -716,15 +721,32 @@ exports.renderViagensLista = async (req, res) => {
       { model: Motorista, as: 'Motorista' },
       { model: Status },
       { model: CidadeConsul, as: 'cidadeconsul' },
-      { model: Veiculo, as: 'veiculo'}
+      { model: Veiculo, as: 'veiculo' },
+      {
+        model: Participante,
+        as: 'participantes' // plural para bater com o atributo no loop
+      }
     ]
   });
 
-  res.render('admin/viagens/lista', {
-    viagens,
-    layout: 'layouts/layoutAdmin',
-    paginaAtual: 'viagens'
-  });
+  const viagensComOcupacao = viagens.map(v => {
+  const qtdParticipantes = v.participantes.length;
+  const qtdAcompanhantes = v.participantes.reduce(
+    (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+    0
+  );
+
+  return {
+    ...v.toJSON(), // transforma em objeto plano
+    ocupacao: qtdParticipantes + qtdAcompanhantes
+  };
+});
+
+res.render('admin/viagens/lista', {
+  viagens: viagensComOcupacao,
+  layout: 'layouts/layoutAdmin',
+  paginaAtual: 'viagens'
+});
 };
 
 exports.renderSolicitacoes = async (req, res) => {
