@@ -404,39 +404,64 @@ exports.renderNovaViagem = async (req, res) => {
 
 exports.renderCadastrarViagem = async (req, res) => {
   try {
-     const { solicitacaoID } = req.body;
+    const { solicitacaoID, cidadeconsulID, data_viagem, horario_saida, veiculoID, motoristaID } = req.body;
 
-     const novaViagem = await Viagem.create({
-      cidadeconsulID: req.body.cidadeconsulID,
-      data_viagem: req.body.data_viagem,
-      horario_saida: req.body.horario_saida,
-      veiculoID: req.body.veiculoID,
-      motoristaID: req.body.motoristaID,
+    let erros = [];
+    if(!cidadeconsulID) erros.push({ campo:"cidadeconsulID", msg:"Selecione uma cidade." });
+    if(!data_viagem) erros.push({ campo:"data_viagem", msg:"Informe a data da viagem." });
+    if(!horario_saida) erros.push({ campo:"horario_saida", msg:"Informe o horário de saída." });
+    if(!veiculoID) erros.push({ campo:"veiculoID", msg:"Selecione um veículo." });
+    if(!motoristaID) erros.push({ campo:"motoristaID", msg:"Selecione um motorista." });
+
+    if(erros.length > 0){
+      const cidadeconsul = await CidadeConsul.findAll();
+      const motoristas = await Motorista.findAll();
+      const veiculos = await Veiculo.findAll();
+
+      return res.render("admin/viagens/nova-viagem",{
+        layout:"layouts/layoutAdmin",
+        paginaAtual:"viagens",
+        veiculos,
+        motoristas,
+        cidadeconsul,
+        dataSelecionada:data_viagem,
+        cidadeSelecionada:cidadeconsulID,
+        solicitacaoID,
+        erros
+      });
+    }
+
+    // se passou nas validações → cria a viagem
+    const novaViagem = await Viagem.create({
+      cidadeconsulID,
+      data_viagem,
+      horario_saida,
+      veiculoID,
+      motoristaID,
       statusID: 1
     });
 
     if (solicitacaoID) {
-    const solicitacao = await Solicitacao.findByPk(solicitacaoID);
-
-    if (solicitacao) {
-      await Participante.create({
-        usuarioID: solicitacao.usuarioID,
-        viagemID: novaViagem.cod,
-        local_consul: solicitacao.local_consul,
-        hora_consul: solicitacao.hora_consul,
-        encaminhamento: solicitacao.encaminhamento,
-        objetivo: solicitacao.objetivo,
-        obs: solicitacao.obs,
-        acompanhanteID: solicitacao.acompanhanteID
-      });
-      await solicitacao.destroy();
+      const solicitacao = await Solicitacao.findByPk(solicitacaoID);
+      if (solicitacao) {
+        await Participante.create({
+          usuarioID: solicitacao.usuarioID,
+          viagemID: novaViagem.cod,
+          local_consul: solicitacao.local_consul,
+          hora_consul: solicitacao.hora_consul,
+          encaminhamento: solicitacao.encaminhamento,
+          objetivo: solicitacao.objetivo,
+          obs: solicitacao.obs,
+          acompanhanteID: solicitacao.acompanhanteID
+        });
+        await solicitacao.destroy();
+      }
     }
-  }
 
-    res.redirect('/admin/viagens/index');
+    res.redirect("/admin/viagens/index");
   } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao cadastrar viagem: ' + erro);
+    console.error("Erro ao cadastrar viagem:", erro);
+    res.status(500).send("Erro ao cadastrar viagem: " + erro);
   }
 };
 
@@ -665,8 +690,8 @@ exports.vincularUsuario = async (req, res) => {
 
     // pega a foto do acompanhante (se foi enviada)
     let fotoAcomp = null;
-    if (req.files && req.files['foto_acomp'] && req.files['foto_acomp'][0]) {
-      fotoAcomp = req.files['foto_acomp'][0].filename;
+    if (req.files && req.files['foto_acompanhante'] && req.files['foto_acompanhante'][0]) {
+      fotoAcomp = req.files['foto_acompanhante'][0].filename;
     }
 
     // Se usuário marcou "Sim" no campo acompanhante
