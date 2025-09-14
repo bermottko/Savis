@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 function fileFilter(req, file, cb) {
   const isPDF = file.mimetype === 'application/pdf';
   const isFotoPerfil = file.fieldname === 'foto_perfil';
-  const isFotoAcomp = file.fieldname === 'foto_acomp'; // novo nome
+  const isFotoAcomp = file.fieldname === 'foto_acompanhante'; // novo nome
 
   if (isPDF || isFotoPerfil || isFotoAcomp) {
     cb(null, true);
@@ -70,7 +70,7 @@ router.post(
   '/viagens/vincular-usuario/:cod',
   upload.fields([
     { name: 'encaminhamento', maxCount: 1 },
-    { name: 'foto_acomp', maxCount: 1 }
+    { name: 'foto_acompanhante', maxCount: 1 }
   ]),
   adminController.vincularUsuario
 );

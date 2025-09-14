@@ -1,54 +1,58 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
   <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 600px; background-color: #ffffff;">
-
-    <form action="/admin/viagens/add-nova-viagem" method="POST" class="container mt-4">
+    <form id="formNovaViagem" action="/admin/viagens/add-nova-viagem" method="POST" class="container mt-4" novalidate>
       <h2 class="mb-4 titulo">Cadastrar Viagem</h2>
 
       <input type="hidden" name="solicitacaoID" value="<%= solicitacaoID %>">
 
+      <!-- Cidade -->
       <div class="mb-3">
         <label for="cidadeconsulID" class="form-label">Cidade</label>
-        <select name="cidadeconsulID" class="form-control" required>
-          <option value="" disabled <%= !cidadeSelecionada ? 'selected' : '' %>>
-            Selecione uma cidade
-          </option>
+        <select id="cidadeconsulID" name="cidadeconsulID" class="form-control">
+          <option value="" disabled <%= !cidadeSelecionada ? 'selected' : '' %>>Selecione uma cidade</option>
           <% cidadeconsul.forEach(cidade => { %>
-            <option value="<%= cidade.cod %>" <%= cidadeSelecionada == cidade.cod ? 'selected' : '' %>>
-              <%= cidade.descricao %>
-            </option>
+            <option value="<%= cidade.cod %>" <%= cidadeSelecionada == cidade.cod ? 'selected' : '' %>><%= cidade.descricao %></option>
           <% }) %>
         </select>
+        <div class="text-danger small" id="erroCidade"></div>
       </div>
 
-      
+      <!-- Data da Viagem -->
       <div class="mb-3">
         <label for="data_viagem" class="form-label">Data da Viagem</label>
-        <input type="date" name="data_viagem" class="form-control" value="<%= dataSelecionada %>" required placeholder="Selecione a data">
+        <input type="date" id="data_viagem" name="data_viagem" class="form-control" value="<%= dataSelecionada %>">
+        <div class="text-danger small" id="erroData"></div>
       </div>
 
+      <!-- Horário de Saída -->
       <div class="mb-3">
         <label for="horario_saida" class="form-label">Horário de Saída</label>
-        <input type="time" name="horario_saida" class="form-control" required placeholder="Escolha o horário de saída">
+        <input type="time" id="horario_saida" name="horario_saida" class="form-control">
+        <div class="text-danger small" id="erroHorario"></div>
       </div>
 
+      <!-- Veículo -->
       <div class="mb-3">
-        <label for="veiculoID" class="form-label">Veiculo</label>
-        <select name="veiculoID" class="form-control" required>
-          <option value="" disabled selected>Selecione um Veiculo</option>
+        <label for="veiculoID" class="form-label">Veículo</label>
+        <select id="veiculoID" name="veiculoID" class="form-control">
+          <option value="" disabled selected>Selecione um Veículo</option>
           <% veiculos.forEach(veiculo => { %>
             <option value="<%= veiculo.cod %>"><%= veiculo.modelo_veiculo %></option>
           <% }) %>
         </select>
+        <div class="text-danger small" id="erroVeiculo"></div>
       </div>
 
+      <!-- Motorista -->
       <div class="mb-3">
         <label for="motoristaID" class="form-label">Motorista</label>
-        <select name="motoristaID" class="form-control" required>
-          <option value="" disabled selected>Selecione um motorista</option>
+        <select id="motoristaID" name="motoristaID" class="form-control">
+          <option value="" disabled selected>Selecione um Motorista</option>
           <% motoristas.forEach(motorista => { %>
             <option value="<%= motorista.cod %>"><%= motorista.nome %></option>
           <% }) %>
         </select>
+        <div class="text-danger small" id="erroMotorista"></div>
       </div>
 
       <div class="d-flex justify-content-between">
@@ -58,3 +62,31 @@
     </form>
   </div>
 </div>
+
+<script>
+  function validarNovaViagem(e) {
+    e.preventDefault();
+    let erros = false;
+    let primeiroErro = null;
+
+    // limpa erros
+    ["erroCidade","erroData","erroHorario","erroVeiculo","erroMotorista"].forEach(id => document.getElementById(id).innerText="");
+
+    const cidade = document.getElementById("cidadeconsulID");
+    const data = document.getElementById("data_viagem");
+    const horario = document.getElementById("horario_saida");
+    const veiculo = document.getElementById("veiculoID");
+    const motorista = document.getElementById("motoristaID");
+
+    if(!cidade.value){ document.getElementById("erroCidade").innerText="Selecione uma cidade."; erros=true; primeiroErro=primeiroErro||cidade; }
+    if(!data.value){ document.getElementById("erroData").innerText="Informe a data da viagem."; erros=true; primeiroErro=primeiroErro||data; }
+    if(!horario.value){ document.getElementById("erroHorario").innerText="Informe o horário de saída."; erros=true; primeiroErro=primeiroErro||horario; }
+    if(!veiculo.value){ document.getElementById("erroVeiculo").innerText="Selecione um veículo."; erros=true; primeiroErro=primeiroErro||veiculo; }
+    if(!motorista.value){ document.getElementById("erroMotorista").innerText="Selecione um motorista."; erros=true; primeiroErro=primeiroErro||motorista; }
+
+    if(erros) primeiroErro.focus();
+    else e.target.submit();
+  }
+
+  document.getElementById("formNovaViagem").addEventListener("submit", validarNovaViagem);
+</script>
