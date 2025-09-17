@@ -55,6 +55,7 @@ router.put(
 );
 
 router.get('/viagens/lista', adminController.renderViagensLista);
+router.get('/viagens/buscar-viagens', adminController.buscarViagens);
 router.get('/viagens/index', adminController.renderViagens);
 router.get('/viagens/buscar-eventos', adminController.renderBuscarEventos);
 router.get('/viagens/nova-viagem', adminController.renderNovaViagem);

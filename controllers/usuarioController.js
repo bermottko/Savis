@@ -1,4 +1,5 @@
-const { Usuario, Endereco, Genero, Solicitacao, Acompanhante, CidadeConsul } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante, Veiculo} = require('../models');
+const { Op } = require('sequelize');
 
 exports.renderInicio = async (req, res) => {
     const codUsuario = req.session.usuario.cod;
@@ -16,12 +17,80 @@ exports.renderInicio = async (req, res) => {
       paginaAtual: 'inicio'
     });
 }
-exports.renderAgenda = (req, res) => {
+
+exports.renderAgenda = async (req, res) => {
+    const viagens = await Viagem.findAll({
+      include: [
+        {model: CidadeConsul, as: 'cidadeconsul'},
+        {model: Participante, as: 'participantes'},
+         { model: Veiculo, as: 'veiculo' },
+      ]
+    });
+    const viagensComOcupacao = viagens.map(v => {
+    const qtdParticipantes = v.participantes.length;
+    const qtdAcompanhantes = v.participantes.reduce(
+      (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+      0
+    );
+
+    return {
+      ...v.toJSON(), // transforma em objeto plano
+      ocupacao: qtdParticipantes + qtdAcompanhantes
+    };
+  });
     res.render('usuario/agenda/index', {
+      viagens: viagensComOcupacao,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'agenda'
     });
+  
 }
+
+exports.buscarViagens = async (req, res) => {
+  try {
+    const { cidade, data } = req.query;
+    let where = {};
+
+    if (cidade) {
+      where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
+    }
+    if (data) {
+      where.data_viagem = { [Op.eq]: data };
+    }
+
+    const viagens = await Viagem.findAll({
+      where,
+      include: [
+        { model: Motorista, as: "Motorista" },
+        { model: Status, as: "status" },
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" }
+      ]
+    });
+
+    res.json(viagens);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao buscar viagens" });
+  }
+};
+
+exports.formularioParticipar = async (req, res ) => {
+  const cod_viagem = req.params.cod 
+  const cod = req.session.usuario.cod 
+  const usuario = await Usuario.findOne({
+    where: { cod },
+    include: [Genero, Endereco]
+  });
+
+  res.render('usuario/agenda/formulario-participar', { 
+    usuario,
+    cod: cod_viagem,
+    layout: 'layouts/layoutAdmin',
+    paginaAtual: 'agenda'
+  });
+}
+
 
 exports.renderSolicitar = async (req, res) => {
   const cidadeconsul = await CidadeConsul.findAll();
@@ -130,7 +199,7 @@ exports.renderDuvidas = (req, res) => {
     });
 }
 
-exports.vincularUsuario = async (req, res) => {
+/*exports.vincularUsuario = async (req, res) => {
   try {
     const cod = req.params.cod;
     const usuarioID = req.body.usuarioID;
@@ -190,3 +259,4 @@ exports.vincularUsuario = async (req, res) => {
     res.status(500).send("Erro ao vincular usuário à viagem");
   }
 };
+*/

@@ -71,14 +71,18 @@
       <!-- Campos do acompanhante -->
       <div id="camposAcompanhante" style="display: none">
 
-        <label for="foto_acompanhante">
-          <img id="preview_foto_acompanhante" 
-              src="/assets/default-profile.jpg" 
-              alt="Foto do acompanhante"
-              class="rounded-circle mt-3 mb-2"
-              style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
-        </label> 
-        <input type="file" id="foto_acompanhante" name="foto_acompanhante" accept="image/*" class="d-none" onchange="previewImagemAcompanhante(event)">
+        <div class="text-center">
+      <label for="foto_acompanhante">
+        <img id="preview_foto_acompanhante" 
+            src="/assets/default-profile.jpg" 
+            alt="Foto do acompanhante"
+            class="rounded-circle mt-3 mb-2"
+            style="width: 90px; height: 90px; object-fit: cover; cursor: pointer; border: 2px solid #ccc;" />
+      </label>
+      <input type="file" id="foto_acompanhante" name="foto_acompanhante" accept="image/*" 
+            class="d-none" onchange="previewImagemAcompanhante(event)">
+      </div>
+
 
         <div class="mb-3">
           <label class="form-label">Nome</label>

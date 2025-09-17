@@ -1,79 +1,164 @@
 <div class="col-12 d-flex flex-column align-items-center mt-5">
-  <h2 class="mb-4 titulo">Lista de Viagens</h2>
+  <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
+    <!-- Campo cidade -->
+    <input type="search" 
+          id="pesquisaCidade" 
+          placeholder="Pesquisar por cidade" 
+          class="form-control pesquisa-custom"
+          style="max-width: 250px;">
 
+    <!-- Campo data -->
+    <input type="date" 
+          id="pesquisaData" 
+          class="form-control pesquisa-custom"
+          style="max-width: 200px;">
+  </div>
   <% viagens.forEach(function(viagem) { %>
-    <div class="card shadow-sm mt-2" style="width: 100%; max-width: 720px; border-radius: 10px; background-color: #d1e3fd;">
-
-      <!-- Cabeçalho -->
-      <div class="card-header d-flex justify-content-between align-items-center"
-           style="background-color: #a7c9f9; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-        <span class="fw-bold" style="color: #062352; font-size: 16px;">
-          <%= viagem.cidadeconsul.descricao %> 
-        </span>
-        <span class="fw-bold" style="color: #062352; font-size: 15px;">
-          <%= viagem.data_viagem.split('-').reverse().join('/') %>
-        </span>
+  <div
+    class="card shadow-sm mt-2"
+    style="
+      width: 100%;
+      max-width: 700px;
+      border-radius: 10px;
+      background-color: #d1e3fd;
+    "
+  >
+    <!-- Cabeçalho -->
+    <div
+      class="card-header d-flex justify-content-between align-items-center"
+      style="
+        background-color: #a7c9f9;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      "
+    >
+      <span class="fw-bold" style="color: #062352; font-size: 16px">
+        <%= viagem.cidadeconsul.descricao %>
+      </span>
+      <span
+        class="fw-bold"
+        style="color: #062352; font-size: 15px"
+        data-date="<%= viagem.data_viagem %>"
+      >
+        <%= viagem.data_viagem.split('-').reverse().join('/') %>
+      </span>
+    </div>
+    <!-- Corpo -->
+    <div class="card-body">
+      <!-- Linha principal com botão Ver mais -->
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="flex-grow-1">
+          <img
+            src="/assets/pessoa-azul.png"
+            alt="Ícone de Usuário"
+            class="mb-1"
+            style="width: 20px; height: 20px"
+          />
+          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados
+        </div>
+        <button class="botao ver-mais-btn">Ver mais</button>
       </div>
-      <!-- Corpo -->
-      <div class="card-body">
-  
-        <!-- Linha principal com botão Ver mais -->
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="flex-grow-1">
-             <img src="/assets/pessoa-azul.png" alt="Ícone de Usuário"
-             style="width: 35px; height: 35px; object-fit: cover;">
-               <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %>
-          </div>
-          <button class="botao ver-mais-btn">Ver mais</button>
-        </div>
 
-        <!-- Detalhes expansíveis -->
-        <div class="detalhes" >
-          <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
-          <hr>
-          <p><strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %></p>
-          <hr>
-          <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
-          <hr>
-          <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
-          <hr>
-          <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
-          <hr>
-          <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
-          <br>
+      <!-- Detalhes expansíveis -->
+      <div class="detalhes">
+        <p>
+          <strong>Horário de saída:</strong> <%=
+          viagem.horario_saida.substring(0,5) %>
+        </p>
+        <hr />
+        <p>
+          <strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %>
+        </p>
+        <hr />
+        <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
+        <hr />
+        <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+        <hr />
+        <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+        <hr />
+        <a
+          href="/admin/viagens/participantes/<%= viagem.cod %>"
+          class="botao-visualizar"
+          >Participantes</a
+        >
+        <br />
 
-          <div class="d-flex justify-content-end gap-3 mt-2">
-             <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
+        <div class="d-flex justify-content-end gap-3 mt-2">
+          <form
+            action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT"
+            method="POST"
+            style="display: inline"
+          >
             <button type="submit" class="botao bg-vermelho">Cancelar</button>
-            </form>
-            <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao">Editar</a>
-          </div>
+          </form>
+          <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao"
+            >Editar</a
+          >
         </div>
-
       </div>
     </div>
+  </div>
   <% }) %>
 </div>
 
 <script>
   // VER MAIS / VER MENOS
-  document.querySelectorAll('.ver-mais-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const card = this.closest('.card');
-      const detalhes = card.querySelector('.detalhes');
-      const estaExpandido = detalhes.classList.contains('expandido');
+  document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const card = this.closest(".card");
+      const detalhes = card.querySelector(".detalhes");
+      const estaExpandido = detalhes.classList.contains("expandido");
 
       if (estaExpandido) {
-        detalhes.style.height = '0px';
-        detalhes.style.marginTop = '0';
-        detalhes.classList.remove('expandido');
-        this.textContent = 'Ver mais';
+        detalhes.style.height = "0px";
+        detalhes.style.marginTop = "0";
+        detalhes.classList.remove("expandido");
+        this.textContent = "Ver mais";
       } else {
-        detalhes.style.height = detalhes.scrollHeight + 'px';
-        detalhes.style.marginTop = '16px';
-        detalhes.classList.add('expandido');
-        this.textContent = 'Ver menos';
+        detalhes.style.height = detalhes.scrollHeight + "px";
+        detalhes.style.marginTop = "16px";
+        detalhes.classList.add("expandido");
+        this.textContent = "Ver menos";
       }
     });
   });
+
+  const inputCidade = document.getElementById("pesquisaCidade");
+  const inputData = document.getElementById("pesquisaData");
+  const cards = Array.from(document.querySelectorAll(".card"));
+
+  function filtrar() {
+    const termoCidade = inputCidade.value.trim().toLowerCase();
+    const termoData = inputData.value; // formato yyyy-mm-dd do input[type="date"]
+
+    cards.forEach((card) => {
+      const cidadeElemento = card.querySelector(
+        ".card-header span:first-child"
+      );
+      const dataElemento = card.querySelector(".card-header span:last-child");
+
+      const cidade = cidadeElemento
+        ? cidadeElemento.textContent.toLowerCase()
+        : "";
+      const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
+      // converte de dd/mm/yyyy -> yyyy-mm-dd para comparar
+
+      let exibir = true;
+
+      // Filtrar por cidade
+      if (termoCidade && !cidade.includes(termoCidade)) {
+        exibir = false;
+      }
+
+      // Filtrar por data
+      if (termoData && data !== termoData) {
+        exibir = false;
+      }
+
+      card.style.display = exibir ? "block" : "none";
+    });
+  }
+
+  inputCidade.addEventListener("input", filtrar);
+  inputData.addEventListener("change", filtrar);
 </script>

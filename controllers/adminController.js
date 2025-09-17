@@ -353,6 +353,35 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
+exports.buscarViagens = async (req, res) => {
+  try {
+    const { cidade, data } = req.query;
+    let where = {};
+
+    if (cidade) {
+      where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
+    }
+    if (data) {
+      where.data_viagem = { [Op.eq]: data };
+    }
+
+    const viagens = await Viagem.findAll({
+      where,
+      include: [
+        { model: Motorista, as: "Motorista" },
+        { model: Status, as: "status" },
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" }
+      ]
+    });
+
+    res.json(viagens);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao buscar viagens" });
+  }
+};
+
 exports.renderViagens = (req, res) => {
     res.render('admin/viagens/index', {
       layout: 'layouts/layoutAdmin',

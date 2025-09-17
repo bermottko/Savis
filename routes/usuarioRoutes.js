@@ -16,7 +16,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get('/inicio/index', usuarioController.renderInicio);
+
 router.get('/agenda/index', usuarioController.renderAgenda);
+router.get('/agenda/buscar-viagens', usuarioController.buscarViagens);
+router.get('/agenda/formulario-participar/:cod', usuarioController.formularioParticipar);
+
 router.get('/solicitar/index', usuarioController.renderSolicitar);
 router.post('/solicitar/add-solicitacao', upload.fields([{ name: 'foto_acompanhante', maxCount: 1 },{ name: 'encaminhamento', maxCount: 1 } ]), usuarioController.addSolicitar);
 

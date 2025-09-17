@@ -54,7 +54,8 @@
             <p><strong>Observação: </strong> <%= participante.obs %></p>
             <hr />
             <p>
-              <strong>Acompanhante:</strong> <% if (participante.acompanhante) {%>Sim <% } else { %> Não <% } %>
+              <strong>Acompanhante:</strong> <% if (participante.acompanhante)
+              {%>Sim <% } else { %> Não <% } %>
             </p>
             <hr />
             <div
@@ -80,35 +81,42 @@
           <!-- DADOS DO USUÁRIO (inicialmente escondidos) -->
           <div class="dados-usuario" style="display: none">
             <p>
-              <strong>Data de Nascimento: </strong><%= participante.Usuario.data_nasc.split('-').reverse().join('/') %>
+              <strong>Data de Nascimento: </strong><%=
+              participante.Usuario.data_nasc.split('-').reverse().join('/') %>
             </p>
             <hr />
             <p>
               <strong>CPF: </strong
               ><span class="cpf-perfil"
                 ><%=
-                participante.Usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4") %></span
+                participante.Usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")
+                %></span
               >
             </p>
             <hr />
             <p>
-              <strong>Gênero: </strong> <%= participante.Usuario.genero.descricao %>
+              <strong>Gênero: </strong> <%=
+              participante.Usuario.genero.descricao %>
             </p>
             <hr />
             <p><strong>Email: </strong> <%= participante.Usuario.email %></p>
             <hr />
             <p>
-              <strong>Telefone: </strong><%= participante.Usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1)$2-$3") %>
+              <strong>Telefone: </strong><%=
+              participante.Usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/,
+              "($1)$2-$3") %>
             </p>
             <hr />
             <p>
               <strong>Endereço: </strong>
               <%= participante.Usuario.endereco?.rua || '' %>,
-              <%=participante.Usuario.endereco?.numero || '' %> - 
-              <%=participante.Usuario.endereco?.bairro || '' %> - 
-              <%= participante.Usuario.endereco?.cidade || '' %> 
-              (<%=participante.Usuario.endereco?.UF || '' %>) 
-              CEP: <%= participante.Usuario.endereco?.CEP ? participante.Usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/,"$1-$2") : '' %>
+              <%=participante.Usuario.endereco?.numero || '' %> -
+              <%=participante.Usuario.endereco?.bairro || '' %> - <%=
+              participante.Usuario.endereco?.cidade || '' %>
+              (<%=participante.Usuario.endereco?.UF || '' %>) CEP: <%=
+              participante.Usuario.endereco?.CEP ?
+              participante.Usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/,"$1-$2")
+              : '' %>
             </p>
             <hr />
             <p><strong>SUS: </strong> <%= participante.Usuario.SUS %></p>
@@ -131,20 +139,25 @@
             </div>
             <br />
             <p>
-              <strong>Data de Nascimento: </strong><%= participante.acompanhante.data_nasc.split('-').reverse().join('/') %>
+              <strong>Data de Nascimento: </strong><%=
+              participante.acompanhante.data_nasc.split('-').reverse().join('/')
+              %>
             </p>
             <hr />
             <p><strong>CPF: </strong> <%= participante.acompanhante.cpf %></p>
             <hr />
             <p>
-              <strong>Gênero: </strong> <%= participante.acompanhante.genero.descricao %>
+              <strong>Gênero: </strong> <%=
+              participante.acompanhante.genero.descricao %>
             </p>
             <hr />
             <p>
-              <strong>Telefone: </strong><%= participante.acompanhante.telefone.replace(/^(\d{2})(\d{5})(\d{4})$/,"($1) $2-$3") %>
+              <strong>Telefone: </strong><%=
+              participante.acompanhante.telefone.replace(/^(\d{2})(\d{5})(\d{4})$/,"($1)
+              $2-$3") %>
             </p>
             <hr />
-           <% } %>
+            <% } %>
           </div>
           <a
             class="botao-visualizar botao-visualizar-dados"
