@@ -9,9 +9,22 @@
       <li class="nav-item">
         <a class="nav-link <%= paginaAtual === 'usuarios' ? 'active-nav' : '' %>" href="/motorista/usuarios/index">Usuários</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link <%= paginaAtual === 'viagens' ? 'active-nav' : '' %>" href="/motorista/viagens/index">Viagens</a>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link <%= paginaAtual === 'viagens' ? 'active-nav' : '' %>" 
+          href="#" id="navbarDropdown" role="button">
+          Viagens
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <li>
+            <a class="dropdown-item" href="/motorista/viagens/index">Calendário</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/motorista/viagens/lista">Lista</a>
+          </li>
+        </ul>
       </li>
+
       <li class="nav-item ms-lg-3">
         <a class="nav-link p-0" href="/#">
           <img src="/assets/pessoa.png" alt="Ícone de Usuário"
