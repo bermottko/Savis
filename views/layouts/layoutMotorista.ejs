@@ -321,6 +321,18 @@
         font-weight: none;
         color: #00204c;
       }
+
+      @media (min-width: 992px) {
+        .navbar .dropdown:hover .dropdown-menu { display: block; }
+      }
+
+      .navbar .dropdown-menu {
+        top: 100% !important;       
+        left: 50% !important;       
+        transform: translateX(-50%); 
+        min-width: auto !important;   
+        width: max-content;           
+      }
     </style>
   </head>
   <body>

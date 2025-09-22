@@ -1,27 +1,36 @@
 <div id="calendario"></div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendario');
-    if (!calendarEl) return;
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      locale: 'pt-br',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay',
-      },
-      buttonText: {
-        today: 'Hoje',
-        month: 'Mês',
-        week: 'Semana',
-        day: 'Dia',
-      },
-      events: '/motorista/viagens/buscar-eventos'
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendario');
+      if (!calendarEl) return;
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+        },
+        buttonText: {
+            today: 'Hoje',
+            month: 'Mês',
+            week: 'Semana',
+            day: 'Dia',
+        },
+        events: '/motorista/viagens/buscar-eventos',
+
+        dateClick: function(info) {
+          const dataSelecionada = info.dateStr; // formato: 'YYYY-MM-DD'
+          // redireciona para a página de nova viagem, passando a data como parâmetro 
+          window.location.href = `/motorista/viagens/nova-viagem?data_viagem=${dataSelecionada}`;
+        },
+
+      });
+
+      calendar.render();
     });
-
-    calendar.render();
-  });
-</script>
+  </script>

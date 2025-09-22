@@ -1,0 +1,84 @@
+<div class="col-12 d-flex justify-content-center espaco-card-edit">
+  <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+
+    <!-- Campos de visualização -->
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Destino:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.cidadeconsul.descricao %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Data da Viagem:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.data_viagem.split('-').reverse().join('/') %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Horário de Saída:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.horario_saida.substring(0,5) %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Veículo:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.veiculo.modelo_veiculo %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Placa:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.veiculo.placa %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Motorista:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.Motorista.nome %>" readonly>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+      <label class="me-2 fw-bold">Status:</label>
+      <input type="text" class="form-control input-transparente" value="<%= viagem.status.descricao %>" readonly>
+    </div>
+
+    <!-- Campos editáveis do relatório -->
+    <h2 class="mb-4 titulo">Relatório da Viagem</h2>
+    <form action="/motorista/viagens/relatorio/<%= viagem.cod %>?_method=PUT" method="POST" class="form-bold">
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="combustivel" class="me-2 fw-bold">Combustível:</label>
+        <input type="text" id="combustivel" name="combustivel" class="form-control input-transparente" value="<%= viagem.combustivel || '' %>">
+      </div>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="km_inicial" class="me-2 fw-bold">Km Inicial:</label>
+        <input type="number" id="km_inicial" name="km_inicial" class="form-control input-transparente" value="<%= viagem.km_inicial || '' %>">
+      </div>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="km_final" class="me-2 fw-bold">Km Final:</label>
+        <input type="number" id="km_final" name="km_final" class="form-control input-transparente" value="<%= viagem.km_final || '' %>">
+      </div>
+
+      <div class="mb-3 d-flex align-items-center">
+        <label for="paradas" class="me-2 fw-bold">Paradas:</label>
+        <input type="text" id="paradas" name="paradas" class="form-control input-transparente" value="<%= viagem.paradas || '' %>">
+      </div>
+
+      <div class="mb-3">
+        <label for="obs" class="fw-bold">Observações:</label>
+        <textarea id="obs" name="obs" class="form-control input-transparente"><%= viagem.obs || '' %></textarea>
+      </div>
+
+     <div class="mb-3 d-flex align-items-center">
+        <label for="horario_chega" class="fw-bold me-2">Horário de Chegada:</label>
+        <div class="input-group" style="max-width: 150px;">
+            <input type="time" id="horario_chega" name="horario_chega" class="form-control input-transparente" value="<%= viagem.horario_chega || '' %>">
+            <span class="input-group-text" style="background: transparent; border: none;  padding: 0 4px; margin-left: 70px;"><i class="bi bi-clock"></i></span>
+        </div>
+     </div>
+
+      <div class="d-flex justify-content-between">
+        <button type="button" class="botao" onclick="history.back()">Cancelar</button>
+        <button type="submit" class="botao">Salvar</button>
+      </div>
+
+    </form>
+  </div>
+</div>
