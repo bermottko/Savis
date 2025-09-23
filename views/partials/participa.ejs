@@ -1,11 +1,14 @@
 <form
-      id="formParticipante"
-      action="<%= action %>"
-      method="POST"
-      class="container mt-4"
-      enctype="multipart/form-data"
-      novalidate
-    >
+    id="formParticipante"
+    action="<%= action %>"
+    method="POST"
+    class="container mt-4"
+    enctype="multipart/form-data"
+    novalidate
+    data-ocupacao="<%= ocupacao %>"
+    data-lugares="<%= viagem.veiculo.lugares_dispo %>"
+  >
+
       <h2 class="mb-4 titulo">Formulário do Participante</h2>
       <input type="hidden" name="usuarioID" value="<%= usuario.cod %>" />
 
@@ -200,10 +203,24 @@
   }
 
   function toggleCamposAcomp() {
+    const form = document.getElementById("formParticipante");
     const sim = document.getElementById("temAcompSim").checked;
-    document.getElementById("camposAcompanhante").style.display = sim
-      ? "block"
-      : "none";
+    const campos = document.getElementById("camposAcompanhante");
+
+    const ocupacao = parseInt(form.dataset.ocupacao);
+    const lugares = parseInt(form.dataset.lugares);
+
+    if (sim) {
+      if (ocupacao >= lugares - 1) {
+        alert("Esta viagem não comporta mais um acompanhante.");
+        document.getElementById("temAcompNao").checked = true;
+        campos.style.display = "none";
+      } else {
+        campos.style.display = "block";
+      }
+    } else {
+      campos.style.display = "none";
+    }
   }
 
   function validarFormulario(e) {
@@ -211,7 +228,7 @@
     let erros = false,
       primeiroErro = null;
 
-    // limpa erros
+    // Limpa mensagens de erro
     [
       "erroLocal",
       "erroHora",
@@ -228,6 +245,9 @@
     const hora = document.getElementById("hora_consul");
     const objetivo = document.getElementById("objetivo");
     const encaminhamento = document.getElementById("encaminhamento");
+    const form = document.getElementById("formParticipante");
+    const ocupacao = parseInt(form.dataset.ocupacao);
+    const lugares = parseInt(form.dataset.lugares);
 
     if (!local.value.trim()) {
       document.getElementById("erroLocal").innerText = "Informe o hospital.";
@@ -251,7 +271,13 @@
       primeiroErro = primeiroErro || encaminhamento;
     }
 
+    // Validação do acompanhante
     if (document.getElementById("temAcompSim").checked) {
+      if (ocupacao >= lugares - 1) {
+        alert("Esta viagem não comporta mais um acompanhante.");
+        erros = true;
+      }
+
       const nome = document.getElementById("nome_acomp");
       const cpf = document.getElementById("cpf_acomp");
       const dataNasc = document.getElementById("data_nasc_acomp");
@@ -288,7 +314,7 @@
       }
     }
 
-    if (erros) primeiroErro.focus();
+    if (erros) primeiroErro && primeiroErro.focus();
     else e.target.submit();
   }
 

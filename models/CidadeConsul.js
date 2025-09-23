@@ -8,7 +8,7 @@ const CidadeConsul = db.sequelize.define('cidadeconsul', {
     allowNull: false
   },
   descricao: {
-    type: db.Sequelize.STRING(13),
+    type: db.Sequelize.STRING(30),
     allowNull: false
   }
 },{

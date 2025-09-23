@@ -3,11 +3,13 @@
     class="card p-3 shadow-sm mt-2"
     style="width: 100%; max-width: 600px; background-color: #ffffff"
   >
-    
+
 <%- include('../../partials/participa', { 
+  viagem,
+  ocupacao,
   usuario, 
   cod, 
-  action: `/admin/viagens/vincular-usuario/${cod}`, 
+  action: `/usuario/agenda/vincular-usuario/${cod}`, 
   modo: 'usuario' 
 }) %>
 

@@ -13,7 +13,7 @@ const Chefe = db.sequelize.define('chefe', {
     unique: true
   },
   senha: {
-    type: db.Sequelize.STRING(16),
+    type: db.Sequelize.STRING(255),
     allowNull: false
   },
   nome: {
@@ -21,6 +21,7 @@ const Chefe = db.sequelize.define('chefe', {
     allowNull: false
   }
 }, {
+  tableName: 'chefes', 
   timestamps: false
 });
 

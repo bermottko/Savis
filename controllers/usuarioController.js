@@ -1,5 +1,5 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante, Veiculo} = require('../models');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 exports.renderInicio = async (req, res) => {
     const codUsuario = req.session.usuario.cod;
@@ -75,21 +75,117 @@ exports.buscarViagens = async (req, res) => {
   }
 };
 
-exports.formularioParticipar = async (req, res ) => {
-  const cod_viagem = req.params.cod 
-  const cod = req.session.usuario.cod 
-  const usuario = await Usuario.findOne({
-    where: { cod },
-    include: [Genero, Endereco]
-  });
+exports.formularioParticipar = async (req, res) => {
+    const cod_viagem = req.params.cod;
+    const cod = req.session.usuario.cod;
 
-  res.render('usuario/agenda/formulario-participar', { 
-    usuario,
-    cod: cod_viagem,
-    layout: 'layouts/layoutAdmin',
-    paginaAtual: 'agenda'
-  });
-}
+    const usuario = await Usuario.findOne({
+      where: { cod },
+      include: [Genero, Endereco]
+    });
+
+    const viagem = await Viagem.findOne({
+      where: { cod: cod_viagem },
+      include: [
+        {
+          model: Participante,
+          as: 'participantes',
+          include: [
+            {
+              model: Acompanhante,
+              as: 'acompanhante' 
+            }
+          ]
+        },
+        {
+          model: Veiculo,
+          as: 'veiculo'
+        }
+      ]
+    });
+
+    // calcula ocupação
+    const qtdParticipantes = viagem.participantes.length;
+    const qtdAcompanhantes = viagem.participantes.reduce(
+      (soma, p) => soma + (p.acompanhante ? 1 : 0),
+      0
+    );
+
+    const ocupacao = qtdParticipantes + qtdAcompanhantes;
+
+    res.render('usuario/agenda/formulario-participar', {
+      ocupacao,
+      viagem,
+      usuario,
+      cod: cod_viagem,
+      layout: 'layouts/layoutUsuario',
+      paginaAtual: 'agenda'
+    });
+  };
+
+exports.vincularUsuario = async (req, res) => {
+  try {
+    const cod = req.params.cod; // viagemID
+    const usuarioID = req.body.usuarioID; // vem do input hidden
+
+    const { 
+      local_consul, hora_consul,
+      encaminhamento, objetivo, obs,
+      temAcompanhante, nome, cpf, data_nasc, generoID, telefone
+    } = req.body;
+
+    if (!usuarioID) {
+      return res.status(400).send('Nenhum usuário selecionado');
+    }
+
+    let acompanhanteID = null;
+
+    // pega a foto do acompanhante (se foi enviada)
+    let fotoAcomp = null;
+    if (req.files && req.files['foto_acompanhante'] && req.files['foto_acompanhante'][0]) {
+      fotoAcomp = req.files['foto_acompanhante'][0].filename;
+    }
+
+    // Se usuário marcou "Sim" no campo acompanhante
+    if (temAcompanhante === "sim") {
+      const novoAcomp = await Acompanhante.create({
+        img: fotoAcomp,  // salva o nome do arquivo no banco
+        nome,
+        cpf,
+        data_nasc,
+        generoID,
+        telefone
+      });
+
+      acompanhanteID = novoAcomp.cod; // pega a PK criada
+    }
+
+    // pega o arquivo de encaminhamento (se foi enviado)
+    let encaminhamentoFile = encaminhamento;
+    if (req.files && req.files['encaminhamento'] && req.files['encaminhamento'][0]) {
+      encaminhamentoFile = req.files['encaminhamento'][0].filename;
+    }
+
+    // Agora cria o participante
+    await Participante.create({
+      usuarioID,
+      viagemID: cod,
+      local_consul,
+      hora_consul,
+      encaminhamento: encaminhamentoFile,
+      objetivo,
+      obs: obs || null,
+      acompanhanteID, // se null, não vincula
+      statusID: 1
+    });
+
+    res.redirect(`/usuario/inicio/index`);
+    
+  } catch (error) {
+    console.error('Erro ao vincular usuário:', error);
+    res.status(500).send('Erro ao vincular usuário à viagem');
+  }
+};
 
 
 exports.renderSolicitar = async (req, res) => {

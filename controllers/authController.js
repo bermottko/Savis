@@ -1,9 +1,6 @@
 const bcrypt = require('bcrypt');
 
-const Usuario = require('../models/Usuario');
-const Endereco = require('../models/Endereco');
-const Motorista = require('../models/Motorista');
-const Documento = require('../models/Documento');
+const { Usuario, Endereco, Chefe, Motorista, Documento} = require('../models');
 
 exports.renderEntrada = (req, res) => {
   res.render('auth/entrada', { layout: 'layouts/layoutAuth' });
@@ -20,13 +17,18 @@ exports.verificarUsuario = async (req, res) => {
       usuario = await Usuario.findOne({ where: { cpf } });
       redirectPath = '/usuario/inicio/index';
     } else if (matricula) {
+
       usuario = await Motorista.findOne({ where: { matricula } });
       redirectPath = '/motorista/usuarios/index';
+
+      if (!usuario) {
+        usuario = await Chefe.findOne({ where: { matricula } });
+        redirectPath = '/admin/usuarios/index'; 
+      }
+
     } else {
       return res.send("Por favor, informe CPF ou Matrícula.");
     }
-
-    if (!usuario) return res.send("Usuário não encontrado");
 
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
     if (!senhaCorreta) return res.send("Senha incorreta");
