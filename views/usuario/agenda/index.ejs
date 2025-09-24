@@ -14,6 +14,7 @@
           style="max-width: 200px;">
   </div>
   <% viagens.forEach(function(viagem) { %>
+
   <div
     class="card shadow-sm mt-2"
     style="
@@ -35,6 +36,7 @@
       <span class="fw-bold" style="color: #062352; font-size: 16px">
         <%= viagem.cidadeconsul.descricao %>
       </span>
+       
       <span
         class="fw-bold"
         style="color: #062352; font-size: 15px"
@@ -54,9 +56,18 @@
             class="mb-1"
             style="width: 20px; height: 20px;""
           />
-          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados
+          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados 
         </div>
-       <a href="/usuario/agenda/formulario-participar/<%= viagem.cod %>" class="botao">Participar</a>
+        <% const participa = viagem.participantes.some(p => p.usuarioID === cod_usuario); %>
+        <% const lotada = viagem.ocupacao >= viagem.veiculo.lugares_dispo; %>
+
+        <% if (participa) { %>
+        <a href="/usuario/inicio/index" class ="botao"> Minhas Viagens </a>
+        <% } else { %> 
+        <a
+       href="<%= lotada ? '#' : '/usuario/agenda/formulario-participar/' + viagem.cod %>" 
+      class="<%= lotada ? 'botao-desabilitado disabled' : 'botao' %>">Participar</a>
+      <% } %>
       </div>
     </div>
   </div>
