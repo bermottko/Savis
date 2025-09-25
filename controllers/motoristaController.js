@@ -1,4 +1,4 @@
-const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo } = require('../models');
+const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo, Participante, Acompanhante } = require('../models');
 
 exports.renderUsuarios = async (req, res) => {
 
@@ -54,13 +54,27 @@ exports.renderViagensLista = async (req, res) => {
         { model: CidadeConsul, as: 'cidadeconsul' },
         { model: Veiculo, as: 'veiculo' },
         { model: Status },
-        { model: Motorista, as: 'Motorista' }
+        { model: Motorista, as: 'Motorista' },
+        { model: Participante, as: 'participantes' }
       ],
-      order: [['data_viagem', 'DESC']]
+      order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+    });
+
+    const viagensComOcupacao = viagens.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+
+      return {
+        ...v.toJSON(),
+        ocupacao: qtdParticipantes + qtdAcompanhantes,
+      };
     });
 
     res.render('motorista/viagens/lista', {
-      viagens,
+      viagens: viagensComOcupacao,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'viagens',
       userType: 'motorista'
@@ -123,41 +137,47 @@ exports.verParticipantes = async (req, res) => {
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [
+        { model: Veiculo, as: "veiculo" },
         {
           model: Participante,
-          as: 'participantes',
+          as: "participantes",
           include: [
             {
               model: Usuario,
-              include: [
-                { model: Genero },
-                { model: Endereco }
-              ]
+              include: [{ model: Genero }, { model: Endereco }],
             },
             {
               model: Acompanhante,
-              as: 'acompanhante',
-              include: [{ model: Genero }]
-            }
-          ]
-        }
-      ]
+              include: [{ model: Genero }],
+              as: "acompanhante",
+            },
+          ],
+        },
+      ],
     });
 
     if (!viagem) {
       return res.status(404).send("Viagem não encontrada");
     }
 
+    const qtdParticipantes = viagem.participantes.length;
+    const qtdAcompanhantes = viagem.participantes.reduce(
+      (soma, p) => soma + (p.acompanhante ? 1 : 0),
+      0
+    );
+
+    const ocupacao = qtdParticipantes + qtdAcompanhantes;
+
     res.render("motorista/viagens/participantes", {
+      ocupacao,
       viagem,
       participantes: viagem.participantes,
       layout: "layouts/layoutMotorista",
-      paginaAtual: "viagens"
+      paginaAtual: "viagens",
     });
-
   } catch (error) {
     console.error("Erro ao buscar participantes:", error);
-    res.status(500).send("Erro ao buscar participantes");
+    res.status(500).send("Erro ao buscar participantes da viagem");
   }
 };
 

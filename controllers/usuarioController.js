@@ -189,7 +189,6 @@ exports.vincularUsuario = async (req, res) => {
   }
 };
 
-
 exports.renderSolicitar = async (req, res) => {
   const cidadeconsul = await CidadeConsul.findAll();
     res.render('usuario/solicitar/index', {
