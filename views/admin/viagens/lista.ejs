@@ -76,6 +76,32 @@
         <hr />
         <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
         <hr />
+
+        <% if (viagem.combustivel) { %>
+          <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+          <hr />
+        <% } %>
+        <% if (viagem.km_inicial) { %>
+          <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
+          <hr />
+        <% } %>
+        <% if (viagem.km_final) { %>
+          <p><strong>Km Final:</strong> <%= viagem.km_final %></p>
+          <hr />
+        <% } %>
+        <% if (viagem.paradas) { %>
+          <p><strong>Paradas:</strong> <%= viagem.paradas %></p>
+          <hr />
+        <% } %>
+        <% if (viagem.obs) { %>
+          <p><strong>Observações:</strong> <%= viagem.obs %></p>
+          <hr />
+        <% } %>
+        <% if (viagem.horario_chega) { %>
+          <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
+          <hr />
+        <% } %>
+
         <a
           href="/admin/viagens/participantes/<%= viagem.cod %>"
           class="botao-visualizar"

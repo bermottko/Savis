@@ -1,13 +1,12 @@
 <div class="col-12 d-flex flex-column align-items-center mt-5">
   <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-    <!-- Campo cidade -->
+
     <input type="search" 
           id="pesquisaCidade" 
           placeholder="Pesquisar por cidade" 
           class="form-control pesquisa-custom"
           style="max-width: 250px;">
 
-    <!-- Campo data -->
     <input type="date" 
           id="pesquisaData" 
           class="form-control pesquisa-custom"
@@ -15,7 +14,7 @@
   </div>
   <% viagens.forEach(function(viagem) { %>
   <div
-    class="card shadow-sm"
+    class="card shadow-sm mt-2"
     style="
       width: 100%;
       max-width: 700px;
@@ -43,9 +42,9 @@
         <%= viagem.data_viagem.split('-').reverse().join('/') %>
       </span>
     </div>
-    <!-- Corpo -->
+
     <div class="card-body">
-      <!-- Linha principal com botão Ver mais -->
+
       <div class="d-flex justify-content-between align-items-center">
         <div class="flex-grow-1">
           <img
@@ -62,8 +61,7 @@
       <!-- Detalhes expansíveis -->
       <div class="detalhes">
         <p>
-          <strong>Horário de saída:</strong> <%=
-          viagem.horario_saida.substring(0,5) %>
+          <strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %>
         </p>
         <hr />
         <p>
@@ -76,9 +74,10 @@
         <hr />
         <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
         <hr />
+
         <% if (viagem.combustivel) { %>
-    <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
-    <hr />
+          <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+          <hr />
         <% } %>
         <% if (viagem.km_inicial) { %>
           <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
@@ -100,15 +99,13 @@
           <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
           <hr />
         <% } %>
-        <a
-          href="/motorista/viagens/participantes/<%= viagem.cod %>"
-          class="botao-visualizar"
-          >Participantes</a
-        >
+
+        <a href="/motorista/viagens/participantes/<%= viagem.cod %>" class="botao-participantes">Participantes</a>
         <br />
+
         <div class="d-flex justify-content-end gap-3 mt-2">
-        <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao"
-            >Relatório</a></div>
+          <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao">Relatório</a>
+        </div>
       </div>
     </div>
   </div>
@@ -143,7 +140,7 @@
 
   function filtrar() {
     const termoCidade = inputCidade.value.trim().toLowerCase();
-    const termoData = inputData.value; // formato yyyy-mm-dd do input[type="date"]
+    const termoData = inputData.value;
 
     cards.forEach((card) => {
       const cidadeElemento = card.querySelector(
@@ -155,16 +152,13 @@
         ? cidadeElemento.textContent.toLowerCase()
         : "";
       const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
-      // converte de dd/mm/yyyy -> yyyy-mm-dd para comparar
 
       let exibir = true;
 
-      // Filtrar por cidade
       if (termoCidade && !cidade.includes(termoCidade)) {
         exibir = false;
       }
 
-      // Filtrar por data
       if (termoData && data !== termoData) {
         exibir = false;
       }

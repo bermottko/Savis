@@ -40,8 +40,7 @@ const bcrypt = require("bcrypt");
 }
 
 
-inserirChefeAutomatico();
-*/
+inserirChefeAutomatico();*/
 
 exports.renderUsuarios = async (req, res) => {
   try {
@@ -911,11 +910,10 @@ exports.renderViagensLista = async (req, res) => {
       { model: Status },
       { model: CidadeConsul, as: "cidadeconsul" },
       { model: Veiculo, as: "veiculo" },
-      {
-        model: Participante,
-        as: "participantes", // plural para bater com o atributo no loop
-      },
+      { model: Participante, as: "participantes"}
     ],
+    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+
   });
 
   const viagensComOcupacao = viagens.map((v) => {

@@ -52,11 +52,7 @@
       <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
       <hr>
     <% } %>
-        <a
-          href="/motorista/viagens/participantes/<%= viagem.cod %>"
-          class="botao-visualizar"
-          >Participantes</a
-        >
+        <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-participantes">Participantes</a>
         <br />
         <div class="d-flex justify-content-end gap-3 mt-2">
         <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao"
