@@ -58,7 +58,7 @@
           />
           <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados 
         </div>
-        <% const participa = viagem.participantes.some(p => p.usuarioID === cod_usuario); %>
+        <% const participa = viagem.participantes.some(p => p.usuarioID === codUsuario); %>
         <% const lotada = viagem.ocupacao >= viagem.veiculo.lugares_dispo; %>
 
         <% if (participa) { %>

@@ -77,8 +77,6 @@ exports.renderAgenda = async (req, res) => {
       where: { cod: codUsuario },
     });
 
-  const cod_usuario = req.session.usuario.cod;
-
   const viagens = await Viagem.findAll({
     include: [                  
       { model: CidadeConsul, as: "cidadeconsul" },
@@ -102,7 +100,7 @@ exports.renderAgenda = async (req, res) => {
   });
     res.render('usuario/agenda/index', {
       usuario,
-      cod_usuario,
+      codUsuario,
       viagens: viagensComOcupacao,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'agenda'
