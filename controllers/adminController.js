@@ -913,7 +913,6 @@ exports.renderViagensLista = async (req, res) => {
       { model: Participante, as: "participantes"}
     ],
     order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
-
   });
 
   const viagensComOcupacao = viagens.map((v) => {
@@ -938,7 +937,7 @@ exports.renderViagensLista = async (req, res) => {
 
 exports.renderSolicitacoes = async (req, res) => {
   const solicitacoes = await Solicitacao.findAll({
-    include: [{ model: CidadeConsul }, { model: Usuario }],
+    include: [{ model: CidadeConsul }, { model: Usuario }]
   });
   try {
     res.render("admin/solicitacoes/index", {

@@ -19,15 +19,18 @@ exports.renderInicio = async (req, res) => {
 }
 
 exports.renderAgenda = async (req, res) => {
-    const cod_usuario = req.session.usuario.cod;
-    const viagens = await Viagem.findAll({
-      include: [
-        {model: CidadeConsul, as: 'cidadeconsul'},
-        {model: Participante, as: 'participantes'},
-         { model: Veiculo, as: 'veiculo' },
-      ]
-    });
-    const viagensComOcupacao = viagens.map(v => {
+  const cod_usuario = req.session.usuario.cod;
+
+  const viagens = await Viagem.findAll({
+    include: [                  
+      { model: CidadeConsul, as: "cidadeconsul" },
+      { model: Veiculo, as: "veiculo" },
+      { model: Participante, as: "participantes" },
+    ],
+    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+  });
+
+  const viagensComOcupacao = viagens.map(v => {
     const qtdParticipantes = v.participantes.length;
     const qtdAcompanhantes = v.participantes.reduce(
       (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
@@ -39,14 +42,14 @@ exports.renderAgenda = async (req, res) => {
       ocupacao: qtdParticipantes + qtdAcompanhantes
     };
   });
-    res.render('usuario/agenda/index', {
-      cod_usuario,
-      viagens: viagensComOcupacao,
-      layout: 'layouts/layoutUsuario',
-      paginaAtual: 'agenda'
-    });
-  
-}
+
+  res.render("usuario/agenda/index", {
+    cod_usuario,
+    viagens: viagensComOcupacao,
+    layout: "layouts/layoutUsuario",
+    paginaAtual: "agenda"
+  });
+};
 
 exports.buscarViagens = async (req, res) => {
   try {
