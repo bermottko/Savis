@@ -77,15 +77,18 @@ exports.renderAgenda = async (req, res) => {
       where: { cod: codUsuario },
     });
 
-    const cod_usuario = req.session.usuario.cod;
-    const viagens = await Viagem.findAll({
-      include: [
-        {model: CidadeConsul, as: 'cidadeconsul'},
-        {model: Participante, as: 'participantes'},
-         { model: Veiculo, as: 'veiculo' },
-      ]
-    });
-    const viagensComOcupacao = viagens.map(v => {
+  const cod_usuario = req.session.usuario.cod;
+
+  const viagens = await Viagem.findAll({
+    include: [                  
+      { model: CidadeConsul, as: "cidadeconsul" },
+      { model: Veiculo, as: "veiculo" },
+      { model: Participante, as: "participantes" },
+    ],
+    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+  });
+
+  const viagensComOcupacao = viagens.map(v => {
     const qtdParticipantes = v.participantes.length;
     const qtdAcompanhantes = v.participantes.reduce(
       (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
@@ -248,7 +251,6 @@ exports.vincularUsuario = async (req, res) => {
     res.status(500).send('Erro ao vincular usuário à viagem');
   }
 };
-
 
 exports.renderSolicitar = async (req, res) => {
    const codUsuario = req.session.usuario.cod;
