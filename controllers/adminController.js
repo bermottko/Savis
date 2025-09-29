@@ -911,10 +911,7 @@ exports.renderViagensLista = async (req, res) => {
       { model: Status },
       { model: CidadeConsul, as: "cidadeconsul" },
       { model: Veiculo, as: "veiculo" },
-      {
-        model: Participante,
-        as: "participantes", // plural para bater com o atributo no loop
-      },
+      { model: Participante, as: "participantes" }
     ],
   });
 

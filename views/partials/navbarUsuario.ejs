@@ -19,11 +19,14 @@
         <a class="nav-link <%= paginaAtual === 'duvidas' ? 'active-nav' : '' %>" href="/usuario/duvidas/index">Dúvidas</a>
       </li>
       <li class="nav-item ms-lg-3">
-        <a class="nav-link p-0" href="/#">
-          <img src="/assets/pessoa.png" alt="Ícone de Usuário"
-               class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
-        </a>
-      </li>
+      <a class="nav-link p-0 d-flex align-items-center" href="/usuario/perfil/index">
+        <img 
+          src="<%= usuario.img ? '/uploads/' + usuario.img : '/assets/pessoa.png' %>" 
+          alt="Usuário" 
+          class="rounded-circle <%= paginaAtual === 'perfil' ? 'active-nav' : '' %>" 
+          style="width: 30px; height: 30px; object-fit: cover;">
+      </a>
+    </li>
     </ul>
   </div>
 </nav>

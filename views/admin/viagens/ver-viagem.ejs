@@ -38,10 +38,10 @@
     </div>
 
     <div style="display: flex; gap: 15px;">
-   <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
-    <button type="submit" class="botao bg-vermelho">Cancelar</button>
-  </form>
     <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao">Editar</a>
+     <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
+    <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
+  </form>
   </div>
 
 

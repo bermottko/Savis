@@ -1,64 +1,68 @@
 <div class="container mt-3">
     <h1>Solicitações de novas viagens</h1>
-  <% solicitacoes.forEach(function(solicitacao) { %>
-    <div class="card shadow-sm mb-3" style="border-radius: 10px; background-color: #d1e3fd; max-width: 720px; margin: auto;">
-      
-      <!-- Cabeçalho -->
-      <div class="card-header d-flex justify-content-between align-items-center" 
-           style="background-color: #a7c9f9; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-        <span class="fw-bold" style="color: #062352; font-size: 16px;">
-          <%= solicitacao.cidadeconsul.descricao %> - <%= solicitacao.local_consul %> - <%= solicitacao.hora_consul.slice(0,5) %> 
-        </span>
-        <span class="fw-bold" style="color: #062352; font-size: 15px;">
-          <%= new Date(solicitacao.data_consul).toLocaleDateString('pt-BR') %>
-        </span>
-      </div>
+  <% if (solicitacoes && solicitacoes.length > 0) { %>
+    <% solicitacoes.forEach(function(solicitacao) { %>
+      <div class="card shadow-sm mb-3" style="border-radius: 10px; background-color: #d1e3fd; max-width: 720px; margin: auto;">
+        
+        <!-- Cabeçalho -->
+        <div class="card-header d-flex justify-content-between align-items-center" 
+            style="background-color: #a7c9f9; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+          <span class="fw-bold" style="color: #062352; font-size: 16px;">
+            <%= solicitacao.cidadeconsul.descricao %> - <%= solicitacao.local_consul %> - <%= solicitacao.hora_consul.slice(0,5) %> 
+          </span>
+          <span class="fw-bold" style="color: #062352; font-size: 15px;">
+            <%= new Date(solicitacao.data_consul).toLocaleDateString('pt-BR') %>
+          </span>
+        </div>
 
-      <!-- Corpo -->
-      <div class="card-body d-flex justify-content-between align-items-center">
+        <!-- Corpo -->
+        <div class="card-body d-flex justify-content-between align-items-center">
 
-        <!-- Informações do usuário -->
-        <div class="d-flex align-items-center">
-          <img 
-            src="<%= solicitacao.Usuario.img ? '/uploads/' + solicitacao.Usuario.img : '/assets/default-profile.jpg' %>" 
-            alt="Foto de perfil" 
-            class="rounded-circle me-3"
-            style="width: 40px; height: 40px; object-fit: cover;">
-          <div>
-            <h6 class="mb-0">
-              <%= solicitacao.Usuario.nome.toUpperCase() %> 
-              <% if (solicitacao.acompanhanteID) { %>
-                + acompanhante
-              <% } %>
-            </h6>
-              <% if (solicitacao.encaminhamento) { %>
-              <a
-                href="/uploads/<%= solicitacao.encaminhamento %>"
-                target="_blank"
-                class="botao-visualizar"
-              >
-                Encaminhamento
-              </a>
-              <% } else { %>
-              <span class="text-muted" style="font-size: 13px"
-                >Não enviado</span
-              >
-              <% } %>
+          <!-- Informações do usuário -->
+          <div class="d-flex align-items-center">
+            <img 
+              src="<%= solicitacao.Usuario.img ? '/uploads/' + solicitacao.Usuario.img : '/assets/default-profile.jpg' %>" 
+              alt="Foto de perfil" 
+              class="rounded-circle me-3"
+              style="width: 40px; height: 40px; object-fit: cover;">
+            <div>
+              <h6 class="mb-0">
+                <%= solicitacao.Usuario.nome.toUpperCase() %> 
+                <% if (solicitacao.acompanhanteID) { %>
+                  + acompanhante
+                <% } %>
+              </h6>
+                <% if (solicitacao.encaminhamento) { %>
+                <a
+                  href="/uploads/<%= solicitacao.encaminhamento %>"
+                  target="_blank"
+                  class="botao-visualizar"
+                >
+                  Encaminhamento
+                </a>
+                <% } else { %>
+                <span class="text-muted" style="font-size: 13px"
+                  >Não enviado</span
+                >
+                <% } %>
+            </div>
           </div>
-        </div>
 
-        <!-- Botões -->
-        <div class="margem">
-          <a href="/admin/viagens/nova-viagem?data_viagem=<%= solicitacao.data_consul %>&cidade_consul=<%= solicitacao.cidadeconsul.cod %>&solicitacaoID=<%= solicitacao.cod %>" 
-            class="botao">
-            Criar
-          </a>
-          <button class="botao-soli bg-vermelho">
-            Rejeitar
-          </button>
-        </div>
+          <!-- Botões -->
+          <div class="margem">
+            <a href="/admin/viagens/nova-viagem?data_viagem=<%= solicitacao.data_consul %>&cidade_consul=<%= solicitacao.cidadeconsul.cod %>&solicitacaoID=<%= solicitacao.cod %>" 
+              class="botao">
+              Criar
+            </a>
+            <button class="botao-soli bg-vermelho">
+              Rejeitar
+            </button>
+          </div>
 
+        </div>
       </div>
-    </div>
-  <% }) %>
-</div>
+    <% }) %>
+  </div>
+ <% } else { %>
+    <p class="text-center mt-4">Não há solicitações de viagem no momento.</p>
+<% } %>

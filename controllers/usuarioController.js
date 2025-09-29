@@ -1,17 +1,69 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante, Veiculo} = require('../models');
 const { Op, where } = require('sequelize');
 
+exports.renderPerfil = async (req, res) => {
+   const codUsuario = req.session.usuario.cod;
+
+   const usuario = await Usuario.findOne({
+      where: { cod: codUsuario },
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ],
+    });
+
+  res.render('usuario/perfil/index', {
+      usuario,
+      layout: 'layouts/layoutUsuario',
+      paginaAtual: 'perfil'
+    });
+
+}
+
 exports.renderInicio = async (req, res) => {
     const codUsuario = req.session.usuario.cod;
-
+    
     const usuario = await Usuario.findOne({
       where: { cod: codUsuario },
       include: [
         { model: Endereco },
         { model: Genero }
+      ],
+    
+    });
+
+    const participante = await Participante.findAll({
+      where: { usuarioID: codUsuario }
+    });
+
+    const viagemIDs = participante.map(p => p.viagemID);
+
+    const minhas_viagens = await Viagem.findAll({
+      where: { cod: viagemIDs },
+      include: [
+        { model: CidadeConsul, as: "cidadeconsul"},
+        { model: Status },
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" },
+        { model: Motorista, as: "Motorista" }
       ]
     });
+
+      const viagensComOcupacao = minhas_viagens.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+
+      return {
+        ...v.toJSON(), // transforma em objeto plano
+        ocupacao: qtdParticipantes + qtdAcompanhantes,
+      };
+    });
+
     res.render('usuario/inicio/index', {
+      minhas_viagens: viagensComOcupacao,
       usuario,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'inicio'
@@ -19,6 +71,12 @@ exports.renderInicio = async (req, res) => {
 }
 
 exports.renderAgenda = async (req, res) => {
+
+    const codUsuario = req.session.usuario.cod;
+    const usuario = await Usuario.findOne({
+      where: { cod: codUsuario },
+    });
+
     const cod_usuario = req.session.usuario.cod;
     const viagens = await Viagem.findAll({
       include: [
@@ -40,6 +98,7 @@ exports.renderAgenda = async (req, res) => {
     };
   });
     res.render('usuario/agenda/index', {
+      usuario,
       cod_usuario,
       viagens: viagensComOcupacao,
       layout: 'layouts/layoutUsuario',
@@ -78,6 +137,7 @@ exports.buscarViagens = async (req, res) => {
 };
 
 exports.formularioParticipar = async (req, res) => {
+
     const cod_viagem = req.params.cod;
     const cod = req.session.usuario.cod;
 
@@ -191,8 +251,14 @@ exports.vincularUsuario = async (req, res) => {
 
 
 exports.renderSolicitar = async (req, res) => {
+   const codUsuario = req.session.usuario.cod;
+   const usuario = await Usuario.findOne({
+      where: { cod: codUsuario },
+    });
+
   const cidadeconsul = await CidadeConsul.findAll();
     res.render('usuario/solicitar/index', {
+      usuario,
       cidadeconsul,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'solicitar',
@@ -290,8 +356,14 @@ exports.addSolicitar = async (req, res) => {
   }
 };
 
-exports.renderDuvidas = (req, res) => {
+exports.renderDuvidas = async(req, res) => {
+    const codUsuario = req.session.usuario.cod;
+    const usuario = await Usuario.findOne({
+      where: { cod: codUsuario },
+    });
+
     res.render('usuario/duvidas/index', {
+      usuario,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'duvidas'
     });

@@ -1,0 +1,38 @@
+<div class="container d-flex justify-content-center align-items-center mt-5">
+  <div class="card p-4 shadow-sm card-viagem" style="max-width: 800px; width: 100%;">
+    
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-row align-items-center mb-3">
+      <img 
+        src="<%= usuario.img ? '/uploads/' + usuario.img : '/assets/pessoa.png' %>" 
+        alt="Foto de perfil" 
+        class="foto-perfil me-3"
+        style="width: 100px; height: 100px; object-fit: cover; border-radius: 12px;">
+
+      <h3 class="nome-perfil mb-0"><%= usuario.nome %></h3>
+    </div>
+      <p><strong>Data de Nascimento: </strong><%= usuario.data_nasc.split('-').reverse().join('/') %></p>
+      <hr>
+      <p><strong>CPF: </strong><span class="cpf-perfil"><%= usuario.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4") %></span></p>
+      <hr>
+      <p><strong>Gênero: </strong> <%= usuario.genero.descricao %></p>
+      <hr>
+      <p><strong>Email: </strong> <%= usuario.email %></p>
+      <hr>
+      <p><strong>Telefone: </strong> <%= usuario.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %></p>
+      <hr>
+      <p><strong>Endereço: </strong>
+        <%= usuario.endereco?.rua || '' %>, 
+        <%= usuario.endereco?.numero || '' %> - 
+        <%= usuario.endereco?.bairro || '' %> - 
+        <%= usuario.endereco?.cidade || '' %> 
+        (<%= usuario.endereco?.UF || '' %>) 
+        CEP: <%= usuario.endereco?.CEP 
+                    ? usuario.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
+                    : '' 
+              %>
+      </p>
+      <hr>
+      <p><strong>SUS: </strong> <%= usuario.SUS %></p>
+    </div>
+</div>
