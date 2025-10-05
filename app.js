@@ -16,7 +16,7 @@ const mysqlOptions = {
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'Be#99493544',
+  password: '2017',
   database: 'SAVISdb',
 };
 
@@ -32,6 +32,13 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 2,  // 2 horas
   },
 }));
+
+app.use((req, res, next) => {
+  res.locals.usuario = req.session.usuario || null;
+  res.locals.motorista = req.session.motorista || null;
+  res.locals.chefe = req.session.chefe || null;
+  next();
+});
 
 // Rotas
 const indexRoutes = require('./routes/indexRoutes');
