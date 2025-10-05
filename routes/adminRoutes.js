@@ -28,6 +28,8 @@ function fileFilter(req, file, cb) {
 
 const upload = multer({ storage, fileFilter });
 
+router.get('/perfil', adminController.renderPerfil);
+
 router.get('/usuarios/index', adminController.renderUsuarios);
 router.get('/usuarios/buscar', adminController.buscarUsuarios);
 router.delete('/usuarios/deletar/:cod', adminController.deletarUsuarios);

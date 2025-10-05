@@ -26,9 +26,12 @@
       </li>
 
       <li class="nav-item ms-lg-3">
-        <a class="nav-link p-0" href="/#">
-          <img src="/assets/pessoa.png" alt="Ícone de Usuário"
-               class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+        <a class="nav-link p-0 d-flex align-items-center" href="/motorista/perfil">
+          <img 
+            src="<%= motorista && motorista.img ? '/uploads/' + motorista.img : '/assets/pessoa.png' %>" 
+            alt="Motorista" 
+            class="rounded-circle <%= paginaAtual === 'perfil' ? 'active-nav' : '' %>"
+            style="width: 30px; height: 30px; object-fit: cover;">
         </a>
       </li>
     </ul>

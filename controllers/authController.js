@@ -14,27 +14,55 @@ exports.verificarUsuario = async (req, res) => {
     let redirectPath;
 
     if (cpf) {
-      usuario = await Usuario.findOne({ where: { cpf } });
+      // Login por CPF: apenas usuário
+      usuario = await Usuario.findOne({ where: { CPF: cpf } });
+      if (!usuario) return res.send("CPF não encontrado");
       redirectPath = '/usuario/inicio/index';
+
+      const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+      if (!senhaCorreta) return res.send("Senha incorreta");
+
+      req.session.usuario = { cod: usuario.cod, nome: usuario.nome };
+      return res.redirect(redirectPath);
+
     } else if (matricula) {
-
+      // Tenta login como motorista
       usuario = await Motorista.findOne({ where: { matricula } });
-      redirectPath = '/motorista/usuarios/index';
+      if (usuario) {
+        redirectPath = '/motorista/usuarios/index';
 
-      if (!usuario) {
-        usuario = await Chefe.findOne({ where: { matricula } });
-        redirectPath = '/admin/usuarios/index'; 
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaCorreta) return res.send("Senha incorreta");
+
+        req.session.motorista = {
+        cod: usuario.cod,
+        nome: usuario.nome,
+        email: usuario.email,
+        foto: usuario.img,
+        matricula: usuario.matricula
+      };
+
+      console.log("Motorista logado:", req.session.motorista); // debug
+      return res.redirect(redirectPath);
       }
+
+      // Tenta login como chefe (admin)
+      usuario = await Chefe.findOne({ where: { matricula } });
+      if (usuario) {
+        redirectPath = '/admin/usuarios/index';
+
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaCorreta) return res.send("Senha incorreta");
+
+        req.session.chefe = { cod: usuario.cod, nome: usuario.nome };
+        return res.redirect(redirectPath);
+      }
+
+      return res.send("Matrícula não encontrada");
 
     } else {
       return res.send("Por favor, informe CPF ou Matrícula.");
     }
-
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) return res.send("Senha incorreta");
-
-    req.session.usuario = { cod: usuario.cod, nome: usuario.nome };
-    res.redirect(redirectPath);
 
   } catch (err) {
     console.error(err);

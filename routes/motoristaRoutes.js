@@ -13,4 +13,6 @@ router.get('/viagens/participantes/:cod', motoristaController.verParticipantes);
 router.get('/viagens/relatorio/:cod', motoristaController.renderRelatorio);
 router.put('/viagens/relatorio/:cod', motoristaController.salvarRelatorio);
 
+router.get('/perfil', motoristaController.renderPerfil);
+
 module.exports = router;

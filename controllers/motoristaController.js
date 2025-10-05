@@ -1,17 +1,46 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo, Participante, Acompanhante } = require('../models');
 
-exports.renderUsuarios = async (req, res) => {
-
+exports.renderPerfil = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll({
+    const codMotorista = req.session.motorista.cod;
+
+    const motorista = await Motorista.findOne({
+      where: { cod: codMotorista },
       include: [
         { model: Endereco },
-        { model: Genero }
+        { model: Genero },
+        { model: Documento }
       ],
+    });
+
+    res.render('motorista/perfil/index', {
+      motorista,
+      layout: 'layouts/layoutMotorista',
+      paginaAtual: 'perfil',
+      userType: 'motorista'
+    });
+  } catch (err) {
+    console.error("Erro ao carregar perfil:", err);
+    res.status(500).send("Erro no servidor");
+  }
+};
+
+exports.renderUsuarios = async (req, res) => {
+  try {
+    if (!req.session.motorista || !req.session.motorista.cod) {
+      return res.redirect('/auth/login'); // ou uma página de erro
+    }
+
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
+    const usuarios = await Usuario.findAll({
+      include: [{ model: Endereco }, { model: Genero }],
       order: [['cod', 'DESC']]
     });
 
     res.render('motorista/usuarios/index', {
+      motorista,
       usuarios,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'usuarios',
@@ -25,6 +54,9 @@ exports.renderUsuarios = async (req, res) => {
 
 exports.renderViagens = async (req, res) => {
   try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
     const viagens = await Viagem.findAll({
       include: [
         { model: CidadeConsul, as: 'cidadeconsul' },
@@ -36,6 +68,7 @@ exports.renderViagens = async (req, res) => {
     });
 
     res.render('motorista/viagens/index', {
+      motorista,
       viagens,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'viagens',
@@ -49,6 +82,9 @@ exports.renderViagens = async (req, res) => {
 
 exports.renderViagensLista = async (req, res) => {
   try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
     const viagens = await Viagem.findAll({
       include: [
         { model: CidadeConsul, as: 'cidadeconsul' },
@@ -74,6 +110,7 @@ exports.renderViagensLista = async (req, res) => {
     });
 
     res.render('motorista/viagens/lista', {
+      motorista,
       viagens: viagensComOcupacao,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'viagens',
@@ -82,14 +119,20 @@ exports.renderViagensLista = async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao carregar lista de viagens do motorista');
-  }};
+  }
+};
 
 exports.renderBuscarEventos = async (req, res) => {
   try {
-    const viagens = await Viagem.findAll();
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
+    const viagens = await Viagem.findAll({
+      include: [{ model: CidadeConsul, as: 'cidadeconsul' }]
+    });
 
     const eventos = viagens.map(v => ({
-      title: v.destino_cid,
+      title: v.cidadeconsul.descricao,
       start: v.data_viagem,
       url: `/motorista/viagens/ver-viagem/${v.cod}`
     }));
@@ -103,22 +146,24 @@ exports.renderBuscarEventos = async (req, res) => {
 
 exports.renderVerViagem = async (req, res) => {
   try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
     const cod = req.params.cod;
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [
         { model: Motorista, as: 'Motorista' },
         { model: Status },
-        { model: CidadeConsul },
+        { model: CidadeConsul, as: 'cidadeconsul' },
         { model: Veiculo, as: 'veiculo' }
       ]
     });
 
-    if (!viagem) {
-      return res.status(404).send('Viagem não encontrada');
-    }
+    if (!viagem) return res.status(404).send('Viagem não encontrada');
 
     res.render('motorista/viagens/ver-viagem', {
+      motorista,
       viagem,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'viagens',
@@ -132,6 +177,9 @@ exports.renderVerViagem = async (req, res) => {
 
 exports.verParticipantes = async (req, res) => {
   try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
     const cod = req.params.cod;
 
     const viagem = await Viagem.findOne({
@@ -142,38 +190,30 @@ exports.verParticipantes = async (req, res) => {
           model: Participante,
           as: "participantes",
           include: [
-            {
-              model: Usuario,
-              include: [{ model: Genero }, { model: Endereco }],
-            },
-            {
-              model: Acompanhante,
-              include: [{ model: Genero }],
-              as: "acompanhante",
-            },
+            { model: Usuario, include: [{ model: Genero }, { model: Endereco }] },
+            { model: Acompanhante, include: [{ model: Genero }], as: "acompanhante" },
           ],
         },
       ],
     });
 
-    if (!viagem) {
-      return res.status(404).send("Viagem não encontrada");
-    }
+    if (!viagem) return res.status(404).send("Viagem não encontrada");
 
     const qtdParticipantes = viagem.participantes.length;
     const qtdAcompanhantes = viagem.participantes.reduce(
       (soma, p) => soma + (p.acompanhante ? 1 : 0),
       0
     );
-
     const ocupacao = qtdParticipantes + qtdAcompanhantes;
 
     res.render("motorista/viagens/participantes", {
-      ocupacao,
+      motorista,
       viagem,
       participantes: viagem.participantes,
+      ocupacao,
       layout: "layouts/layoutMotorista",
       paginaAtual: "viagens",
+      userType: "motorista"
     });
   } catch (error) {
     console.error("Erro ao buscar participantes:", error);
@@ -183,6 +223,9 @@ exports.verParticipantes = async (req, res) => {
 
 exports.renderRelatorio = async (req, res) => {
   try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
     const { cod } = req.params;
     const viagem = await Viagem.findByPk(cod, {
       include: [
@@ -195,7 +238,8 @@ exports.renderRelatorio = async (req, res) => {
 
     if (!viagem) return res.status(404).send("Viagem não encontrada");
 
-     res.render("motorista/viagens/relatorio", { 
+    res.render("motorista/viagens/relatorio", { 
+      motorista,
       viagem,
       layout: "layouts/layoutMotorista",
       paginaAtual: "viagens",
@@ -213,15 +257,12 @@ exports.salvarRelatorio = async (req, res) => {
     const { cod } = req.params;
     let { combustivel, km_inicial, km_final, paradas, obs, horario_chega } = req.body;
 
-    // Converter combustivel para float, null se inválido
     combustivel = parseFloat(combustivel);
     if (isNaN(combustivel)) combustivel = null;
 
-    // Campos numéricos km
     km_inicial = km_inicial ? Number(km_inicial) : null;
     km_final   = km_final ? Number(km_final) : null;
 
-    // Campos de texto
     paradas = paradas || null;
     obs = obs || null;
     horario_chega = horario_chega || null;
@@ -237,18 +278,3 @@ exports.salvarRelatorio = async (req, res) => {
     res.status(500).send("Erro no servidor");
   }
 };
-
-exports.renderBuscarEventos = async (req, res) => {
-    const viagens = await Viagem.findAll({
-      include: [{
-        model: CidadeConsul
-      }]
-    });
-
-    const eventos = viagens.map(v => ({
-      title: v.cidadeconsul.descricao,
-      start: v.data_viagem,
-      url: `/motorista/viagens/ver-viagem/${v.cod}`
-    }));
-    res.json(eventos);
-}

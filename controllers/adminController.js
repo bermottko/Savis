@@ -42,6 +42,26 @@ const bcrypt = require("bcrypt");
 
 inserirChefeAutomatico();*/
 
+exports.renderPerfil = async (req, res) => {
+  try {
+    if (!req.session.chefe) return res.status(403).send("Você precisa estar logado");
+
+    const chefe = await Chefe.findByPk(req.session.chefe.cod);
+
+    if (!chefe) return res.status(404).send("Admin não encontrado");
+
+    res.render('admin/perfil/index', {
+      admin: chefe,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'perfil',
+      userType: 'admin'
+    });
+  } catch (err) {
+    console.error("Erro ao carregar perfil do admin:", err);
+    res.status(500).send("Erro no servidor");
+  }
+};
+
 exports.renderUsuarios = async (req, res) => {
   try {
     const posts = await Usuario.findAll({
