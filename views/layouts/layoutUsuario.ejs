@@ -21,7 +21,6 @@
     <%- typeof head !== 'undefined' ? head : '' %>
 
     <style>
-      /* ---- MESMO STYLE DO layoutAdmin ---- */
       body {
         font-family: Arial, sans-serif;
         background-color: #f8f9fa;
@@ -38,6 +37,7 @@
         margin-bottom: 0;
       }
 
+      /* ===== Navbar ===== */
       .navbar {
         background-color: #00204c;
         height: 80px;
@@ -54,7 +54,6 @@
       .logo-img {
         height: 50px;
         width: auto;
-        max-height: none;
       }
 
       .navbar-nav .nav-link {
@@ -71,37 +70,57 @@
         color: #a2c3f2;
       }
 
+      /* ===== Botões ===== */
+      .botao,
+      .botao-desabilitado,
+      .botao-cadastro,
+      .botao-visualizar {
+        border-radius: 5px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s ease;
+      }
+
       .botao {
         display: inline-block;
         background-color: #00204c;
         color: white;
         padding: 8px 25px;
-        /*padding: 0.5rem 1rem;*/
-        border-radius: 5px;
-        text-decoration: none;
         border: none;
-        box-shadow: none;
-        transition: background-color 0.3s ease;
-        font-weight: bold;
       }
 
       .botao:hover {
         background-color: #001129;
       }
 
-       .botao-desabilitado {
-            display: inline-block;
-            background-color: #001f4ab1;
-            color: white;
-            padding: 8px 25px;
-            border-radius: 5px;
-            text-decoration: none;
-            border: none;
-            box-shadow: none;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            cursor: default;
-        }
+      .botao-desabilitado {
+        background-color: #001f4ab1;
+        color: white;
+        cursor: default;
+        padding: 8px 25px;
+      }
+
+      .botao-cadastro {
+        background-color: #ffffff;
+        color: #93b2dd;
+        padding: 10px 25px;
+        border: 1px solid #a2c3f2;
+        height: 38px;
+        line-height: 1;
+      }
+
+      .botao-cadastro:hover {
+        background-color: #a2c3f2;
+        color: #fff;
+      }
+
+      .botao-visualizar {
+        color: #00204c;
+      }
+
+      .botao-visualizar:hover {
+        color: #001129;
+      }
 
       .bg-vermelho {
         background-color: #9d1421;
@@ -111,34 +130,7 @@
         background-color: #701019;
       }
 
-      .botao-cadastro {
-        background-color: #ffffff;
-        color: #93b2dd;
-        padding: 10px 25px;
-        border-radius: 5px;
-        text-decoration: none;
-        border: 1px solid #a2c3f2;
-        box-shadow: none;
-        transition: background-color 0.3s ease;
-        font-weight: bold;
-        line-height: 1;
-        height: 38px;
-      }
-
-      .botao-cadastro:hover {
-        background-color: #a2c3f2;
-        color: #fff;
-      }
-
-      .botao-visualizar {
-  color: #00204c;
-  display: inline-block;
-  transition: 0.3s ease;
-}
-
-.botao-visualizar:hover {
-  color: #001129
-}
+      /* ===== Inputs & Forms ===== */
       .pesquisa-custom {
         width: 400px;
         border: 1px solid #a2c3f2;
@@ -150,6 +142,25 @@
         text-transform: none;
       }
 
+      .input-transparente {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 300px;
+      }
+
+      .form-bold {
+        font-weight: bold;
+      }
+
+      input[type="radio"] {
+        accent-color: #00204c;
+      }
+
+      /* ===== Perfil & Cards ===== */
       .nome-perfil {
         font-size: 16px;
         text-transform: uppercase;
@@ -172,57 +183,51 @@
         opacity: 1;
       }
 
-      .input-transparente {
-        max-width: auto;
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 300px;
-      }
-
-      .form-bold {
-        font-weight: bold;
-      }
-
       .espaco-card-edit {
-        padding-top: 50px;
-        padding-bottom: 70px;
+        padding: 50px 0 70px;
       }
 
-      .footer-custom {
-        background-color: #a1c3f2;
-        color: #fff;
-        padding: 30px 20px;
+      .foto-perfil {
+        margin-bottom: 1%;
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 130px;
+        border: 1px solid #ccc;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .pag-inicial {
+        margin-top: 5%;
         text-align: center;
       }
 
-      .footer-links {
-        margin-bottom: 20px;
-      }
-
-      .footer-links a {
-        margin: 0 15px;
-        color: #fff;
-        text-decoration: none;
+      /* ===== Títulos ===== */
+      .titulo {
+        font-family: "League Spartan", sans-serif;
+        font-size: 25px;
+        color: #00204c;
         font-weight: bold;
+        text-align: center;
       }
 
-      .footer-icons {
-        font-size: 0px;
+      .nome-usuario {
+        font-family: "League Spartan", sans-serif;
+        font-size: 50px;
+        font-weight: bold;
+        color: #00204c;
         margin-bottom: 15px;
       }
 
-      .footer-icons a {
-        margin: 0 10px;
+      .sub-nome-viagens {
+        font-family: "League Spartan", sans-serif;
+        font-size: 35px;
+        font-weight: bold;
+        color: #00204c;
+        margin-bottom: 15px;
       }
 
-      .footer-copy {
-        margin-top: 10px;
-      }
-
+      /* ===== FullCalendar ===== */
       #calendario {
         max-width: 1000px;
         margin: 40px auto;
@@ -258,15 +263,10 @@
         color: #fff !important;
         font-weight: bold;
         text-transform: capitalize;
-        transition: background-color 0.3s ease;
-      }
-
-      .fc-button:hover {
-        background-color: #001129;
       }
 
       .fc .fc-button:hover {
-        background-color: #00122c !important;
+        background-color: #001129 !important;
       }
 
       .fc .fc-button-active {
@@ -291,7 +291,6 @@
         color: #00204c;
         padding: 6px 8px;
         text-align: right;
-        text-decoration: none !important;
       }
 
       .fc-event {
@@ -310,55 +309,49 @@
         transform: scale(1.05);
       }
 
-      .titulo {
-        font-family: "League Spartan", sans-serif;
-        font-size: 25px;
-        color: #00204c;
-        font-weight: bold;
+      /* ===== Footer ===== */
+      .footer-custom {
+        background-color: #a1c3f2;
+        color: #fff;
+        padding: 30px 20px;
         text-align: center;
       }
 
-      .campos {
-        font-weight: none;
-        color: #00204c;
-      }
-
-      .nome-usuario {
-        font-family: "League Spartan", sans-serif;
-        font-size: 50px;
+      .footer-links a {
+        margin: 0 15px;
+        color: #fff;
+        text-decoration: none;
         font-weight: bold;
-        color: #00204c;
-        margin-bottom: 15px;
       }
 
-      
-
-      .sub-nome-viagens {
-        font-family: "League Spartan", sans-serif;
-        font-size: 35px;
-        font-weight: bold;
-        color: #00204c;
-        margin-bottom: 15px;
+      .footer-icons a {
+        margin: 0 10px;
       }
 
-      .pag-inicial {
-        margin-top: 5%;
-        text-align: center;
+      .footer-copy {
+        margin-top: 10px;
       }
 
-      .foto-perfil {
-        margin-bottom: 1%;
-        width: 130px;
-        height: 130px;
-        object-fit: cover;
-        border-radius: 130px;
-        border: 1px solid #ccc;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      /* Scroll */
+
+      .area-scroll::-webkit-scrollbar {
+        width: 8px;
       }
 
-      input[type="radio"] {
-        accent-color: #00204c; /* substitua pela cor do seu site */
+      .area-scroll::-webkit-scrollbar-track {
+        background: #e3ecff;
+        border-radius: 10px;
       }
+
+      .area-scroll::-webkit-scrollbar-thumb {
+        background-color: #a7c9f9;
+        border-radius: 10px;
+      }
+
+      .area-scroll::-webkit-scrollbar-thumb:hover {
+        background-color: #7aaef9;
+      }
+
     </style>
   </head>
   <body>

@@ -62,7 +62,7 @@
         <% const lotada = viagem.ocupacao >= viagem.veiculo.lugares_dispo; %>
 
         <% if (participa) { %>
-        <a href="/usuario/inicio/index" class ="botao"> Minhas Viagens </a>
+        <a href="/usuario/inicio/index" class ="botao"> Participando </a>
         <% } else { %> 
         <a
        href="<%= lotada ? '#' : '/usuario/agenda/formulario-participar/' + viagem.cod %>" 
