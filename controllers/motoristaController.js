@@ -124,20 +124,46 @@ exports.renderViagensLista = async (req, res) => {
 
 exports.renderBuscarEventos = async (req, res) => {
   try {
-    const codMotorista = req.session.motorista.cod;
-    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
-
     const viagens = await Viagem.findAll({
       include: [{ model: CidadeConsul, as: 'cidadeconsul' }]
     });
 
-    const eventos = viagens.map(v => ({
+   const eventos = viagens.map((v) => {
+ 
+    let corFundo = '#a2c3f2';
+    let corBorda = '#87afe6';
+    let corTexto = '#fff';
+
+    switch (v.statusID) {
+      case 1: // AGENDADA
+        corFundo = '#a2c3f2'; 
+        corBorda = '#87afe6';
+        corTexto = '#fff';
+        break;
+      case 2: // "CANCELADA"
+        corFundo = '#c38883ff'; 
+        corBorda = '#ac6a64ff';
+        corTexto = '#fff';
+        break;
+      case 3: // "CONCLUIDA"
+        corFundo = '#bcde9eff'; 
+        corBorda = '#a1d49fff';
+        corTexto = '#fff';
+        break;
+    }
+
+    return {
       title: v.cidadeconsul.descricao,
       start: v.data_viagem,
-      url: `/motorista/viagens/ver-viagem/${v.cod}`
-    }));
+      url: `/motorista/viagens/ver-viagem/${v.cod}`,
+      backgroundColor: corFundo,
+      borderColor: corBorda,
+      textColor: corTexto,
+    };
+  });
 
-    res.json(eventos);
+  res.json(eventos);
+
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao carregar eventos do calendário');
@@ -255,7 +281,7 @@ exports.renderRelatorio = async (req, res) => {
 exports.salvarRelatorio = async (req, res) => {
   try {
     const { cod } = req.params;
-    let { combustivel, km_inicial, km_final, paradas, obs, horario_chega } = req.body;
+    let { combustivel, km_inicial, km_final, paradas, obs, horario_chega} = req.body;
 
     combustivel = parseFloat(combustivel);
     if (isNaN(combustivel)) combustivel = null;
@@ -266,9 +292,10 @@ exports.salvarRelatorio = async (req, res) => {
     paradas = paradas || null;
     obs = obs || null;
     horario_chega = horario_chega || null;
+    const statusID = 3;
 
     await Viagem.update(
-      { combustivel, km_inicial, km_final, paradas, obs, horario_chega },
+      { combustivel, km_inicial, km_final, paradas, obs, horario_chega, statusID },
       { where: { cod } }
     );
 

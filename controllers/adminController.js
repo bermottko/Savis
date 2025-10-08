@@ -669,7 +669,6 @@ exports.salvarEdicaoViagem = async (req, res) => {
         horario_saida: req.body.horario_saida,
         veiculoID: req.body.veiculoID,
         motoristaID: req.body.motoristaID,
-        statusID: req.body.statusID,
         combustivel: req.body.combustivel,
         km_inicial: req.body.km_inicial,
         km_final: req.body.km_final,

@@ -1,73 +1,87 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
-  <div class="card p-3 shadow-sm mt-2 card-viagem" >
+  <div  class="card p-3 shadow-sm mt-2 card-viagem 
+    <% if (viagem.status.cod == 2) { %> status-cancelada <% } %>
+    <% if (viagem.status.cod == 3) { %> status-concluida <% } %> " >
     <h2 class="mb-4 titulo">
       <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %>
     </h2>
+
+    <!-- CONTEÚDO PADRÃO -->
+    <div class="conteudo-principal">
+      <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
+      <hr>
+      <p><strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %></p>
+      <hr>
+      <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
+      <hr>
+      <p><strong>Lugares disponíveis:</strong> <%= viagem.veiculo.lugares_dispo %></p>
+      <hr>
+      <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+      <hr>
+      <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+      <hr>
+
+      <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
+      <br>
+    </div>
+
     
-    <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
-    <hr>
-
-    <p><strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %></p>
-    <hr>
-
-    <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
-    <hr>
-
-    <p><strong>Lugares disponíveis:</strong> <%= viagem.veiculo.lugares_dispo %></p>
-    <hr>
-
-    <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
-    <hr>
-
-    <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
-    <hr>
-
-    <% if (viagem.combustivel) { %>
-      <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+    <div class="conteudo-relatorio" style="display: none;">
+      <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega ? viagem.horario_chega.slice(0,5) : '—' %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.km_inicial) { %>
-      <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
+       <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.km_final) { %>
       <p><strong>Km Final:</strong> <%= viagem.km_final %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.paradas) { %>
+      <p><strong>Combustível:</strong> <%= viagem.combustivel || '—' %></p>
+      <hr>
       <p><strong>Paradas:</strong> <%= viagem.paradas %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.obs) { %>
       <p><strong>Observações:</strong> <%= viagem.obs %></p>
       <hr>
-    <% } %>
+  
+    </div>
 
-    <% if (viagem.horario_chega) { %>
-      <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
-      <hr>
-    <% } %>
-
-    <a href="/admin/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
-    <br>
-
-    <div class="d-flex justify-content-between">
+    <!-- BOTÕES -->
+    <div class="d-flex justify-content-between mt-3">
       <div>
         <a href="/admin/viagens/index" class="botao">Voltar</a>
       </div>
 
-    <div style="display: flex; gap: 15px;">
-    <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao">Editar</a>
-     <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
-    <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
-  </form>
-  </div>
-
-
-
+      <div style="display: flex; gap: 15px;">
+        <% if (viagem.status.cod == 1) { %>
+          <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao">Editar</a>
+          <form action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT" method="POST" style="display:inline;">
+            <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
+          </form>
+        <% } else if (viagem.status.cod == 3) { %>
+          <button type="button" class="botao botao-relatorio-toggle">Relatório</button>
+        <% } %>
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+  document.querySelectorAll(".botao-relatorio-toggle").forEach(botao => {
+    botao.addEventListener("click", function () {
+      const card = this.closest(".card-viagem");
+      const conteudoPrincipal = card.querySelector(".conteudo-principal");
+      const conteudoRelatorio = card.querySelector(".conteudo-relatorio");
+
+      const mostrandoRelatorio = conteudoRelatorio.style.display === "block";
+
+      if (mostrandoRelatorio) {
+        // voltar para informações da viagem
+        conteudoRelatorio.style.display = "none";
+        conteudoPrincipal.style.display = "block";
+        this.textContent = "Relatório";
+      } else {
+        // mostrar relatório
+        conteudoPrincipal.style.display = "none";
+        conteudoRelatorio.style.display = "block";
+        this.textContent = "Viagem";
+      }
+    });
+  });
+</script>
