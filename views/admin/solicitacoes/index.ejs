@@ -11,7 +11,7 @@
             <%= solicitacao.cidadeconsul.descricao %> - <%= solicitacao.local_consul %> - <%= solicitacao.hora_consul.slice(0,5) %> 
           </span>
           <span class="fw-bold" style="color: #062352; font-size: 15px;">
-            <%= new Date(solicitacao.data_consul).toLocaleDateString('pt-BR') %>
+            <%= solicitacao.data_consul.split('-').reverse().join('/')  %>
           </span>
         </div>
 
@@ -54,9 +54,11 @@
               class="botao">
               Criar
             </a>
-            <button class="botao-soli bg-vermelho">
-              Rejeitar
-            </button>
+            <form action="/admin/solicitacoes/rejeitar/<%= solicitacao.cod %>?_method=DELETE" method="POST">
+              <button type="submit" class="botao bg-vermelho">
+                Rejeitar
+              </button>
+            </form>
           </div>
 
         </div>

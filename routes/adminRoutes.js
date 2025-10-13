@@ -77,7 +77,11 @@ router.post(
   ]),
   adminController.vincularUsuario
 );
+router.delete('/viagens/desvincular/:cod', adminController.desvincularParticipante);
 
 router.get('/solicitacoes/index', adminController.renderSolicitacoes);
-
+router.get('/solicitacoes/participacoes', adminController.renderParticipacoes);
+router.get('/solicitacoes/aceitar/:cod', adminController.aceitarSolicitacoe);
+router.delete('/solicitacoes/rejeitar/:cod', adminController.rejeitarSolicitacoe);
+router.delete('/solicitacoes/rejeitarParticipacao/:cod', adminController.rejeitarSolicitacoeParticipacao);
 module.exports = router;

@@ -186,69 +186,112 @@ exports.formularioParticipar = async (req, res) => {
     });
   };
 
-exports.vincularUsuario = async (req, res) => {
+exports.requisitarParticipacao = async (req, res) => {
   try {
-    const cod = req.params.cod; // viagemID
-    const usuarioID = req.body.usuarioID; // vem do input hidden
-
-    const { 
-      local_consul, hora_consul,
-      encaminhamento, objetivo, obs,
-      temAcompanhante, nome, cpf, data_nasc, generoID, telefone
-    } = req.body;
-
-    if (!usuarioID) {
-      return res.status(400).send('Nenhum usuário selecionado');
-    }
-
+    const usuarioID = req.session.usuario.cod;
     let acompanhanteID = null;
 
-    // pega a foto do acompanhante (se foi enviada)
-    let fotoAcomp = null;
-    if (req.files && req.files['foto_acompanhante'] && req.files['foto_acompanhante'][0]) {
-      fotoAcomp = req.files['foto_acompanhante'][0].filename;
-    }
-
-    // Se usuário marcou "Sim" no campo acompanhante
-    if (temAcompanhante === "sim") {
-      const novoAcomp = await Acompanhante.create({
-        img: fotoAcomp,  // salva o nome do arquivo no banco
-        nome,
-        cpf,
-        data_nasc,
-        generoID,
-        telefone
-      });
-
-      acompanhanteID = novoAcomp.cod; // pega a PK criada
-    }
-
-    // pega o arquivo de encaminhamento (se foi enviado)
-    let encaminhamentoFile = encaminhamento;
-    if (req.files && req.files['encaminhamento'] && req.files['encaminhamento'][0]) {
-      encaminhamentoFile = req.files['encaminhamento'][0].filename;
-    }
-
-    // Agora cria o participante
-    await Participante.create({
-      usuarioID,
-      viagemID: cod,
+    // Campos do formulário
+    const {
+      cidadeconsulID,
       local_consul,
+      data_consul,
       hora_consul,
-      encaminhamento: encaminhamentoFile,
+      objetivo,
+      temAcompanhante,
+      nome_acomp,
+      cpf_acomp,
+      data_nasc_acomp,
+      telefone_acomp,
+      generoID,
+      obs
+    } = req.body;
+
+    // Arquivos (PDF do encaminhamento + foto do acompanhante)
+    const encaminhamento = req.files?.encaminhamento?.[0]?.filename || null;
+    const foto_acompanhante = req.files?.foto_acompanhante?.[0]?.filename || null;
+
+    // Validação backend
+    let erros = [];
+
+    if (!cidadeconsulID) erros.push({ campo: "cidadeconsulID", msg: "Selecione uma cidade." });
+    if (!local_consul) erros.push({ campo: "local_consul", msg: "Informe o local da consulta." });
+    if (!data_consul || new Date(data_consul).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
+      erros.push({ campo: "data_consul", msg: "Informe uma data válida." });
+    if (!hora_consul) erros.push({ campo: "hora_consul", msg: "Informe o horário da consulta." });
+    if (!objetivo) erros.push({ campo: "objetivo", msg: "Informe o objetivo da consulta." });
+    if (!encaminhamento) erros.push({ campo: "encaminhamento", msg: "Envie o encaminhamento em PDF." });
+
+    if (temAcompanhante === "sim") {
+      if (!nome_acomp) erros.push({ campo: "nome_acomp", msg: "Informe o nome do acompanhante." });
+      if (!cpf_acomp || cpf_acomp.replace(/\D/g,'').length !== 11)
+        erros.push({ campo: "cpf_acomp", msg: "Informe um CPF válido." });
+      if (!data_nasc_acomp) erros.push({ campo: "data_nasc_acomp", msg: "Informe a data de nascimento do acompanhante." });
+      if (!telefone_acomp || telefone_acomp.replace(/\D/g,'').length < 10)
+        erros.push({ campo: "telefone_acomp", msg: "Informe um telefone válido." });
+      if (!generoID) erros.push({ campo: "generoID", msg: "Selecione o gênero do acompanhante." });
+    }
+
+    // Criação do acompanhante (se houver)
+    if (temAcompanhante === "sim") {
+      try {
+        const acompanhanteCriado = await Acompanhante.create({
+          img: foto_acompanhante,
+          nome: nome_acomp,
+          cpf: cpf_acomp.replace(/\D/g,''),
+          data_nasc: data_nasc_acomp,
+          generoID,
+          telefone: telefone_acomp.replace(/\D/g,'')
+        });
+        acompanhanteID = acompanhanteCriado.cod;
+      } catch (error) {
+        if (error.name === "SequelizeUniqueConstraintError" && error.fields?.cpf) {
+          return res.render("usuario/solicitar/index", {
+            cidadeconsul: await CidadeConsul.findAll(),
+            layout: "layouts/layoutUsuario",
+            paginaAtual: "solicitar",
+            erros: [{ campo: "cpf_acomp", msg: "Este CPF já está cadastrado para outro acompanhante." }],
+            preenchido: req.body || {}
+          });
+        }
+        throw error;
+      }
+    }
+
+    const dadosSolicitacao = {
+      usuarioID,
+      cidadeconsulID,
+      local_consul,
+      data_consul,
+      hora_consul,
+      encaminhamento,
       objetivo,
       obs: obs || null,
-      acompanhanteID, // se null, não vincula
-      statusID: 1
-    });
+      statusID: null
+    };
 
-    res.redirect(`/usuario/inicio/index`);
-    
-  } catch (error) {
-    console.error('Erro ao vincular usuário:', error);
-    res.status(500).send('Erro ao vincular usuário à viagem');
+    if (temAcompanhante === "sim") {
+      Object.assign(dadosSolicitacao, {
+        acompanhanteID,
+        nome_acomp,
+        cpf_acomp,
+        data_nasc_acomp,
+        telefone_acomp,
+        generoID,
+        foto_acompanhante
+      });
+    }
+
+    await Solicitacao.create(dadosSolicitacao);
+
+    res.redirect('/usuario/agenda/index');
+
+  } catch (err) {
+    console.error("Erro ao salvar solicitação:", err);
+    res.status(500).send('Erro ao salvar solicitação.');
   }
 };
+
 
 exports.renderSolicitar = async (req, res) => {
    const codUsuario = req.session.usuario.cod;
@@ -269,69 +312,55 @@ exports.renderSolicitar = async (req, res) => {
 exports.addSolicitar = async (req, res) => {
   try {
     const usuarioID = req.session.usuario.cod;
-    let acompanhanteID = null;
 
     // Campos do formulário
-    const { cidadeconsulID, local_consul, data_consul, hora_consul, objetivo, temAcompanhante, nome, cpf, data_nasc, telefone, generoID, obs } = req.body;
+    const {
+      cidadeconsulID,
+      local_consul,
+      data_consul,
+      hora_consul,
+      objetivo,
+      temAcompanhante,
+      nome_acomp,
+      cpf_acomp,
+      data_nasc_acomp,
+      telefone_acomp,
+      generoID,
+      obs
+    } = req.body;
 
-    // Arquivos (PDF do encaminhamento + foto do acompanhante)
+    // Arquivos enviados
     const encaminhamento = req.files?.encaminhamento?.[0]?.filename || null;
     const foto_acompanhante = req.files?.foto_acompanhante?.[0]?.filename || null;
 
-    // Validação backend
+    // Validação
     let erros = [];
-
     if (!cidadeconsulID) erros.push({ campo: "cidadeconsulID", msg: "Selecione uma cidade." });
     if (!local_consul) erros.push({ campo: "local_consul", msg: "Informe o local da consulta." });
-    if (!data_consul || new Date(data_consul).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) erros.push({ campo: "data_consul", msg: "Informe uma data válida." });
+    if (!data_consul || new Date(data_consul).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
+      erros.push({ campo: "data_consul", msg: "Informe uma data válida." });
     if (!hora_consul) erros.push({ campo: "hora_consul", msg: "Informe o horário da consulta." });
     if (!objetivo) erros.push({ campo: "objetivo", msg: "Informe o objetivo da consulta." });
     if (!encaminhamento) erros.push({ campo: "encaminhamento", msg: "Envie o encaminhamento em PDF." });
 
     if (temAcompanhante === "sim") {
-      if (!nome) erros.push({ campo: "nome", msg: "Informe o nome do acompanhante." });
-      if (!cpf || cpf.replace(/\D/g,'').length !== 11) erros.push({ campo: "cpf", msg: "Informe um CPF válido." });
-      if (!data_nasc) erros.push({ campo: "data_nasc", msg: "Informe a data de nascimento do acompanhante." });
-      if (!telefone || telefone.replace(/\D/g,'').length < 10) erros.push({ campo: "telefone", msg: "Informe um telefone válido." });
+      if (!nome_acomp) erros.push({ campo: "nome_acomp", msg: "Informe o nome do acompanhante." });
+      if (!cpf_acomp || cpf_acomp.replace(/\D/g,'').length !== 11)
+        erros.push({ campo: "cpf_acomp", msg: "Informe um CPF válido." });
+      if (!data_nasc_acomp) erros.push({ campo: "data_nasc_acomp", msg: "Informe a data de nascimento." });
+      if (!telefone_acomp || telefone_acomp.replace(/\D/g,'').length < 10)
+        erros.push({ campo: "telefone_acomp", msg: "Informe um telefone válido." });
       if (!generoID) erros.push({ campo: "generoID", msg: "Selecione o gênero do acompanhante." });
     }
 
-    // Se houver erros, renderiza a página com erros e dados preenchidos
     if (erros.length > 0) {
       return res.render('usuario/solicitar/index', {
         cidadeconsul: await CidadeConsul.findAll(),
         layout: 'layouts/layoutUsuario',
         paginaAtual: 'solicitar',
         erros,
-        preenchido: req.body || {} // Mantém os valores preenchidos
+        preenchido: req.body || {}
       });
-    }
-
-    // Criação do acompanhante (se houver)
-    if (temAcompanhante === "sim") {
-      try {
-        const acompanhanteCriado = await Acompanhante.create({
-          img: foto_acompanhante, // aqui vai a foto salva
-          nome,
-          cpf: cpf.replace(/\D/g,''),
-          data_nasc,
-          generoID,
-          telefone: telefone.replace(/\D/g,'')
-        });
-        acompanhanteID = acompanhanteCriado.cod;
-      } catch (error) {
-        // Tratamento de CPF duplicado
-        if (error.name === "SequelizeUniqueConstraintError" && error.fields?.cpf) {
-          return res.render("usuario/solicitar/index", {
-            cidadeconsul: await CidadeConsul.findAll(),
-            layout: "layouts/layoutUsuario",
-            paginaAtual: "solicitar",
-            erros: [{ campo: "cpf", msg: "Este CPF já está cadastrado para outro acompanhante." }],
-            preenchido: req.body || {}
-          });
-        }
-        throw error; // outros erros caem no catch principal
-      }
     }
 
     // Criação da solicitação
@@ -345,7 +374,13 @@ exports.addSolicitar = async (req, res) => {
       objetivo,
       obs: obs || null,
       statusID: null,
-      acompanhanteID
+      // Campos do acompanhante, se houver
+      foto_acompanhante: temAcompanhante === "sim" ? foto_acompanhante : null,
+      nome_acomp: temAcompanhante === "sim" ? nome_acomp : null,
+      cpf_acomp: temAcompanhante === "sim" ? cpf_acomp.replace(/\D/g,'') : null,
+      data_nasc_acomp: temAcompanhante === "sim" ? data_nasc_acomp : null,
+      generoID: temAcompanhante === "sim" ? generoID : null,
+      telefone_acomp: temAcompanhante === "sim" ? telefone_acomp.replace(/\D/g,'') : null
     });
 
     res.redirect('/usuario/solicitar/index');

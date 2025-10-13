@@ -576,6 +576,19 @@ exports.renderCadastrarViagem = async (req, res) => {
     if (solicitacaoID) {
       const solicitacao = await Solicitacao.findByPk(solicitacaoID);
       if (solicitacao) {
+        let acompanhanteCriado = null;
+
+        if (solicitacao.nome_acomp) {
+          acompanhanteCriado = await Acompanhante.create({
+            nome: solicitacao.nome_acomp,
+            cpf: solicitacao.cpf_acomp,
+            data_nasc: solicitacao.data_nasc_acomp,
+            telefone: solicitacao.telefone_acomp,
+            generoID: solicitacao.generoID,
+            img: solicitacao.foto_acompanhante || null,
+          });
+        }
+
         await Participante.create({
           usuarioID: solicitacao.usuarioID,
           viagemID: novaViagem.cod,
@@ -584,8 +597,9 @@ exports.renderCadastrarViagem = async (req, res) => {
           encaminhamento: solicitacao.encaminhamento,
           objetivo: solicitacao.objetivo,
           obs: solicitacao.obs,
-          acompanhanteID: solicitacao.acompanhanteID,
+          acompanhanteID: acompanhanteCriado ? acompanhanteCriado.cod : null,
         });
+
         await solicitacao.destroy();
       }
     }
@@ -954,18 +968,255 @@ exports.renderViagensLista = async (req, res) => {
   });
 };
 
-exports.renderSolicitacoes = async (req, res) => {
-  const solicitacoes = await Solicitacao.findAll({
-    include: [{ model: CidadeConsul }, { model: Usuario }]
-  });
+exports.desvincularParticipante = async (req, res) => {
   try {
+    const { cod } = req.params;
+    
+    const participante = await Participante.findByPk(cod);
+    if (!participante) {
+      return res.status(404).send("Participante não encontrado");
+    }
+
+    const viagemID = participante.viagemID;
+
+    await Participante.destroy({ where: { cod } });
+
+    res.redirect(`/admin/viagens/participantes/${viagemID}`);
+  } catch (error) {
+    console.error("Erro ao desvincular", error);
+  }
+};
+
+exports.renderSolicitacoes = async (req, res) => {
+  try {
+    const solicitacoes = await Solicitacao.findAll({
+      include: [
+        { model: CidadeConsul },
+        { model: Usuario }
+      ]
+    });
+
+    const viagens = await Viagem.findAll({
+      include: [
+        { model: CidadeConsul },
+        { model: Status, where: { cod: '1' } },
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" }
+      ]
+    });
+
+    // Calcular ocupação
+    const viagensComOcupacao = viagens.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+      return {
+        ...v.toJSON(),
+        ocupacao: qtdParticipantes + qtdAcompanhantes
+      };
+    });
+
+    // Função auxiliar para comparar datas (YYYY-MM-DD)
+    const normalizarData = (data) => {
+      if (!data) return null;
+      const d = new Date(data);
+      const ano = d.getFullYear();
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const dia = String(d.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    };
+
+    // Filtrar solicitações
+    const solicitacoesFiltradas = solicitacoes.filter((sol) => {
+      const dataSolicitacao = normalizarData(sol.data_consul);
+
+      const viagemCompatível = viagensComOcupacao.find((v) => {
+        const dataViagem = normalizarData(v.data_viagem);
+
+        return (
+          v.cidadeconsulID === sol.cidadeconsulID &&
+          dataViagem === dataSolicitacao &&
+          v.ocupacao < v.veiculo.lugares_dispo
+        );
+      });
+
+      return !viagemCompatível;
+    });
+
     res.render("admin/solicitacoes/index", {
       layout: "layouts/layoutAdmin",
       paginaAtual: "solicitacoes",
-      solicitacoes,
+      solicitacoes: solicitacoesFiltradas,
     });
+
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao carregar solicitações:", erro);
     res.status(500).send("Erro ao carregar solicitações");
+  }
+};
+
+exports.renderParticipacoes = async (req, res) => {
+   try {
+    const solicitacoes = await Solicitacao.findAll({
+      include: [
+        { model: CidadeConsul },
+        { model: Usuario }
+      ]
+    });
+
+    const viagens = await Viagem.findAll({
+      include: [
+        { model: CidadeConsul },
+        { model: Status, where: { cod: '1' } },
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" }
+      ]
+    });
+
+    // Calcular ocupação
+    const viagensComOcupacao = viagens.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+      return {
+        ...v.toJSON(),
+        ocupacao: qtdParticipantes + qtdAcompanhantes
+      };
+    });
+
+    // Função auxiliar para comparar datas (YYYY-MM-DD)
+    const normalizarData = (data) => {
+      if (!data) return null;
+      const d = new Date(data);
+      const ano = d.getFullYear();
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const dia = String(d.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    };
+
+    // Filtrar solicitações
+    const solicitacoesFiltradas = solicitacoes.filter((sol) => {
+      const dataSolicitacao = normalizarData(sol.data_consul);
+
+      const viagemCompatível = viagensComOcupacao.find((v) => {
+        const dataViagem = normalizarData(v.data_viagem);
+
+        return (
+          v.cidadeconsulID === sol.cidadeconsulID &&
+          dataViagem === dataSolicitacao &&
+          v.ocupacao < v.veiculo.lugares_dispo
+        );
+      });
+
+      return viagemCompatível;
+    });
+
+    res.render("admin/solicitacoes/participacoes", {
+      layout: "layouts/layoutAdmin",
+      paginaAtual: "solicitacoes",
+      solicitacoes: solicitacoesFiltradas,
+    });
+
+  } catch (erro) {
+    console.error("Erro ao carregar solicitações:", erro);
+    res.status(500).send("Erro ao carregar solicitações");
+  }
+};
+
+exports.rejeitarSolicitacoe = async (req, res) => {
+  const { cod } = req.params;
+
+  const solicitacao = await Solicitacao.findByPk(cod);
+
+  await solicitacao.destroy();
+
+  res.redirect("/admin/solicitacoes/index");
+};
+
+exports.rejeitarSolicitacoeParticipacao = async (req, res) => {
+  const { cod } = req.params;
+
+  const solicitacao = await Solicitacao.findByPk(cod);
+
+  await solicitacao.destroy();
+
+  res.redirect("/admin/solicitacoes/participacoes");
+};
+
+exports.aceitarSolicitacoe = async (req, res) => {
+  try {
+    const solicitacaoID = req.params.cod;
+
+    // Busca a solicitação
+    const solicitacao = await Solicitacao.findByPk(solicitacaoID);
+    if (!solicitacao) return res.status(404).send("Solicitação não encontrada");
+
+    // Função para normalizar datas (YYYY-MM-DD)
+    const normalizarData = (data) => {
+      if (!data) return null;
+      const d = new Date(data);
+      return d.toISOString().slice(0, 10);
+    };
+
+    const dataSolicitacao = normalizarData(solicitacao.data_consul);
+
+    // Buscar viagens compatíveis na mesma cidade
+    const viagens = await Viagem.findAll({
+      where: { cidadeconsulID: solicitacao.cidadeconsulID },
+      include: [
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" }
+      ]
+    });
+
+    // Encontrar primeira viagem compatível com vaga
+    const viagemCompatível = viagens.find((v) => {
+      const dataViagem = normalizarData(v.data_viagem);
+      const ocupacao = v.participantes.length + v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+      return dataViagem === dataSolicitacao && ocupacao < v.veiculo.lugares_dispo;
+    });
+
+    if (!viagemCompatível) {
+      return res.status(400).send("Nenhuma viagem compatível encontrada");
+    }
+
+    let acompanhanteCriado = null;
+    if (solicitacao.nome_acomp) {
+      acompanhanteCriado = await Acompanhante.create({
+        nome: solicitacao.nome_acomp,
+        cpf: solicitacao.cpf_acomp,
+        data_nasc: solicitacao.data_nasc_acomp,
+        telefone: solicitacao.telefone_acomp,
+        generoID: solicitacao.generoID, 
+        img: solicitacao.foto_acompanhante || null
+      });
+    }
+
+    await Participante.create({
+      usuarioID: solicitacao.usuarioID,
+      viagemID: viagemCompatível.cod,
+      local_consul: solicitacao.local_consul,
+      hora_consul: solicitacao.hora_consul,
+      encaminhamento: solicitacao.encaminhamento,
+      objetivo: solicitacao.objetivo,
+      obs: solicitacao.obs,
+      acompanhanteID: acompanhanteCriado ? acompanhanteCriado.cod : null
+    });
+
+
+    // Apagar solicitação
+    await solicitacao.destroy();
+
+    res.redirect("/admin/solicitacoes/participacoes");
+  } catch (erro) {
+    console.error("Erro ao aceitar solicitação:", erro);
+    res.status(500).send("Erro ao aceitar solicitação");
   }
 };

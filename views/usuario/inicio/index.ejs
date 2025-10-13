@@ -15,6 +15,7 @@
 </div>
 
 <!-- BLOCO CENTRAL -->
+<% if (minhas_viagens && minhas_viagens.length > 0) { %>
 <div
   class="bloco-viagens shadow-lg rounded-4 mt-4"
   style="
@@ -27,7 +28,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   "
 >
-  <p>Suas próximas viagens:</p>
+  <p>Próximas viagens:</p>
   <!-- ÁREA SCROLLÁVEL DAS VIAGENS -->
   <div
     class="area-scroll"
@@ -98,9 +99,10 @@
       </div>
     </div>
 
-    <% }) %>
+    <% }); %>
   </div>
 </div>
+<% } %> 
 
 <script>
   // VER MAIS / VER MENOS

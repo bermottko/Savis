@@ -22,12 +22,12 @@ router.get('/agenda/index', usuarioController.renderAgenda);
 router.get('/agenda/buscar-viagens', usuarioController.buscarViagens);
 router.get('/agenda/formulario-participar/:cod', usuarioController.formularioParticipar);
 router.post(
-  '/agenda/vincular-usuario/:cod',
+  '/agenda/requisitar-participacao',
   upload.fields([
     { name: 'encaminhamento', maxCount: 1 },
     { name: 'foto_acompanhante', maxCount: 1 }
   ]),
-  usuarioController.vincularUsuario
+  usuarioController.requisitarParticipacao
 );
 
 router.get('/solicitar/index', usuarioController.renderSolicitar);

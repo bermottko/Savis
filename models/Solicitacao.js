@@ -39,14 +39,30 @@ const Solicitacao = db.sequelize.define('solicitacao', {
     type: db.Sequelize.STRING(255),
     allowNull: true
   },
-  acompanhanteID: {
-    type: db.Sequelize.INTEGER,
-    allowNull: true,
-  },
   statusID: {
     type: db.Sequelize.INTEGER,
     allowNull: true,
-  }
+  },
+
+    foto_acompanhante: {
+      type: db.Sequelize.STRING(50),
+    },
+    nome_acomp: {
+      type: db.Sequelize.STRING(40),
+    },
+    cpf_acomp: {
+      type: db.Sequelize.STRING(14), 
+    },
+    data_nasc_acomp: {
+      type: db.Sequelize.DATEONLY,
+    },
+    generoID: {
+      type: db.Sequelize.INTEGER,
+    },
+    telefone_acomp: {
+      type: db.Sequelize.STRING(15), 
+    }
+
 }, {
   timestamps: false
 });

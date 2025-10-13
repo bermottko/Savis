@@ -26,8 +26,19 @@
           </li>
         </ul>
       </li>
-      <li class="nav-item">
-        <a class="nav-link <%= paginaAtual === 'solicitacoes' ? 'active-nav' : '' %>" href="/admin/solicitacoes/index">Solicitações</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link <%= paginaAtual === 'solicitacoes' ? 'active-nav' : '' %>
+          href="#" id="navbarDropdown" role="button">
+          Solicitações
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <li>
+            <a class="dropdown-item" href="/admin/solicitacoes/index">Novas Viagens</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/admin/solicitacoes/participacoes">Participações</a>
+          </li>
+        </ul>
       </li>
       <li class="nav-item ms-lg-3">
         <a class="nav-link p-0 d-flex align-items-center" href="/admin/perfil">
