@@ -38,7 +38,7 @@
             <button type="submit" class="botao-cadastro">Entrar</button>
         </div>
 
-        <div class="texto-criar-conta">
+        <div class="texto-criar-conta" id="texto-criar-conta">
           <a>Ainda não tem uma conta Savis?</a>
           <a href="/auth/cadastro" class="criar-conta">Criar conta!</a>
         </div>
@@ -57,6 +57,10 @@
 
     document.getElementById('cpf').value = '';
     document.getElementById('matricula').value = '';
+    const textoCriarConta = document.getElementById('texto-criar-conta');
+  if (textoCriarConta) {
+    textoCriarConta.style.display = pacienteSelecionado ? 'block' : 'none';
+  }
   }
 
   function mascaraCPF(cpfInput) {
