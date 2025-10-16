@@ -61,21 +61,12 @@
                 <strong>Acompanhante:</strong> <% if (participante.acompanhante){%>Sim <% } else { %> Não <% } %>
               </p>
               <hr />
-              <div class="d-inline-flex align-items-center gap-1 border px-3 py-2 bg-white">
-                <span style="font-size: 14px">Encaminhamento:</span>
-                <% if (participante.encaminhamento) { %>
-                <a
-                  href="/uploads/<%= participante.encaminhamento %>"
-                  target="_blank"
-                  class="botao-visualizar bg-visualizar-docs"
-                >
-                  Visualizar
-                </a>
-                <% } else { %>
-                <span class="text-muted" style="font-size: 13px">Não enviado</span>
-                <% } %>
-              </div>
-              <hr />
+            <% if (participante.encaminhamento) { %>
+              <a href="/uploads/<%= participante.encaminhamento %>" target="_blank" class="botao-visualizar">Encaminhamento</a>
+            <% } else { %>
+              <span class="text-muted" style="font-size: 13px">Não enviado</span>
+            <% } %>
+            <hr />
             </div>
 
             <!-- DADOS DO USUÁRIO (inicialmente escondidos) -->
@@ -147,7 +138,11 @@
               <% } %>
             </div>
 
-            <a class="botao-visualizar botao-visualizar-dados" style="cursor: pointer">Dados do Usuário</a>
+            <div class="d-flex justify-content-end gap-3 mt-2">
+            <a class="botao botao-visualizar-dados" style="cursor: pointer">Dados do Usuário</a>
+           <form action="/admin/viagens/desvincular/<%= participante.cod %>?_method=DELETE" method="POST">
+          </form>
+          </div>
           </div>
         </div>
       </div>

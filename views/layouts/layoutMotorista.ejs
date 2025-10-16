@@ -153,7 +153,7 @@
         background-color: #a2c3f2;
         color: white;
       }*/
-
+      
       .botao-visualizar {
         color: #00204c;
         display: inline-block;
@@ -162,6 +162,9 @@
 
       .botao-visualizar:hover {
         color: #001129;
+      }
+      .bg-visualizar-docs {
+        font-size: 14px;
       }
 
       .pesquisa-custom {
@@ -355,6 +358,83 @@
         min-width: auto !important;   
         width: max-content;           
       }
+
+      .pesquisa-custom {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .375rem .75rem; 
+        font-size: 1rem;
+        border-radius: .35rem;
+      }
+
+      .botao-cadastro {
+        background-color: #a2c3f2;
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        border: 1px solid #a2c3f2;
+        box-shadow: none;
+        transition: background-color 0.3s ease;
+        font-weight: bold;
+        line-height: 1;
+        height: 38px;
+      }
+
+      .botao-cadastro:hover {
+        background-color: #ffffff;
+        color: #93b2dd;
+      }
+
+      #toggleFiltroMotorista {
+        text-transform: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+  #paginacaoContainer {
+    margin-top: 25px;
+  }
+
+  .botao-paginacao {
+    background-color: #a7c9f9;
+    color: #062352;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 4px;
+    min-width: 38px;
+    text-align: center;
+  }
+
+  .botao-paginacao:hover:not(:disabled) {
+    background-color: #7faef7;
+    color: #fff;
+  }
+
+  .botao-paginacao.ativo {
+    background-color: #062352;
+    color: #fff;
+  }
+
+  .botao-paginacao:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #paginacaoWrapper {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
     </style>
   </head>
   <body>

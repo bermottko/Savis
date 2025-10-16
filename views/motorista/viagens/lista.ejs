@@ -11,10 +11,15 @@
           id="pesquisaData" 
           class="form-control pesquisa-custom"
           style="max-width: 200px;">
+
+    <button id="toggleFiltroMotorista" class="botao-cadastro  pesquisa-custom" style="max-width: 200px; height: 38px;">
+      Minhas Viagens
+    </button>
   </div>
   <% viagens.forEach(function(viagem) { %>
   <div
-    class="card shadow-sm mt-2"
+    class="card shadow-sm mt-2<% if (typeof motorista !== 'undefined' && motorista && viagem.Motorista && viagem.Motorista.cod === motorista.cod) { %> minha<% } %>"
+    data-motorista-id="<%= viagem.Motorista.cod %>"
     style="
       width: 100%;
       max-width: 700px;
@@ -104,16 +109,21 @@
         <br />
 
         <div class="d-flex justify-content-end gap-3 mt-2">
-          <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao">Relatório</a>
+          <% if (typeof motorista !== 'undefined' && motorista && viagem.Motorista && viagem.Motorista.cod === motorista.cod) { %>
+            <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao">Relatório</a>
+          <% } %>
         </div>
       </div>
     </div>
   </div>
   <% }) %>
+  <div id="paginacaoWrapper" class="d-flex justify-content-center mt-4"></div>
 </div>
 
 <script>
+  // -----------------------------
   // VER MAIS / VER MENOS
+  // -----------------------------
   document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
       const card = this.closest(".card");
@@ -134,39 +144,131 @@
     });
   });
 
+  // -----------------------------
+  // FILTROS + PAGINAÇÃO FRONTEND
+  // -----------------------------
   const inputCidade = document.getElementById("pesquisaCidade");
   const inputData = document.getElementById("pesquisaData");
-  const cards = Array.from(document.querySelectorAll(".card"));
+  const botaoFiltroMotorista = document.getElementById("toggleFiltroMotorista");
+  const todosCards = Array.from(document.querySelectorAll(".card"));
+  let filtroAtivo = false;
+  let paginaAtual = 1;
+  const itensPorPagina = 5;
 
+  // Aplica os filtros
   function filtrar() {
-    const termoCidade = inputCidade.value.trim().toLowerCase();
-    const termoData = inputData.value;
+    const termoCidade = inputCidade ? inputCidade.value.trim().toLowerCase() : "";
+    const termoData = inputData ? inputData.value : "";
 
-    cards.forEach((card) => {
-      const cidadeElemento = card.querySelector(
-        ".card-header span:first-child"
-      );
-      const dataElemento = card.querySelector(".card-header span:last-child");
-
-      const cidade = cidadeElemento
-        ? cidadeElemento.textContent.toLowerCase()
-        : "";
-      const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
+    todosCards.forEach((card) => {
+      const cidadeText = card.querySelector(".card-header span:first-child")?.textContent.toLowerCase() || "";
+      const dataAttr = card.querySelector(".card-header span:last-child")?.getAttribute("data-date") || "";
 
       let exibir = true;
+      if (termoCidade && !cidadeText.includes(termoCidade)) exibir = false;
+      if (termoData && dataAttr !== termoData) exibir = false;
+      if (filtroAtivo && !card.classList.contains("minha")) exibir = false;
 
-      if (termoCidade && !cidade.includes(termoCidade)) {
-        exibir = false;
+      card.dataset.visivel = exibir ? "true" : "false";
+    });
+
+    paginaAtual = 1; // sempre volta pra primeira página ao filtrar
+    aplicarPaginacao();
+  }
+
+  // Paginação
+  function aplicarPaginacao() {
+    const cardsVisiveis = todosCards.filter((c) => c.dataset.visivel === "true");
+    const totalPaginas = Math.max(1, Math.ceil(cardsVisiveis.length / itensPorPagina));
+
+    // Garantir intervalo válido
+    if (paginaAtual < 1) paginaAtual = 1;
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+    // Oculta todos
+    todosCards.forEach((c) => (c.style.display = "none"));
+
+    // Mostra apenas os da página atual
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    cardsVisiveis.slice(inicio, fim).forEach((c) => (c.style.display = "block"));
+
+    renderizarPaginacao(cardsVisiveis.length, totalPaginas);
+  }
+
+  // Renderização dos botões
+  function renderizarPaginacao(totalItens, totalPaginas) {
+    const wrapper = document.getElementById("paginacaoWrapper");
+    if (!wrapper) return;
+    wrapper.innerHTML = "";
+
+    if (totalItens === 0 || totalPaginas <= 1) return;
+
+    const container = document.createElement("div");
+    container.className = "d-flex align-items-center";
+    container.style.gap = "8px";
+    container.style.flexWrap = "wrap";
+
+    // Botão anterior
+    const anterior = document.createElement("button");
+    anterior.className = "botao-paginacao";
+    anterior.textContent = "«";
+    anterior.disabled = paginaAtual === 1;
+    anterior.addEventListener("click", () => {
+      if (paginaAtual > 1) {
+        paginaAtual--;
+        aplicarPaginacao();
+        scrollToTopo();
       }
+    });
+    container.appendChild(anterior);
 
-      if (termoData && data !== termoData) {
-        exibir = false;
+    // Botões de número (simplificado, 1 a totalPaginas)
+    for (let i = 1; i <= totalPaginas; i++) {
+      const btn = document.createElement("button");
+      btn.className = "botao-paginacao" + (i === paginaAtual ? " ativo" : "");
+      btn.textContent = i;
+      btn.addEventListener("click", () => {
+        paginaAtual = i;
+        aplicarPaginacao();
+        scrollToTopo();
+      });
+      container.appendChild(btn);
+    }
+
+    // Botão próximo
+    const proximo = document.createElement("button");
+    proximo.className = "botao-paginacao";
+    proximo.textContent = "»";
+    proximo.disabled = paginaAtual === totalPaginas;
+    proximo.addEventListener("click", () => {
+      if (paginaAtual < totalPaginas) {
+        paginaAtual++;
+        aplicarPaginacao();
+        scrollToTopo();
       }
+    });
+    container.appendChild(proximo);
 
-      card.style.display = exibir ? "block" : "none";
+    wrapper.appendChild(container);
+  }
+
+  function scrollToTopo() {
+    document.querySelector(".col-12").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Eventos dos filtros
+  if (inputCidade) inputCidade.addEventListener("input", filtrar);
+  if (inputData) inputData.addEventListener("change", filtrar);
+  if (botaoFiltroMotorista) {
+    botaoFiltroMotorista.addEventListener("click", () => {
+      filtroAtivo = !filtroAtivo;
+      botaoFiltroMotorista.textContent = filtroAtivo ? "Todas as Viagens" : "Minhas Viagens";
+      filtrar();
     });
   }
 
-  inputCidade.addEventListener("input", filtrar);
-  inputData.addEventListener("change", filtrar);
+  // Inicialização
+  todosCards.forEach((c) => (c.dataset.visivel = "true"));
+  aplicarPaginacao();
 </script>
