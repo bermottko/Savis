@@ -869,11 +869,11 @@ exports.vincularUsuario = async (req, res) => {
       objetivo,
       obs,
       temAcompanhante,
-      nome,
-      cpf,
-      data_nasc,
+      nome_acomp,
+      cpf_acomp,
+      data_nasc_acomp,
       generoID,
-      telefone,
+      telefone_acomp,
     } = req.body;
 
     if (!usuarioID) {
@@ -896,11 +896,11 @@ exports.vincularUsuario = async (req, res) => {
     if (temAcompanhante === "sim") {
       const novoAcomp = await Acompanhante.create({
         img: fotoAcomp, // salva o nome do arquivo no banco
-        nome,
-        cpf,
-        data_nasc,
+        nome: nome_acomp,
+        cpf: cpf_acomp,
+        data_nasc: data_nasc_acomp,
         generoID,
-        telefone,
+        telefone: telefone_acomp,
       });
 
       acompanhanteID = novoAcomp.cod; // pega a PK criada
