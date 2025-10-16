@@ -3,8 +3,9 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const adminController = require('../controllers/adminController');
+const { verificarSessaoChefe } = require('../controllers/authController');
 
-// Configuração do Multer
+// configuração do Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'public/uploads/'),
     filename: (req, file, cb) => {
@@ -28,18 +29,18 @@ function fileFilter(req, file, cb) {
 
 const upload = multer({ storage, fileFilter });
 
-router.get('/perfil', adminController.renderPerfil);
+router.get('/perfil', verificarSessaoChefe, adminController.renderPerfil);
 
-router.get('/usuarios/index', adminController.renderUsuarios);
-router.get('/usuarios/buscar', adminController.buscarUsuarios);
-router.delete('/usuarios/deletar/:cod', adminController.deletarUsuarios);
-router.get('/usuarios/editar/:cod', adminController.editarUsuario);
-router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), adminController.salvarEdicaoUsuario);
+router.get('/usuarios/index', verificarSessaoChefe, adminController.renderUsuarios);
+router.get('/usuarios/buscar', verificarSessaoChefe, adminController.buscarUsuarios);
+router.delete('/usuarios/deletar/:cod', verificarSessaoChefe, adminController.deletarUsuarios);
+router.get('/usuarios/editar/:cod', verificarSessaoChefe, adminController.editarUsuario);
+router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), verificarSessaoChefe, adminController.salvarEdicaoUsuario);
 
-router.get('/motoristas/index', adminController.renderMotoristas);
-router.get('/motoristas/buscar', adminController.buscarMotoristas);
-router.get('/motoristas/editar/:cod', adminController.editarMotorista);
-router.delete('/motoristas/deletar/:cod', adminController.deletarMotoristas);
+router.get('/motoristas/index', verificarSessaoChefe, adminController.renderMotoristas);
+router.get('/motoristas/buscar', verificarSessaoChefe, adminController.buscarMotoristas);
+router.get('/motoristas/editar/:cod', verificarSessaoChefe, adminController.editarMotorista);
+router.delete('/motoristas/deletar/:cod', verificarSessaoChefe, adminController.deletarMotoristas);
 router.put(
   '/motoristas/editar/:cod',
   upload.fields([
@@ -53,35 +54,36 @@ router.put(
     { name: 'ant_crim', maxCount: 1 },
     { name: 'exame_tox', maxCount: 1 },
   ]),
-  adminController.salvarEdicaoMotorista
+  verificarSessaoChefe, adminController.salvarEdicaoMotorista
 );
 
-router.get('/viagens/lista', adminController.renderViagensLista);
-router.get('/viagens/buscar-viagens', adminController.buscarViagens);
-router.get('/viagens/index', adminController.renderViagens);
-router.get('/viagens/buscar-eventos', adminController.renderBuscarEventos);
-router.get('/viagens/nova-viagem', adminController.renderNovaViagem);
-router.post('/viagens/add-nova-viagem', adminController.renderCadastrarViagem);
-router.get('/viagens/ver-viagem/:cod', adminController.renderVerViagem);
-router.get('/viagens/editar/:cod', adminController.editarViagem);
-router.put('/viagens/editar/:cod', adminController.salvarEdicaoViagem);
-router.put('/viagens/cancelar/:cod', adminController.cancelarViagem );
-router.get('/viagens/participantes/:cod', adminController.verParticipantes);
-router.get('/viagens/adicionar-participante/:cod', adminController.adicionarParticipante);
-router.get('/viagens/formulario-participante/:cod', adminController.formularioParticipante);
+router.get('/viagens/lista', verificarSessaoChefe, adminController.renderViagensLista);
+router.get('/viagens/buscar-viagens', verificarSessaoChefe, adminController.buscarViagens);
+router.get('/viagens/index', verificarSessaoChefe, adminController.renderViagens);
+router.get('/viagens/buscar-eventos', verificarSessaoChefe, adminController.renderBuscarEventos);
+router.get('/viagens/nova-viagem', verificarSessaoChefe, adminController.renderNovaViagem);
+router.post('/viagens/add-nova-viagem', verificarSessaoChefe, adminController.renderCadastrarViagem);
+router.get('/viagens/ver-viagem/:cod', verificarSessaoChefe, adminController.renderVerViagem);
+router.get('/viagens/editar/:cod', verificarSessaoChefe, adminController.editarViagem);
+router.put('/viagens/editar/:cod', verificarSessaoChefe, adminController.salvarEdicaoViagem);
+router.put('/viagens/cancelar/:cod', verificarSessaoChefe, adminController.cancelarViagem );
+router.get('/viagens/participantes/:cod', verificarSessaoChefe, adminController.verParticipantes);
+router.get('/viagens/adicionar-participante/:cod', verificarSessaoChefe, adminController.adicionarParticipante);
+router.get('/viagens/formulario-participante/:cod', verificarSessaoChefe, adminController.formularioParticipante);
 router.post(
   '/viagens/vincular-usuario/:cod',
   upload.fields([
     { name: 'encaminhamento', maxCount: 1 },
     { name: 'foto_acompanhante', maxCount: 1 }
   ]),
-  adminController.vincularUsuario
+  verificarSessaoChefe, adminController.vincularUsuario
 );
-router.delete('/viagens/desvincular/:cod', adminController.desvincularParticipante);
+router.delete('/viagens/desvincular/:cod', verificarSessaoChefe, adminController.desvincularParticipante);
 
-router.get('/solicitacoes/index', adminController.renderSolicitacoes);
-router.get('/solicitacoes/participacoes', adminController.renderParticipacoes);
-router.get('/solicitacoes/aceitar/:cod', adminController.aceitarSolicitacoe);
-router.delete('/solicitacoes/rejeitar/:cod', adminController.rejeitarSolicitacoe);
-router.delete('/solicitacoes/rejeitarParticipacao/:cod', adminController.rejeitarSolicitacoeParticipacao);
+router.get('/solicitacoes/index', verificarSessaoChefe, adminController.renderSolicitacoes);
+router.get('/solicitacoes/participacoes', verificarSessaoChefe, adminController.renderParticipacoes);
+router.get('/solicitacoes/aceitar/:cod', verificarSessaoChefe, adminController.aceitarSolicitacoe);
+router.delete('/solicitacoes/rejeitar/:cod', verificarSessaoChefe, adminController.rejeitarSolicitacoe);
+router.delete('/solicitacoes/rejeitarParticipacao/:cod', verificarSessaoChefe, adminController.rejeitarSolicitacoeParticipacao);
+
 module.exports = router;

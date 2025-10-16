@@ -37,9 +37,6 @@ exports.verificarUsuario = async (req, res) => {
         req.session.motorista = {
         cod: usuario.cod,
         nome: usuario.nome,
-        email: usuario.email,
-        foto: usuario.img,
-        matricula: usuario.matricula
       };
 
       console.log("Motorista logado:", req.session.motorista); // debug
@@ -161,7 +158,6 @@ exports.cadastrarUsuario = async (req, res) => {
   }
 };
 
-// Motorista
 exports.renderCadastroMotorista = (req, res) => {
   res.render('auth/cadastro-motorista', {
     layout: 'layouts/layoutAuth',
@@ -259,5 +255,39 @@ exports.cadastrarMotorista = async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao cadastrar motorista: ' + erro);
+  }
+};
+
+exports.verificarSessaoUsuario = (req, res, next) => {
+  if (!req.session.usuario) {
+    return res.redirect('/auth/entrada'); 
+  }
+  next();
+};
+
+exports.verificarSessaoMotorista = (req, res, next) => {
+  if (!req.session.motorista) {
+    return res.redirect('/auth/entrada');
+  }
+  next();
+};
+
+exports.verificarSessaoChefe = (req, res, next) => {
+  if (!req.session.chefe) {
+    return res.redirect('/auth/entrada');
+  }
+  next();
+};
+
+exports.logout = (req, res) => {
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) {
+        console.error("Erro ao destruir sessão:", err);
+      }
+      res.redirect('/auth/entrada'); 
+    });
+  } else {
+    res.redirect('/auth/entrada');
   }
 };

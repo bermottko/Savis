@@ -27,10 +27,6 @@ exports.renderPerfil = async (req, res) => {
 
 exports.renderUsuarios = async (req, res) => {
   try {
-    if (!req.session.motorista || !req.session.motorista.cod) {
-      return res.redirect('/auth/login'); // ou uma página de erro
-    }
-
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
 
@@ -305,3 +301,4 @@ exports.salvarRelatorio = async (req, res) => {
     res.status(500).send("Erro no servidor");
   }
 };
+

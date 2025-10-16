@@ -40,4 +40,6 @@ router.post(
   authController.cadastrarMotorista
 );
 
+router.get('/sair', authController.logout);
+
 module.exports = router;
