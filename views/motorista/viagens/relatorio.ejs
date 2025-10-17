@@ -1,85 +1,89 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
   <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 600px; background-color: #ffffff;">
     <form action="/motorista/viagens/relatorio/<%= viagem.cod %>?_method=PUT" method="POST" class="container mt-4" novalidate>
-            <h2 class="mb-4 text-center titulo">Relatório da Viagem</h2>
+      <h2 class="mb-4 text-center titulo">Relatório da Viagem</h2>
 
-  <div class="mb-3">
-          <label for="horario_chega" class="form-label">Horário de Chegada</label>
-          <div class="input-group">
-            <input
-              type="time"
-              id="horario_chega"
-              name="horario_chega"
-              class="form-control"
-              value="<%= viagem.horario_chega || '' %>"
-            />
-            <span class="input-group-text">
-              <i class="bi bi-clock"></i>
-            </span>
-          </div>
-
-        <div class="row">
-          <div class="mb-3 mt-3 col-md-6">
-            <label for="km_inicial" class="form-label">Km Inicial</label>
-            <input
-              type="number"
-              id="km_inicial"
-              name="km_inicial"
-              class="form-control"
-              value="<%= viagem.km_inicial || '' %>"
-            />
-          </div>
-
-          <div class="mb-3 mt-3 col-md-6">
-            <label for="km_final" class="form-label">Km Final</label>
-            <input
-              type="number"
-              id="km_final"
-              name="km_final"
-              class="form-control"
-              value="<%= viagem.km_final || '' %>"
-            />
-          </div>
-        </div>     
-        
-        <div class="mb-3">
-          <label for="combustivel" class="form-label">Combustível</label>
+      <div class="mb-3">
+        <label for="horario_chega" class="form-label">Horário de Chegada</label>
+        <div class="input-group">
           <input
-            type="text"
-            id="combustivel"
-            name="combustivel"
+            type="time"
+            id="horario_chega"
+            name="horario_chega"
             class="form-control"
-            value="<%= viagem.combustivel || '' %>"
+            value="<%= viagem.horario_chega || '' %>"
+          />
+          <span class="input-group-text">
+            <i class="bi bi-clock"></i>
+          </span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 mt-3 col-md-6">
+          <label for="km_inicial" class="form-label">Km Inicial</label>
+          <input
+            type="number"
+            id="km_inicial"
+            name="km_inicial"
+            class="form-control"
+            value="<%= viagem.km_inicial || '' %>"
+            placeholder="Digite a quilometragem inicial"
           />
         </div>
 
-        <div class="mb-3">
-          <label for="paradas" class="form-label">Paradas</label>
+        <div class="mb-3 mt-3 col-md-6">
+          <label for="km_final" class="form-label">Km Final</label>
           <input
-            type="text"
-            id="paradas"
-            name="paradas"
+            type="number"
+            id="km_final"
+            name="km_final"
             class="form-control"
-            value="<%= viagem.paradas || '' %>"
+            value="<%= viagem.km_final || '' %>"
+            placeholder="Digite a quilometragem final"
           />
         </div>
+      </div>     
 
-        <div class="mb-3">
-          <label for="obs" class="form-label">Observações</label>
-          <textarea
-            id="obs"
-            name="obs"
-            class="form-control"
-            rows="3"
-          ><%= viagem.obs || '' %></textarea>
-        </div>
-        </div>
+      <div class="mb-3">
+        <label for="combustivel" class="form-label">Combustível</label>
+        <input
+          type="text"
+          id="combustivel"
+          name="combustivel"
+          class="form-control"
+          value="<%= viagem.combustivel || '' %>"
+          placeholder="Informe o nível do tanque"
+        />
+      </div>
 
-        <div class="d-flex justify-content-between mt-4">
-          <button type="button" class="botao" onclick="history.back()">Cancelar</button>
-          <button type="submit" class="botao">Salvar</button>
-        </div>
-      </form>
-    </div>
+      <div class="mb-3">
+        <label for="paradas" class="form-label">Paradas</label>
+        <input
+          type="text"
+          id="paradas"
+          name="paradas"
+          class="form-control"
+          value="<%= viagem.paradas || '' %>"
+          placeholder="Liste as paradas realizadas"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="obs" class="form-label">Observações</label>
+        <textarea
+          id="obs"
+          name="obs"
+          class="form-control"
+          rows="3"
+          placeholder="Escreva aqui observações adicionais"
+        ><%= viagem.obs || '' %></textarea>
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="botao" onclick="history.back()">Cancelar</button>
+        <button type="submit" class="botao">Salvar</button>
+      </div>
+    </form>
   </div>
 </div>

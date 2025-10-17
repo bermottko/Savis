@@ -28,6 +28,8 @@
 
             <!--VER MAIS-->
             <div class="detalhes">
+            <p><strong>Matrícula: </strong><%= post.matricula%></p>
+            <hr>
             <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
             <hr>
             <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>

@@ -1,17 +1,23 @@
 <div class="col-12 d-flex flex-column align-items-center mt-5">
-  <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-    <!-- Campo cidade -->
-    <input type="search" 
-          id="pesquisaCidade" 
-          placeholder="Pesquisar por cidade" 
-          class="form-control pesquisa-custom"
-          style="max-width: 250px;">
+  <div
+    class="d-flex justify-content-center align-items-center mb-4"
+    style="gap: 10px"
+  >
 
-    <!-- Campo data -->
-    <input type="date" 
-          id="pesquisaData" 
-          class="form-control pesquisa-custom"
-          style="max-width: 200px;">
+    <input
+      type="search"
+      id="pesquisaCidade"
+      placeholder="Pesquisar por cidade"
+      class="form-control pesquisa-custom"
+      style="max-width: 250px"
+    />
+
+    <input
+      type="date"
+      id="pesquisaData"
+      class="form-control pesquisa-custom"
+      style="max-width: 200px"
+    />
   </div>
   <% viagens.forEach(function(viagem) { %>
   <div
@@ -20,14 +26,14 @@
       width: 100%;
       max-width: 700px;
       border-radius: 10px;
-      background-color: #d1e3fd;
+      background-color: <%= viagem.corFundo %>;
     "
   >
-    <!-- Cabeçalho -->
+    
     <div
       class="card-header d-flex justify-content-between align-items-center"
       style="
-        background-color: #a7c9f9;
+        background-color: <%= viagem.corCabeca %>;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
       "
@@ -43,9 +49,9 @@
         <%= viagem.data_viagem.split('-').reverse().join('/') %>
       </span>
     </div>
-    <!-- Corpo -->
+    
     <div class="card-body">
-      <!-- Linha principal com botão Ver mais -->
+
       <div class="d-flex justify-content-between align-items-center">
         <div class="flex-grow-1">
           <img
@@ -54,70 +60,75 @@
             class="mb-1"
             style="width: 20px; height: 20px"
           />
-          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados
+          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares
+          Ocupados
         </div>
         <button class="botao ver-mais-btn">Ver mais</button>
       </div>
 
-      <!-- Detalhes expansíveis -->
       <div class="detalhes">
-        <p>
-          <strong>Horário de saída:</strong> <%=
-          viagem.horario_saida.substring(0,5) %>
-        </p>
-        <hr />
-        <p>
-          <strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %>
-        </p>
-        <hr />
-        <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
-        <hr />
-        <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
-        <hr />
-        <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
-        <hr />
-
-        <% if (viagem.combustivel) { %>
-          <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+        <div class="conteudo-principal">
+          <p>
+            <strong>Horário de saída:</strong>
+            <%=viagem.horario_saida.substring(0,5) %>
+          </p>
           <hr />
-        <% } %>
-        <% if (viagem.km_inicial) { %>
+          <p>
+            <strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo
+            %>
+          </p>
+          <hr />
+          <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
+          <hr />
+          <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+          <hr />
+          <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+          <hr />
+
+          <a
+            href="/admin/viagens/participantes/<%= viagem.cod %>"
+            class="botao-visualizar"
+            >Participantes</a
+          >
+          <br />
+        </div>
+        <div class="conteudo-relatorio" style="display: none">
+          <p>
+            <strong>Horário de Chegada:</strong> <%= viagem.horario_chega ?
+            viagem.horario_chega.slice(0,5) : '—' %>
+          </p>
+          <hr />
           <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
           <hr />
-        <% } %>
-        <% if (viagem.km_final) { %>
           <p><strong>Km Final:</strong> <%= viagem.km_final %></p>
           <hr />
-        <% } %>
-        <% if (viagem.paradas) { %>
+          <p><strong>Combustível:</strong> <%= viagem.combustivel || '—' %></p>
+          <hr />
           <p><strong>Paradas:</strong> <%= viagem.paradas %></p>
           <hr />
-        <% } %>
-        <% if (viagem.obs) { %>
           <p><strong>Observações:</strong> <%= viagem.obs %></p>
           <hr />
-        <% } %>
-        <% if (viagem.horario_chega) { %>
-          <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
-          <hr />
-        <% } %>
+        </div>
 
-        <a
-          href="/admin/viagens/participantes/<%= viagem.cod %>"
-          class="botao-visualizar"
-          >Participantes</a
-        >
-        <br />
-
-        <div class="d-flex justify-content-end gap-3 mt-2">
+        <div style="display: flex; gap: 15px; justify-content: flex-end">
+          <% if (viagem.status.cod == 1) { %>
           <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao"
-            >Editar</a>
+            >Editar</a
+          >
           <form
             action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT"
             method="POST"
-            style="display: inline">
-            <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
+            style="display: inline"
+          >
+            <button type="submit" class="botao bg-vermelho">
+              Cancelar Viagem
+            </button>
           </form>
+          <% } else if (viagem.status.cod == 3) { %>
+          <button type="button" class="botao botao-relatorio-toggle">
+            Relatório
+          </button>
+          <% } %>
         </div>
       </div>
     </div>
@@ -126,7 +137,6 @@
 </div>
 
 <script>
-  // VER MAIS / VER MENOS
   document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
       const card = this.closest(".card");
@@ -153,7 +163,7 @@
 
   function filtrar() {
     const termoCidade = inputCidade.value.trim().toLowerCase();
-    const termoData = inputData.value; // formato yyyy-mm-dd do input[type="date"]
+    const termoData = inputData.value; 
 
     cards.forEach((card) => {
       const cidadeElemento = card.querySelector(
@@ -165,19 +175,10 @@
         ? cidadeElemento.textContent.toLowerCase()
         : "";
       const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
-      // converte de dd/mm/yyyy -> yyyy-mm-dd para comparar
 
       let exibir = true;
-
-      // Filtrar por cidade
-      if (termoCidade && !cidade.includes(termoCidade)) {
-        exibir = false;
-      }
-
-      // Filtrar por data
-      if (termoData && data !== termoData) {
-        exibir = false;
-      }
+      if (termoCidade && !cidade.includes(termoCidade)) exibir = false;
+      if (termoData && data !== termoData) exibir = false;
 
       card.style.display = exibir ? "block" : "none";
     });
@@ -185,4 +186,41 @@
 
   inputCidade.addEventListener("input", filtrar);
   inputData.addEventListener("change", filtrar);
+
+  document.querySelectorAll(".botao-relatorio-toggle").forEach((botao) => {
+    botao.addEventListener("click", function () {
+      const card = this.closest(".card");
+      const detalhes = card.querySelector(".detalhes");
+      const principal = detalhes.querySelector(".conteudo-principal");
+      const relatorio = detalhes.querySelector(".conteudo-relatorio");
+
+      const estaExpandido = detalhes.classList.contains("expandido");
+      if (!estaExpandido) {
+        if (relatorio.style.display === "block") {
+          relatorio.style.display = "none";
+          principal.style.display = "block";
+          this.textContent = "Relatório";
+        } else {
+          principal.style.display = "none";
+          relatorio.style.display = "block";
+          this.textContent = "Voltar";
+        }
+        return;
+      }
+
+      if (relatorio.style.display === "block") {
+        relatorio.style.display = "none";
+        principal.style.display = "block";
+        this.textContent = "Relatório";
+      } else {
+        principal.style.display = "none";
+        relatorio.style.display = "block";
+        this.textContent = "Voltar";
+      }
+
+      const novaAltura = detalhes.scrollHeight;
+
+      detalhes.style.height = novaAltura + "px";
+    });
+  });
 </script>

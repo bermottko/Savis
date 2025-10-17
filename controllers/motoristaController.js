@@ -1,4 +1,5 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo, Participante, Acompanhante } = require('../models');
+const { Op, where } = require('sequelize');
 
 exports.renderPerfil = async (req, res) => {
   try {
@@ -80,8 +81,14 @@ exports.renderViagensLista = async (req, res) => {
   try {
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
-
+    const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      
     const viagens = await Viagem.findAll({
+       where: {
+            data_viagem: { [Op.gte]: hoje },
+            statusID: [1, 3]
+        },
       include: [
         { model: CidadeConsul, as: 'cidadeconsul' },
         { model: Veiculo, as: 'veiculo' },

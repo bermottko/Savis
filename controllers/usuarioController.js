@@ -39,7 +39,9 @@ exports.renderInicio = async (req, res) => {
     const viagemIDs = participante.map(p => p.viagemID);
 
     const minhas_viagens = await Viagem.findAll({
-      where: { cod: viagemIDs },
+      where: { cod: viagemIDs,
+        statusID: [1, 2]
+       },
       include: [
         { model: CidadeConsul, as: "cidadeconsul"},
         { model: Status },
@@ -76,8 +78,14 @@ exports.renderAgenda = async (req, res) => {
     const usuario = await Usuario.findOne({
       where: { cod: codUsuario },
     });
+    const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
 
   const viagens = await Viagem.findAll({
+     where: {
+      data_viagem: { [Op.gte]: hoje },
+      statusID: [1]
+    },
     include: [                  
       { model: CidadeConsul, as: "cidadeconsul" },
       { model: Veiculo, as: "veiculo" },
@@ -85,6 +93,21 @@ exports.renderAgenda = async (req, res) => {
     ],
     order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
   });
+
+  const solicitacoes = await Solicitacao.findAll({
+    where: { usuarioID: codUsuario },
+  });
+
+  const viagensSolicitadas = viagens.filter((viagem) =>
+    solicitacoes.some(
+      (sol) =>
+        sol.cidadeconsulID === viagem.cidadeconsulID &&
+        new Date(sol.data_consul).toISOString().slice(0, 10) ===
+          new Date(viagem.data_viagem).toISOString().slice(0, 10)
+    )
+  );
+
+  const viagensSolicitadasIDs = viagensSolicitadas.map(v => v.cod);
 
   const viagensComOcupacao = viagens.map(v => {
     const qtdParticipantes = v.participantes.length;
@@ -101,7 +124,9 @@ exports.renderAgenda = async (req, res) => {
     res.render('usuario/agenda/index', {
       usuario,
       codUsuario,
+      solicitacoes,
       viagens: viagensComOcupacao,
+      viagensSolicitadasIDs,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'agenda'
     });
@@ -291,7 +316,6 @@ exports.requisitarParticipacao = async (req, res) => {
     res.status(500).send('Erro ao salvar solicitação.');
   }
 };
-
 
 exports.renderSolicitar = async (req, res) => {
    const codUsuario = req.session.usuario.cod;

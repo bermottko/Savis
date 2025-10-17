@@ -16,6 +16,7 @@ const {
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const bcrypt = require("bcrypt");
+const { removerViagensCanceladasPassadas } = require("../utils/cronViagens");
 
 //PARA ENSERIR O ADMIN
 
@@ -60,6 +61,17 @@ exports.renderPerfil = async (req, res) => {
     console.error("Erro ao carregar perfil do admin:", err);
     res.status(500).send("Erro no servidor");
   }
+};
+
+exports.editarPerfil = async (req, res) => {
+    const chefeID = req.session.chefe.cod;
+    await Chefe.update(
+      {
+        nome: req.body.nome,
+        matricula: req.bodymatricula
+      },
+      { where: { cod: chefeID } }
+    );
 };
 
 exports.renderUsuarios = async (req, res) => {
@@ -442,7 +454,8 @@ exports.buscarViagens = async (req, res) => {
   }
 };
 
-exports.renderViagens = (req, res) => {
+exports.renderViagens = async (req, res) => {
+  await removerViagensCanceladasPassadas();
   res.render("admin/viagens/index", {
     layout: "layouts/layoutAdmin",
     paginaAtual: "viagens",
@@ -961,8 +974,37 @@ exports.renderViagensLista = async (req, res) => {
     };
   });
 
+  const viagensComCores = viagensComOcupacao.map((v) => {
+  let corFundo, corCabeca;
+
+  switch (v.statusID) {
+      case 1: // AGENDADA
+        corFundo = '#d1e3fd'; 
+        corCabeca = '#a7c9f9';
+        break;
+      case 2: // CANCELADA
+        corFundo = '#c38883'; 
+        corCabeca = '#ac6a64';
+        break;
+      case 3: // CONCLUÍDA
+        corFundo = '#bcde9e'; 
+        corCabeca = '#a1d49f';
+        break;
+      default:
+        corFundo = '#d1e3fd';
+        corCabeca = '#a7c9f9';
+        break;
+    }
+
+    return {
+      ...v,
+      corFundo,
+      corCabeca
+    };
+  });
+
   res.render("admin/viagens/lista", {
-    viagens: viagensComOcupacao,
+    viagens: viagensComCores,
     layout: "layouts/layoutAdmin",
     paginaAtual: "viagens",
   });

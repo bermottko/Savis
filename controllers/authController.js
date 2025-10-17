@@ -80,10 +80,6 @@ exports.renderCadastro = (req, res) => {
   });
 };
 
-exports.renderCadastroSucesso = (req, res) => {
-  res.render('auth/cadastro-sucesso', { layout: 'layouts/layoutAuth' });
-};
-
 exports.cadastrarUsuario = async (req, res) => {
   try {
     const { numero = '', cep = '', CPF, SUS, fone, email } = req.body;
@@ -150,7 +146,7 @@ exports.cadastrarUsuario = async (req, res) => {
       senha: senhaCriptografada
     });
 
-    res.redirect('/auth/cadastro-sucesso');
+    res.redirect('/auth/entrada');
 
   } catch (erro) {
     console.error(erro);

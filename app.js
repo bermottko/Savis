@@ -6,6 +6,8 @@ const methodOverride = require('method-override');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const cron = require("node-cron");
+const { removerViagensCanceladasPassadas } = require("./utils/cronViagens");
 
 // Inicializa app
 const app = express();
@@ -70,6 +72,10 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/usuario', usuarioRoutes);
 app.use('/motorista', motoristaRoutes);
+
+cron.schedule("0 0 * * *", async () => {
+  await removerViagensCanceladasPassadas();
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
