@@ -1,154 +1,193 @@
 <div class="container mt-5">
   <div class="row justify-content-center mb-5">
-    <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-      <input type="search" 
-      id="pesquisa" 
-      placeholder="Pesquisar usuário por nome ou CPF" 
-      class="form-control pesquisa-custom">
-      <a href="/auth/cadastro" class="botao-cadastro">Cadastrar Usuário</a>
+
+    <!-- Barra de pesquisa + botão de cadastro -->
+    <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px; width: 100%;">
+      <input 
+        type="search" 
+        id="pesquisa" 
+        placeholder="Pesquisar usuário por nome ou CPF" 
+        class="form-control pesquisa-custom"
+      >
+      <a href="/admin/usuarios/cadastrar" class="botao-cadastro">Cadastrar Usuário</a>
     </div>
 
-    <% posts.forEach(function(post) { %>
-
-      <div class="col-12 d-flex justify-content-center">
-        <div class="card p-3 shadow-sm mt-2 card-viagem">
-          <div class="d-flex flex-row align-items-center">
-            <img 
-              src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
-              alt="Foto de perfil" 
-              class="foto-perfil me-3">
-
-            <div class="flex-grow-1">
-              <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
+    <!-- Lista de usuários -->
+    <div id="listaUsuarios" class="col-12">
+      <% posts.forEach(function(post) { %>
+        <div class="col-12 d-flex justify-content-center mb-2">
+          <div class="card p-3 shadow-sm card-viagem" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
+            <div class="d-flex flex-row align-items-center">
+              <img
+                src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>"
+                alt="Foto de perfil"
+                class="foto-perfil me-3">
+              <div class="flex-grow-1">
+                <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
+              </div>
+              <button class="botao ver-mais-btn">Ver mais</button>
             </div>
 
-            <button class="botao ver-mais-btn">Ver mais</button> 
-            </div>
-
-            <!--VER MAIS-->
+            <!--DETALHES DO USUÁRIO-->
             <div class="detalhes">
-            <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
-            <hr>
-            <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
-            <hr>
-            <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
-            <hr>
-            <p><strong>Email: </strong> <%= post.email %></p>
-            <hr>
-            <p><strong>Telefone: </strong><%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
-            %></p>
-            <hr>
-            <p><strong>Endereço: </strong>
-              <%= post.endereco?.rua || '' %>, 
-              <%= post.endereco?.numero || '' %> - 
-              <%= post.endereco?.bairro || '' %> - 
-              <%= post.endereco?.cidade || '' %> 
-              (<%= post.endereco?.UF || '' %>) 
-              CEP: <%= post.endereco?.CEP 
-                          ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
-                          : '' 
-                    %>
-            </p>
-            <hr>
-            <p><strong>SUS: </strong> <%= post.SUS %></p>
-            <hr>
-<div class="d-flex justify-content-end gap-3">
-  <a href="/admin/usuarios/editar/<%= post.cod %>" class="botao">Editar</a>
-  <form action="/admin/usuarios/deletar/<%= post.cod %>?_method=DELETE" method="POST">
-    <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">
-      Excluir
-    </button>
-  </form>
-</div>
+              <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
+              <hr>
+              <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
+              <hr>
+              <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
+              <hr>
+              <p><strong>Email: </strong> <%= post.email %></p>
+              <hr>
+              <p><strong>Telefone: </strong> <%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %></p>
+              <hr>
+              <p><strong>Endereço: </strong>
+                <%= post.endereco?.rua || '' %>,
+                <%= post.endereco?.numero || '' %> -
+                <%= post.endereco?.bairro || '' %> -
+                <%= post.endereco?.cidade || '' %>
+                (<%= post.endereco?.UF || '' %>)
+                CEP: <%= post.endereco?.CEP ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") : '' %>
+              </p>
+              <hr>
+              <p><strong>SUS: </strong> <%= post.SUS %></p>
+              <hr>
 
+              <div class="d-flex justify-content-end gap-3">
+                <a href="/admin/usuarios/editar/<%= post.cod %>" class="botao">Editar</a>
+                <form action="/admin/usuarios/deletar/<%= post.cod %>?_method=DELETE" method="POST">
+                  <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">Excluir</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      <% }) %>
+    </div>
 
-    <% }) %>
+    <!-- PAGINAÇÃO -->
+    <% if (totalPaginas > 1) { %>
+      <div class="col-12 mt-4 d-flex justify-content-center" id="paginacaoWrapper">
+        <div id="paginacaoContainer">
+          <button 
+            class="botao-paginacao" 
+            onclick="window.location.href='?page=<%= paginaAtual - 1 %>'" 
+            <%= paginaAtual === 1 ? 'disabled' : '' %> >
+            «
+          </button>
+
+          <% for (let i = 1; i <= totalPaginas; i++) { %>
+            <button 
+              class="botao-paginacao <%= i === paginaAtual ? 'ativo' : '' %>" 
+              onclick="window.location.href='?page=<%= i %>'">
+              <%= i %>
+            </button>
+          <% } %>
+
+          <button 
+            class="botao-paginacao" 
+            onclick="window.location.href='?page=<%= paginaAtual + 1 %>'" 
+            <%= paginaAtual === totalPaginas ? 'disabled' : '' %> >
+            »
+          </button>
+        </div>
+      </div>
+    <% } %>
 
   </div>
 </div>
 
 <script>
   const inputPesquisa = document.getElementById('pesquisa');
-  const cards = Array.from(document.querySelectorAll('.card')); // colocando os cards dentro de uma array
-  const row = document.querySelector('.row');
-  
+  const listaUsuarios = document.getElementById('listaUsuarios');
+  const paginacaoWrapper = document.getElementById('paginacaoWrapper');
 
-  cards.forEach((card, index) => {                         
-    card.setAttribute('data-original-index', index);            // salva o index(posição) original dos cards
-  });
-
-  inputPesquisa.addEventListener('input', function () {
-    const termo = this.value.trim().toLowerCase();              // padronizando: trim = remove espaços toLowerCase = deixa tudo minusculo
-
-    if (termo.length === 0) {                                   // se a barra de pesquisa ta vazia mostra todos os cards
-      cards.forEach(card => {
-        card.style.display = 'block';
-        card.setAttribute('data-relevancia', '0');              // tira a relevancia 
-      });
-    
-   const fragment = document.createDocumentFragment();
-
-      cards
-        .sort((a, b) => a.getAttribute('data-original-index') - b.getAttribute('data-original-index'))    // .sort serve pra reordenar a array
-        .forEach(card => fragment.appendChild(card));           // pega os cards e coloca dentro do fragment
-
-      row.appendChild(fragment);                                // colocando o fragment na row
-
-    } else {
-      cards.forEach(card => {
-        const nomeELemento = card.querySelector('.nome-perfil');  
-        const nome = nomeELemento ? nomeELemento.textContent.toLowerCase() : '';  // se o nomeELemento existe transforma em lowercase e guarda no nome se não guarda ' '
-
-        const cpfElemento = card.querySelector('.cpf-perfil');
-        const cpf = cpfElemento ? cpfElemento.textContent.replace(/[.\-]/g, '') : '';
-
-        if (nome.startsWith(termo) || cpf.startsWith(termo)) {
-          card.style.display = 'block';
-          card.setAttribute('data-relevancia', '1');
-        } else if (nome.includes(termo) || cpf.includes(termo)) {
-          card.style.display = 'block';
-          card.setAttribute('data-relevancia', '2');
+  function ativarVerMais() {
+    document.querySelectorAll('.ver-mais-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const card = this.closest('.card');
+        const detalhes = card.querySelector('.detalhes');
+        const estaExpandido = detalhes.classList.contains('expandido');
+        if (estaExpandido) {
+          detalhes.style.height = '0px';
+          detalhes.style.marginTop = '0';
+          detalhes.classList.remove('expandido');
+          this.textContent = 'Ver mais';
         } else {
-          card.style.display = 'none';
-          card.setAttribute('data-relevancia', '99');
+          detalhes.style.height = detalhes.scrollHeight + 'px';
+          detalhes.style.marginTop = '16px';
+          detalhes.classList.add('expandido');
+          this.textContent = 'Ver menos';
         }
+      });
+    });
+  }
 
+  ativarVerMais();
+
+  // Pesquisa live
+  inputPesquisa.addEventListener('input', async function() {
+    const termo = this.value.trim();
+
+    if (termo.length === 0) { 
+      window.location.href = '/admin/usuarios/index';
+      return;
+    }
+
+    try {
+      const posts = await fetch(`/admin/usuarios/pesquisar?q=${encodeURIComponent(termo)}`).then(res => res.json());
+      listaUsuarios.innerHTML = '';
+
+      posts.forEach(post => {
+        const card = document.createElement('div');
+        card.classList.add('col-12', 'd-flex', 'justify-content-center', 'mb-2');
+        card.innerHTML = `
+          <div class="card p-3 shadow-sm card-viagem">
+            <div class="d-flex flex-row align-items-center">
+              <img src="${post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg'}" class="foto-perfil me-3">
+              <div class="flex-grow-1">
+                <h5 class="nome-perfil mb-0">${post.nome}</h5>
+              </div>
+              <button class="botao ver-mais-btn">Ver mais</button>
+            </div>
+            <div class="detalhes">
+              <p><strong>Data de Nascimento: </strong>${post.data_nasc.split('-').reverse().join('/')}</p>
+              <hr>
+              <p><strong>CPF: </strong><span class="cpf-perfil">${post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")}</span></p>
+              <hr>
+              <p><strong>Gênero: </strong>${post.genero.descricao}</p>
+              <hr>
+              <p><strong>Email: </strong>${post.email}</p>
+              <hr>
+              <p><strong>Telefone: </strong>${post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")}</p>
+              <hr>
+              <p><strong>Endereço: </strong>
+                ${post.endereco?.rua || ''}, 
+                ${post.endereco?.numero || ''} - 
+                ${post.endereco?.bairro || ''} - 
+                ${post.endereco?.cidade || ''} 
+                (${post.endereco?.UF || ''}) 
+                CEP: ${post.endereco?.CEP ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") : '' }
+              </p>
+              <hr>
+              <p><strong>SUS: </strong>${post.SUS}</p>
+              <hr>
+              <div class="d-flex justify-content-end gap-3">
+                <a href="/admin/usuarios/editar/${post.cod}" class="botao">Editar</a>
+                <form action="/admin/usuarios/deletar/${post.cod}?_method=DELETE" method="POST">
+                  <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">Excluir</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        `;
+        listaUsuarios.appendChild(card);
       });
 
-      const fragment = document.createDocumentFragment();
+      paginacaoWrapper.style.display = 'none';
+      ativarVerMais();
 
-      cards
-        .filter(card => card.style.display === 'block')
-        .sort((a, b) => a.getAttribute('data-relevancia') - b.getAttribute('data-relevancia'))
-        .forEach(card => fragment.appendChild(card));
-
-      row.appendChild(fragment);
+    } catch (err) {
+      console.error("Erro na pesquisa live:", err);
     }
   });
-
-  // VER MAIS / VER MENOS
-  document.querySelectorAll('.ver-mais-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const card = this.closest('.card');
-      const detalhes = card.querySelector('.detalhes');
-      const estaExpandido = detalhes.classList.contains('expandido');
-
-      if (estaExpandido) {
-        detalhes.style.height = '0px';
-        detalhes.style.marginTop = '0';
-        detalhes.classList.remove('expandido');
-        this.textContent = 'Ver mais';
-      } else {
-        detalhes.style.height = detalhes.scrollHeight + 'px';
-        detalhes.style.marginTop = '16px';
-        detalhes.classList.add('expandido');
-        this.textContent = 'Ver menos';
-      }
-    });
-  });
 </script>
-
-

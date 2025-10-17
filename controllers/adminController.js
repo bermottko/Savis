@@ -64,35 +64,57 @@ exports.renderPerfil = async (req, res) => {
 
 exports.renderUsuarios = async (req, res) => {
   try {
-    const posts = await Usuario.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Usuario.findAndCountAll({
       include: [{ model: Endereco }, { model: Genero }],
+      order: [["cod", "DESC"]],
+      limit,
+      offset
     });
-    posts.sort((a, b) => b.cod - a.cod);
+
+    const totalPaginas = Math.ceil(count / limit);
+
     res.render("admin/usuarios/index", {
-      posts,
+      posts: rows, // renomeado
+      totalPaginas,
+      paginaAtual: page,
       layout: "layouts/layoutAdmin",
-      paginaAtual: "usuarios",
+      paginaAtualNome: "usuarios"
     });
+
   } catch (erro) {
     console.error(erro);
     res.status(500).send("Erro ao buscar usuários: " + erro);
   }
 };
 
-exports.buscarUsuarios = async (req, res) => {
+exports.pesquisarUsuarios = async (req, res) => {
   try {
-    const termo = req.query.q || "";
+    const termo = req.query.q || '';
+
     const usuarios = await Usuario.findAll({
-      where: {
-        nome: {
-          [Op.like]: `%${termo}%`,
-        },
-      },
+      where: termo
+        ? {
+            [Sequelize.Op.or]: [
+              { nome: { [Sequelize.Op.like]: `%${termo}%` } },
+              { CPF: { [Sequelize.Op.like]: `%${termo}%` } }
+            ]
+          }
+        : {},
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ],
+      order: [['cod', 'DESC']]
     });
-    res.json(usuarios);
+
+    res.json(usuarios); // retorna JSON para o AJAX
   } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar usuários" });
+    console.error('Erro na pesquisa AJAX:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar usuários' });
   }
 };
 
@@ -223,36 +245,60 @@ exports.salvarEdicaoUsuario = async (req, res) => {
 
 exports.renderMotoristas = async (req, res) => {
   try {
-    const motoristas = await Motorista.findAll({
-      include: [{ model: Endereco }, { model: Genero }, { model: Documento }],
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Motorista.findAndCountAll({
+      include: [
+        { model: Endereco },
+        { model: Genero },
+      ],
+      order: [['cod', 'DESC']],
+      limit,
+      offset
     });
-    motoristas.sort((a, b) => b.cod - a.cod);
-    res.render("admin/motoristas/index", {
-      posts: motoristas,
-      layout: "layouts/layoutAdmin",
-      paginaAtual: "motoristas",
+
+    const totalPaginas = Math.ceil(count / limit);
+
+    res.render('admin/motoristas/index', {
+      posts: rows,
+      totalPaginas,
+      paginaAtual: page,
+      layout: 'layouts/layoutAdmin',
+      paginaAtualNome: 'motoristas'
     });
+
   } catch (erro) {
     console.error(erro);
-    res.status(500).send("Erro ao buscar motoristas: " + erro);
+    res.status(500).send('Erro ao buscar motoristas: ' + erro);
   }
 };
 
-exports.buscarMotoristas = async (req, res) => {
+exports.pesquisarMotoristas = async (req, res) => {
   try {
-    const termo = req.query.q || "";
+    const termo = req.query.q || '';
+
     const motoristas = await Motorista.findAll({
-      where: {
-        nome: {
-          [Op.like]: `%${termo}%`,
-        },
-      },
-      include: [{ model: Endereco }, { model: Genero }],
+      where: termo
+        ? {
+            [Sequelize.Op.or]: [
+              { nome: { [Sequelize.Op.like]: `%${termo}%` } },
+              { CPF: { [Sequelize.Op.like]: `%${termo}%` } }
+            ]
+          }
+        : {},
+      include: [
+        { model: Endereco },
+        { model: Genero }
+      ],
+      order: [['cod', 'DESC']]
     });
-    res.json(motoristas);
+
+    res.json(motoristas); // retorna JSON para o front
   } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar motoristas" });
+    console.error('Erro na pesquisa AJAX:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar motoristas' });
   }
 };
 
@@ -410,35 +456,6 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).send("Erro ao salvar edição: " + erro);
-  }
-};
-
-exports.buscarViagens = async (req, res) => {
-  try {
-    const { cidade, data } = req.query;
-    let where = {};
-
-    if (cidade) {
-      where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
-    }
-    if (data) {
-      where.data_viagem = { [Op.eq]: data };
-    }
-
-    const viagens = await Viagem.findAll({
-      where,
-      include: [
-        { model: Motorista, as: "Motorista" },
-        { model: Status, as: "status" },
-        { model: CidadeConsul, as: "cidadeconsul" },
-        { model: Veiculo, as: "veiculo" },
-      ],
-    });
-
-    res.json(viagens);
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar viagens" });
   }
 };
 
@@ -937,35 +954,86 @@ exports.vincularUsuario = async (req, res) => {
 };
 
 exports.renderViagensLista = async (req, res) => {
-  const viagens = await Viagem.findAll({
-    include: [
-      { model: Motorista, as: "Motorista" },
-      { model: Status },
-      { model: CidadeConsul, as: "cidadeconsul" },
-      { model: Veiculo, as: "veiculo" },
-      { model: Participante, as: "participantes"}
-    ],
-    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
-  });
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
-  const viagensComOcupacao = viagens.map((v) => {
-    const qtdParticipantes = v.participantes.length;
-    const qtdAcompanhantes = v.participantes.reduce(
-      (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
-      0
-    );
+    const { count, rows } = await Viagem.findAndCountAll({
+      include: [
+        { model: Motorista, as: "Motorista" },
+        { model: Status },
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" }
+      ],
+      order: [
+        ["data_viagem", "ASC"],
+        ["horario_saida", "ASC"]
+      ],
+      limit,
+      offset
+    });
 
-    return {
-      ...v.toJSON(), // transforma em objeto plano
-      ocupacao: qtdParticipantes + qtdAcompanhantes,
-    };
-  });
+    const viagensComOcupacao = rows.map(v => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce((soma, p) => soma + (p.acompanhanteID ? 1 : 0), 0);
+      return { ...v.toJSON(), ocupacao: qtdParticipantes + qtdAcompanhantes };
+    });
 
-  res.render("admin/viagens/lista", {
-    viagens: viagensComOcupacao,
-    layout: "layouts/layoutAdmin",
-    paginaAtual: "viagens",
-  });
+    const totalPaginas = Math.ceil(count / limit);
+
+    res.render("admin/viagens/lista", {
+      viagens: viagensComOcupacao,
+      totalPaginas,
+      paginaAtual: page,
+      layout: "layouts/layoutAdmin",
+      paginaAtualNome: "viagens"
+    });
+
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send("Erro ao carregar lista de viagens do administrador");
+  }
+};
+
+exports.pesquisarViagens = async (req, res) => {
+  try {
+    const cidade = req.query.cidade || '';
+    const data = req.query.data || '';
+
+    const where = {};
+
+    if (cidade) where['$cidadeconsul.descricao$'] = { [Op.like]: `%${cidade}%` };
+    if (data) where.data_viagem = data;
+
+    const viagens = await Viagem.findAll({
+      where,
+      include: [
+        { model: Motorista, as: "Motorista" },
+        { model: Status },
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" }
+      ],
+      order: [
+        ["data_viagem", "ASC"],
+        ["horario_saida", "ASC"]
+      ]
+    });
+
+    const viagensComOcupacao = viagens.map(v => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce((soma, p) => soma + (p.acompanhanteID ? 1 : 0), 0);
+      return { ...v.toJSON(), ocupacao: qtdParticipantes + qtdAcompanhantes };
+    });
+
+    res.json(viagensComOcupacao);
+
+  } catch (erro) {
+    console.error('Erro na pesquisa AJAX:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar viagens' });
+  }
 };
 
 exports.desvincularParticipante = async (req, res) => {

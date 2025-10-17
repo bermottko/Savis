@@ -1,4 +1,7 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo, Participante, Acompanhante } = require('../models');
+const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
+const bcrypt = require("bcrypt");
 
 exports.renderPerfil = async (req, res) => {
   try {
@@ -30,21 +33,56 @@ exports.renderUsuarios = async (req, res) => {
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Usuario.findAndCountAll({
+      include: [{ model: Endereco }, { model: Genero }],
+      order: [["cod", "DESC"]],
+      limit,
+      offset
+    });
+
+    const totalPaginas = Math.ceil(count / limit);
+
+    res.render("motorista/usuarios/index", {
+      motorista,
+      usuarios: rows,
+      totalPaginas,
+      paginaAtual: page,
+      layout: "layouts/layoutMotorista",
+      paginaAtualNome: "usuarios",
+      userType: "motorista"
+    });
+
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send("Erro ao buscar usuários: " + erro);
+  }
+};
+
+exports.pesquisarUsuarios = async (req, res) => {
+  try {
+    const termo = req.query.q || '';
+
     const usuarios = await Usuario.findAll({
+      where: termo
+        ? {
+            [Sequelize.Op.or]: [
+              { nome: { [Sequelize.Op.like]: `%${termo}%` } },
+              { CPF: { [Sequelize.Op.like]: `%${termo}%` } }
+            ]
+          }
+        : {},
       include: [{ model: Endereco }, { model: Genero }],
       order: [['cod', 'DESC']]
     });
 
-    res.render('motorista/usuarios/index', {
-      motorista,
-      usuarios,
-      layout: 'layouts/layoutMotorista',
-      paginaAtual: 'usuarios',
-      userType: 'motorista'
-    });
+    res.json(usuarios);
   } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao buscar usuários: ' + erro);
+    console.error('Erro na pesquisa AJAX:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar usuários' });
   }
 };
 
@@ -81,18 +119,30 @@ exports.renderViagensLista = async (req, res) => {
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
 
-    const viagens = await Viagem.findAll({
+    // --- PAGINAÇÃO BACKEND ---
+    const page = parseInt(req.query.page) || 1; // página atual
+    const limit = 5; // quantas viagens por página
+    const offset = (page - 1) * limit;
+
+    // Busca paginada
+    const { count, rows } = await Viagem.findAndCountAll({
       include: [
-        { model: CidadeConsul, as: 'cidadeconsul' },
-        { model: Veiculo, as: 'veiculo' },
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" },
         { model: Status },
-        { model: Motorista, as: 'Motorista' },
-        { model: Participante, as: 'participantes' }
+        { model: Motorista, as: "Motorista" },
+        { model: Participante, as: "participantes" },
       ],
-      order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+      order: [
+        ["data_viagem", "ASC"],
+        ["horario_saida", "ASC"]
+      ],
+      limit,
+      offset
     });
 
-    const viagensComOcupacao = viagens.map((v) => {
+    // Cálculo da ocupação
+    const viagensComOcupacao = rows.map((v) => {
       const qtdParticipantes = v.participantes.length;
       const qtdAcompanhantes = v.participantes.reduce(
         (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
@@ -105,16 +155,72 @@ exports.renderViagensLista = async (req, res) => {
       };
     });
 
-    res.render('motorista/viagens/lista', {
+    // Dados de paginação
+    const totalPaginas = Math.ceil(count / limit);
+
+    res.render("motorista/viagens/lista", {
       motorista,
       viagens: viagensComOcupacao,
-      layout: 'layouts/layoutMotorista',
-      paginaAtual: 'viagens',
-      userType: 'motorista'
+      totalPaginas,
+      paginaAtual: page,
+      layout: "layouts/layoutMotorista",
+      paginaAtualNome: "viagens",
+      userType: "motorista"
     });
   } catch (erro) {
     console.error(erro);
-    res.status(500).send('Erro ao carregar lista de viagens do motorista');
+    res.status(500).send("Erro ao carregar lista de viagens do motorista");
+  }
+};
+
+exports.pesquisarViagens = async (req, res) => {
+  try {
+    const codMotorista = req.session.motorista.cod;
+    const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
+
+    const cidade = req.query.cidade || "";
+    const data = req.query.data || "";
+    const minhas = req.query.minhas === "true"; // filtro "Minhas Viagens"
+
+    // Filtragem
+    let where = {};
+    if (cidade) where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
+    if (data) where.data_viagem = { [Op.eq]: data };
+
+    const viagens = await Viagem.findAll({
+      where,
+      include: [
+        { model: CidadeConsul, as: "cidadeconsul" },
+        { model: Veiculo, as: "veiculo" },
+        { model: Status },
+        { model: Motorista, as: "Motorista" },
+        { model: Participante, as: "participantes" },
+      ],
+      order: [
+        ["data_viagem", "ASC"],
+        ["horario_saida", "ASC"]
+      ],
+    });
+
+    // Ocupação
+    const viagensComOcupacao = viagens.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+      return { ...v.toJSON(), ocupacao: qtdParticipantes + qtdAcompanhantes };
+    });
+
+    // Filtrar apenas as "Minhas Viagens" se o filtro estiver ativo
+    const viagensFiltradas = minhas
+      ? viagensComOcupacao.filter(v => v.Motorista && v.Motorista.cod === codMotorista)
+      : viagensComOcupacao;
+
+    res.json(viagensFiltradas);
+  } catch (erro) {
+    console.error("Erro na pesquisa de viagens:", erro);
+    res.status(500).json({ erro: "Erro ao buscar viagens" });
   }
 };
 

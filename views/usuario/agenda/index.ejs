@@ -1,19 +1,20 @@
-<div class="col-12 d-flex flex-column align-items-center mt-4">
-  <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
+ <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
     <!-- Campo cidade -->
-    <input type="search" 
-          id="pesquisaCidade" 
-          placeholder="Pesquisar por cidade" 
+    <input type="search"
+          id="pesquisaCidade"
+          placeholder="Pesquisar por cidade"
           class="form-control pesquisa-custom"
           style="max-width: 250px;">
 
+
     <!-- Campo data -->
-    <input type="date" 
-          id="pesquisaData" 
+    <input type="date"
+          id="pesquisaData"
           class="form-control pesquisa-custom"
           style="max-width: 200px;">
   </div>
   <% viagens.forEach(function(viagem) { %>
+
 
   <div
     class="card shadow-sm mt-2"
@@ -56,32 +57,39 @@
             class="mb-1"
             style="width: 20px; height: 20px;""
           />
-          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados 
+          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados
         </div>
         <% const participa = viagem.participantes.some(p => p.usuarioID === codUsuario); %>
         <% const lotada = viagem.ocupacao >= viagem.veiculo.lugares_dispo; %>
+        <% const jaSolicitou = viagensSolicitadasIDs.includes(viagem.cod); %>
+
 
         <% if (participa) { %>
-        <a href="/usuario/inicio/index" class ="botao"> Participando </a>
-        <% } else { %> 
-        <a
-       href="<%= lotada ? '#' : '/usuario/agenda/formulario-participar/' + viagem.cod %>" 
-      class="<%= lotada ? 'botao-desabilitado disabled' : 'botao' %>">Participar</a>
-      <% } %>
+          <a href="/usuario/inicio/index" class="botao">Participando</a>
+        <% } else if (lotada) { %>
+          <a href="#" class="botao-desabilitado disabled">Participar</a>
+        <% } else if (jaSolicitou) { %>
+          <a href="#" class="botao-desabilitado disabled">Participar</a>
+        <% } else { %>
+          <a href="/usuario/agenda/formulario-participar/<%= viagem.cod %>" class="botao">Participar</a>
+        <% } %>
       </div>
     </div>
   </div>
   <% }) %>
 </div>
 
+
 <script>
   const inputCidade = document.getElementById("pesquisaCidade");
   const inputData = document.getElementById("pesquisaData");
   const cards = Array.from(document.querySelectorAll(".card"));
 
+
   function filtrar() {
     const termoCidade = inputCidade.value.trim().toLowerCase();
     const termoData = inputData.value; // formato yyyy-mm-dd do input[type="date"]
+
 
     cards.forEach((card) => {
       const cidadeElemento = card.querySelector(
@@ -89,23 +97,28 @@
       );
       const dataElemento = card.querySelector(".card-header span:last-child");
 
+
       const cidade = cidadeElemento
         ? cidadeElemento.textContent.toLowerCase()
         : "";
       const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
       // converte de dd/mm/yyyy -> yyyy-mm-dd para comparar
 
+
       let exibir = true;
+
 
       // Filtrar por cidade
       if (termoCidade && !cidade.includes(termoCidade)) {
         exibir = false;
       }
 
+
       // Filtrar por data
       if (termoData && data !== termoData) {
         exibir = false;
       }
+
 
       card.style.display = exibir ? "block" : "none";
     });

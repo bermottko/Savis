@@ -20,7 +20,7 @@ router.get('/perfil/index', verificarSessaoUsuario, usuarioController.renderPerf
 router.get('/inicio/index', verificarSessaoUsuario, usuarioController.renderInicio);
 
 router.get('/agenda/index', verificarSessaoUsuario, usuarioController.renderAgenda);
-router.get('/agenda/buscar-viagens', verificarSessaoUsuario, usuarioController.buscarViagens);
+router.get('/agenda/pesquisar', usuarioController.buscarViagens);
 router.get('/agenda/formulario-participar/:cod', verificarSessaoUsuario, usuarioController.formularioParticipar);
 router.post(
   '/agenda/requisitar-participacao',

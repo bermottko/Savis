@@ -123,6 +123,40 @@
     </div>
   </div>
   <% }) %>
+
+  <div id="paginacaoWrapper">
+  <div id="paginacaoContainer">
+    <% if (totalPaginas > 1) { %>
+      <% const paginaAnterior = paginaAtual - 1; %>
+      <% const proximaPagina = paginaAtual + 1; %>
+
+      <!-- Botão Anterior -->
+      <a
+        href="?page=<%= paginaAnterior %>"
+        class="botao-paginacao"
+        <%= paginaAtual === 1 ? 'disabled' : '' %>>
+        «
+      </a>
+
+      <!-- Botões numéricos -->
+      <% for (let i = 1; i <= totalPaginas; i++) { %>
+        <a
+          href="?page=<%= i %>"
+          class="botao-paginacao <%= paginaAtual === i ? 'ativo' : '' %>">
+          <%= i %>
+        </a>
+      <% } %>
+
+      <!-- Botão Próximo -->
+      <a
+        href="?page=<%= proximaPagina %>"
+        class="botao-paginacao"
+        <%= paginaAtual === totalPaginas ? 'disabled' : '' %>>
+        »
+      </a>
+    <% } %>
+  </div>
+</div>
 </div>
 
 <script>
@@ -149,40 +183,95 @@
 
   const inputCidade = document.getElementById("pesquisaCidade");
   const inputData = document.getElementById("pesquisaData");
-  const cards = Array.from(document.querySelectorAll(".card"));
+  const listaViagens = document.querySelector(".col-12.d-flex.flex-column");
 
-  function filtrar() {
-    const termoCidade = inputCidade.value.trim().toLowerCase();
-    const termoData = inputData.value; // formato yyyy-mm-dd do input[type="date"]
+  function atualizarViagens() {
+    const cidade = inputCidade.value.trim();
+    const data = inputData.value;
 
-    cards.forEach((card) => {
-      const cidadeElemento = card.querySelector(
-        ".card-header span:first-child"
-      );
-      const dataElemento = card.querySelector(".card-header span:last-child");
+    if (!cidade && !data) {
+      window.location.href = '/admin/viagens/lista';
+      return;
+    }
 
-      const cidade = cidadeElemento
-        ? cidadeElemento.textContent.toLowerCase()
-        : "";
-      const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
-      // converte de dd/mm/yyyy -> yyyy-mm-dd para comparar
+    fetch(`/admin/viagens/pesquisar?cidade=${encodeURIComponent(cidade)}&data=${encodeURIComponent(data)}`)
+      .then(res => res.json())
+      .then(viagens => {
+        listaViagens.querySelectorAll('.card').forEach(c => c.remove());
 
-      let exibir = true;
+        viagens.forEach(v => {
+          const card = document.createElement('div');
+          card.classList.add('card', 'shadow-sm', 'mt-2');
+          card.style = 'width:100%; max-width:700px; border-radius:10px; background-color:#d1e3fd;';
 
-      // Filtrar por cidade
-      if (termoCidade && !cidade.includes(termoCidade)) {
-        exibir = false;
-      }
+          card.innerHTML = `
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color:#a7c9f9; border-top-left-radius:10px; border-top-right-radius:10px;">
+              <span class="fw-bold" style="color:#062352; font-size:16px">${v.cidadeconsul.descricao}</span>
+              <span class="fw-bold" style="color:#062352; font-size:15px" data-date="${v.data_viagem}">${v.data_viagem.split('-').reverse().join('/')}</span>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                  <img src="/assets/pessoa-azul.png" alt="Ícone de Usuário" class="mb-1" style="width:20px;height:20px">
+                  ${v.ocupacao}/${v.veiculo.lugares_dispo} Lugares Ocupados
+                </div>
+                <button class="botao ver-mais-btn">Ver mais</button>
+              </div>
+              <div class="detalhes">
+                <p><strong>Horário de saída:</strong> ${v.horario_saida.substring(0,5)}</p>
+                <hr>
+                <p><strong>Modelo do carro:</strong> ${v.veiculo.modelo_veiculo}</p>
+                <hr>
+                <p><strong>Placa:</strong> ${v.veiculo.placa}</p>
+                <hr>
+                <p><strong>Motorista:</strong> ${v.Motorista.nome}</p>
+                <hr>
+                <p><strong>Status:</strong> ${v.status.descricao}</p>
+                ${v.combustivel ? `<hr><p><strong>Combustível:</strong> ${v.combustivel}</p>` : ''}
+                ${v.km_inicial ? `<hr><p><strong>Km Inicial:</strong> ${v.km_inicial}</p>` : ''}
+                ${v.km_final ? `<hr><p><strong>Km Final:</strong> ${v.km_final}</p>` : ''}
+                ${v.paradas ? `<hr><p><strong>Paradas:</strong> ${v.paradas}</p>` : ''}
+                ${v.obs ? `<hr><p><strong>Observações:</strong> ${v.obs}</p>` : ''}
+                ${v.horario_chega ? `<hr><p><strong>Horário de Chegada:</strong> ${v.horario_chega.substring(0,5)}</p>` : ''}
+                <a href="/admin/viagens/participantes/${v.cod}" class="botao-visualizar">Participantes</a>
+                <div class="d-flex justify-content-end gap-3 mt-2">
+                  <a href="/admin/viagens/editar/${v.cod}" class="botao">Editar</a>
+                  <form action="/admin/viagens/cancelar/${v.cod}?_method=PUT" method="POST" style="display:inline">
+                    <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+          listaViagens.appendChild(card);
+        });
 
-      // Filtrar por data
-      if (termoData && data !== termoData) {
-        exibir = false;
-      }
+        // Reativa ver mais/ver menos
+        document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const card = this.closest(".card");
+            const detalhes = card.querySelector(".detalhes");
+            const estaExpandido = detalhes.classList.contains("expandido");
+            if (estaExpandido) {
+              detalhes.style.height = "0px";
+              detalhes.style.marginTop = "0";
+              detalhes.classList.remove("expandido");
+              this.textContent = "Ver mais";
+            } else {
+              detalhes.style.height = detalhes.scrollHeight + "px";
+              detalhes.style.marginTop = "16px";
+              detalhes.classList.add("expandido");
+              this.textContent = "Ver menos";
+            }
+          });
+        });
 
-      card.style.display = exibir ? "block" : "none";
-    });
+        // Esconde paginação quando pesquisa ativa
+        document.getElementById('paginacaoWrapper').style.display = 'none';
+      })
+      .catch(err => console.error(err));
   }
 
-  inputCidade.addEventListener("input", filtrar);
-  inputData.addEventListener("change", filtrar);
+  inputCidade.addEventListener("input", atualizarViagens);
+  inputData.addEventListener("change", atualizarViagens);
 </script>

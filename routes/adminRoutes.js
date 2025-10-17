@@ -32,13 +32,14 @@ const upload = multer({ storage, fileFilter });
 router.get('/perfil', verificarSessaoChefe, adminController.renderPerfil);
 
 router.get('/usuarios/index', verificarSessaoChefe, adminController.renderUsuarios);
-router.get('/usuarios/buscar', verificarSessaoChefe, adminController.buscarUsuarios);
+router.get("/usuarios/pesquisar", adminController.pesquisarUsuarios);
+//router.get('/usuarios/buscar', verificarSessaoChefe, adminController.buscarUsuarios);
 router.delete('/usuarios/deletar/:cod', verificarSessaoChefe, adminController.deletarUsuarios);
 router.get('/usuarios/editar/:cod', verificarSessaoChefe, adminController.editarUsuario);
 router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), verificarSessaoChefe, adminController.salvarEdicaoUsuario);
 
 router.get('/motoristas/index', verificarSessaoChefe, adminController.renderMotoristas);
-router.get('/motoristas/buscar', verificarSessaoChefe, adminController.buscarMotoristas);
+router.get('/motoristas/pesquisar', verificarSessaoChefe, adminController.pesquisarMotoristas);
 router.get('/motoristas/editar/:cod', verificarSessaoChefe, adminController.editarMotorista);
 router.delete('/motoristas/deletar/:cod', verificarSessaoChefe, adminController.deletarMotoristas);
 router.put(
@@ -58,7 +59,8 @@ router.put(
 );
 
 router.get('/viagens/lista', verificarSessaoChefe, adminController.renderViagensLista);
-router.get('/viagens/buscar-viagens', verificarSessaoChefe, adminController.buscarViagens);
+router.get('/viagens/pesquisar', adminController.pesquisarViagens);
+/*router.get('/viagens/buscar-viagens', verificarSessaoChefe, adminController.buscarViagens);*/
 router.get('/viagens/index', verificarSessaoChefe, adminController.renderViagens);
 router.get('/viagens/buscar-eventos', verificarSessaoChefe, adminController.renderBuscarEventos);
 router.get('/viagens/nova-viagem', verificarSessaoChefe, adminController.renderNovaViagem);

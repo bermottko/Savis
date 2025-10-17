@@ -72,12 +72,20 @@ exports.renderInicio = async (req, res) => {
 
 exports.renderAgenda = async (req, res) => {
 
+
     const codUsuario = req.session.usuario.cod;
     const usuario = await Usuario.findOne({
       where: { cod: codUsuario },
     });
+    const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
 
   const viagens = await Viagem.findAll({
+     where: {
+      data_viagem: { [Op.gte]: hoje },
+      statusID: [1]
+    },
     include: [                  
       { model: CidadeConsul, as: "cidadeconsul" },
       { model: Veiculo, as: "veiculo" },
@@ -86,12 +94,32 @@ exports.renderAgenda = async (req, res) => {
     order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
   });
 
+
+  const solicitacoes = await Solicitacao.findAll({
+    where: { usuarioID: codUsuario },
+  });
+
+
+  const viagensSolicitadas = viagens.filter((viagem) =>
+    solicitacoes.some(
+      (sol) =>
+        sol.cidadeconsulID === viagem.cidadeconsulID &&
+        new Date(sol.data_consul).toISOString().slice(0, 10) ===
+          new Date(viagem.data_viagem).toISOString().slice(0, 10)
+    )
+  );
+
+
+  const viagensSolicitadasIDs = viagensSolicitadas.map(v => v.cod);
+
+
   const viagensComOcupacao = viagens.map(v => {
     const qtdParticipantes = v.participantes.length;
     const qtdAcompanhantes = v.participantes.reduce(
       (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
       0
     );
+
 
     return {
       ...v.toJSON(), // transforma em objeto plano
@@ -101,11 +129,13 @@ exports.renderAgenda = async (req, res) => {
     res.render('usuario/agenda/index', {
       usuario,
       codUsuario,
+      solicitacoes,
       viagens: viagensComOcupacao,
+      viagensSolicitadasIDs,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'agenda'
     });
-  
+ 
 }
 
 exports.buscarViagens = async (req, res) => {
@@ -113,12 +143,14 @@ exports.buscarViagens = async (req, res) => {
     const { cidade, data } = req.query;
     let where = {};
 
+
     if (cidade) {
       where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
     }
     if (data) {
       where.data_viagem = { [Op.eq]: data };
     }
+
 
     const viagens = await Viagem.findAll({
       where,
@@ -129,6 +161,7 @@ exports.buscarViagens = async (req, res) => {
         { model: Veiculo, as: "veiculo" }
       ]
     });
+
 
     res.json(viagens);
   } catch (erro) {
