@@ -118,7 +118,9 @@ exports.renderViagensLista = async (req, res) => {
   try {
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
-
+    const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      
     // --- PAGINAÇÃO BACKEND ---
     const page = parseInt(req.query.page) || 1; // página atual
     const limit = 5; // quantas viagens por página
@@ -126,6 +128,10 @@ exports.renderViagensLista = async (req, res) => {
 
     // Busca paginada
     const { count, rows } = await Viagem.findAndCountAll({
+       where: {
+            data_viagem: { [Op.gte]: hoje },
+            statusID: [1, 3]
+        },
       include: [
         { model: CidadeConsul, as: "cidadeconsul" },
         { model: Veiculo, as: "veiculo" },

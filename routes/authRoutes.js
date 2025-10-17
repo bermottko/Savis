@@ -20,7 +20,6 @@ router.get('/entrada', authController.renderEntrada);
 router.post('/verificarUsuario', authController.verificarUsuario); 
 
 router.get('/cadastro', authController.renderCadastro);
-router.get('/cadastro-sucesso', authController.renderCadastroSucesso);
 router.post('/add-usuario', upload.single('foto_perfil'), authController.cadastrarUsuario);
 
 router.get('/cadastro-motorista', authController.renderCadastroMotorista);

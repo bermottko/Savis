@@ -62,8 +62,6 @@
         <% const participa = viagem.participantes.some(p => p.usuarioID === codUsuario); %>
         <% const lotada = viagem.ocupacao >= viagem.veiculo.lugares_dispo; %>
         <% const jaSolicitou = viagensSolicitadasIDs.includes(viagem.cod); %>
-
-
         <% if (participa) { %>
           <a href="/usuario/inicio/index" class="botao">Participando</a>
         <% } else if (lotada) { %>

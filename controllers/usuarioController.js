@@ -39,7 +39,9 @@ exports.renderInicio = async (req, res) => {
     const viagemIDs = participante.map(p => p.viagemID);
 
     const minhas_viagens = await Viagem.findAll({
-      where: { cod: viagemIDs },
+      where: { cod: viagemIDs,
+        statusID: [1, 2]
+       },
       include: [
         { model: CidadeConsul, as: "cidadeconsul"},
         { model: Status },
@@ -72,14 +74,12 @@ exports.renderInicio = async (req, res) => {
 
 exports.renderAgenda = async (req, res) => {
 
-
     const codUsuario = req.session.usuario.cod;
     const usuario = await Usuario.findOne({
       where: { cod: codUsuario },
     });
     const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
-
 
   const viagens = await Viagem.findAll({
      where: {
@@ -94,11 +94,9 @@ exports.renderAgenda = async (req, res) => {
     order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
   });
 
-
   const solicitacoes = await Solicitacao.findAll({
     where: { usuarioID: codUsuario },
   });
-
 
   const viagensSolicitadas = viagens.filter((viagem) =>
     solicitacoes.some(
@@ -109,9 +107,7 @@ exports.renderAgenda = async (req, res) => {
     )
   );
 
-
   const viagensSolicitadasIDs = viagensSolicitadas.map(v => v.cod);
-
 
   const viagensComOcupacao = viagens.map(v => {
     const qtdParticipantes = v.participantes.length;
@@ -324,7 +320,6 @@ exports.requisitarParticipacao = async (req, res) => {
     res.status(500).send('Erro ao salvar solicitação.');
   }
 };
-
 
 exports.renderSolicitar = async (req, res) => {
    const codUsuario = req.session.usuario.cod;

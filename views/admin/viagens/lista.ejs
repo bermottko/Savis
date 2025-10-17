@@ -1,17 +1,23 @@
 <div class="col-12 d-flex flex-column align-items-center mt-5">
-  <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-    <!-- Campo cidade -->
-    <input type="search" 
-          id="pesquisaCidade" 
-          placeholder="Pesquisar por cidade" 
-          class="form-control pesquisa-custom"
-          style="max-width: 250px;">
+  <div
+    class="d-flex justify-content-center align-items-center mb-4"
+    style="gap: 10px"
+  >
 
-    <!-- Campo data -->
-    <input type="date" 
-          id="pesquisaData" 
-          class="form-control pesquisa-custom"
-          style="max-width: 200px;">
+    <input
+      type="search"
+      id="pesquisaCidade"
+      placeholder="Pesquisar por cidade"
+      class="form-control pesquisa-custom"
+      style="max-width: 250px"
+    />
+
+    <input
+      type="date"
+      id="pesquisaData"
+      class="form-control pesquisa-custom"
+      style="max-width: 200px"
+    />
   </div>
   <% viagens.forEach(function(viagem) { %>
   <div
@@ -20,14 +26,14 @@
       width: 100%;
       max-width: 700px;
       border-radius: 10px;
-      background-color: #d1e3fd;
+      background-color: <%= viagem.corFundo %>;
     "
   >
-    <!-- Cabeçalho -->
+    
     <div
       class="card-header d-flex justify-content-between align-items-center"
       style="
-        background-color: #a7c9f9;
+        background-color: <%= viagem.corCabeca %>;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
       "
@@ -43,9 +49,9 @@
         <%= viagem.data_viagem.split('-').reverse().join('/') %>
       </span>
     </div>
-    <!-- Corpo -->
+    
     <div class="card-body">
-      <!-- Linha principal com botão Ver mais -->
+
       <div class="d-flex justify-content-between align-items-center">
         <div class="flex-grow-1">
           <img
@@ -54,70 +60,75 @@
             class="mb-1"
             style="width: 20px; height: 20px"
           />
-          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares Ocupados
+          <%= viagem.ocupacao %>/<%= viagem.veiculo.lugares_dispo %> Lugares
+          Ocupados
         </div>
         <button class="botao ver-mais-btn">Ver mais</button>
       </div>
 
-      <!-- Detalhes expansíveis -->
       <div class="detalhes">
-        <p>
-          <strong>Horário de saída:</strong> <%=
-          viagem.horario_saida.substring(0,5) %>
-        </p>
-        <hr />
-        <p>
-          <strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo %>
-        </p>
-        <hr />
-        <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
-        <hr />
-        <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
-        <hr />
-        <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
-        <hr />
-
-        <% if (viagem.combustivel) { %>
-          <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+        <div class="conteudo-principal">
+          <p>
+            <strong>Horário de saída:</strong>
+            <%=viagem.horario_saida.substring(0,5) %>
+          </p>
           <hr />
-        <% } %>
-        <% if (viagem.km_inicial) { %>
+          <p>
+            <strong>Modelo do carro:</strong> <%= viagem.veiculo.modelo_veiculo
+            %>
+          </p>
+          <hr />
+          <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
+          <hr />
+          <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
+          <hr />
+          <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
+          <hr />
+
+          <a
+            href="/admin/viagens/participantes/<%= viagem.cod %>"
+            class="botao-visualizar"
+            >Participantes</a
+          >
+          <br />
+        </div>
+        <div class="conteudo-relatorio" style="display: none">
+          <p>
+            <strong>Horário de Chegada:</strong> <%= viagem.horario_chega ?
+            viagem.horario_chega.slice(0,5) : '—' %>
+          </p>
+          <hr />
           <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
           <hr />
-        <% } %>
-        <% if (viagem.km_final) { %>
           <p><strong>Km Final:</strong> <%= viagem.km_final %></p>
           <hr />
-        <% } %>
-        <% if (viagem.paradas) { %>
+          <p><strong>Combustível:</strong> <%= viagem.combustivel || '—' %></p>
+          <hr />
           <p><strong>Paradas:</strong> <%= viagem.paradas %></p>
           <hr />
-        <% } %>
-        <% if (viagem.obs) { %>
           <p><strong>Observações:</strong> <%= viagem.obs %></p>
           <hr />
-        <% } %>
-        <% if (viagem.horario_chega) { %>
-          <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
-          <hr />
-        <% } %>
+        </div>
 
-        <a
-          href="/admin/viagens/participantes/<%= viagem.cod %>"
-          class="botao-visualizar"
-          >Participantes</a
-        >
-        <br />
-
-        <div class="d-flex justify-content-end gap-3 mt-2">
+        <div style="display: flex; gap: 15px; justify-content: flex-end">
+          <% if (viagem.status.cod == 1) { %>
           <a href="/admin/viagens/editar/<%= viagem.cod %>" class="botao"
-            >Editar</a>
+            >Editar</a
+          >
           <form
             action="/admin/viagens/cancelar/<%= viagem.cod %>?_method=PUT"
             method="POST"
-            style="display: inline">
-            <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
+            style="display: inline"
+          >
+            <button type="submit" class="botao bg-vermelho">
+              Cancelar Viagem
+            </button>
           </form>
+          <% } else if (viagem.status.cod == 3) { %>
+          <button type="button" class="botao botao-relatorio-toggle">
+            Relatório
+          </button>
+          <% } %>
         </div>
       </div>
     </div>
@@ -160,7 +171,6 @@
 </div>
 
 <script>
-  // VER MAIS / VER MENOS
   document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
       const card = this.closest(".card");
@@ -185,93 +195,66 @@
   const inputData = document.getElementById("pesquisaData");
   const listaViagens = document.querySelector(".col-12.d-flex.flex-column");
 
-  function atualizarViagens() {
-    const cidade = inputCidade.value.trim();
-    const data = inputData.value;
+  function filtrar() {
+    const termoCidade = inputCidade.value.trim().toLowerCase();
+    const termoData = inputData.value; 
 
-    if (!cidade && !data) {
-      window.location.href = '/admin/viagens/lista';
-      return;
-    }
+    cards.forEach((card) => {
+      const cidadeElemento = card.querySelector(
+        ".card-header span:first-child"
+      );
+      const dataElemento = card.querySelector(".card-header span:last-child");
 
-    fetch(`/admin/viagens/pesquisar?cidade=${encodeURIComponent(cidade)}&data=${encodeURIComponent(data)}`)
-      .then(res => res.json())
-      .then(viagens => {
-        listaViagens.querySelectorAll('.card').forEach(c => c.remove());
+      const cidade = cidadeElemento
+        ? cidadeElemento.textContent.toLowerCase()
+        : "";
+      const data = dataElemento ? dataElemento.getAttribute("data-date") : "";
 
-        viagens.forEach(v => {
-          const card = document.createElement('div');
-          card.classList.add('card', 'shadow-sm', 'mt-2');
-          card.style = 'width:100%; max-width:700px; border-radius:10px; background-color:#d1e3fd;';
+      let exibir = true;
+      if (termoCidade && !cidade.includes(termoCidade)) exibir = false;
+      if (termoData && data !== termoData) exibir = false;
 
-          card.innerHTML = `
-            <div class="card-header d-flex justify-content-between align-items-center" style="background-color:#a7c9f9; border-top-left-radius:10px; border-top-right-radius:10px;">
-              <span class="fw-bold" style="color:#062352; font-size:16px">${v.cidadeconsul.descricao}</span>
-              <span class="fw-bold" style="color:#062352; font-size:15px" data-date="${v.data_viagem}">${v.data_viagem.split('-').reverse().join('/')}</span>
-            </div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="flex-grow-1">
-                  <img src="/assets/pessoa-azul.png" alt="Ícone de Usuário" class="mb-1" style="width:20px;height:20px">
-                  ${v.ocupacao}/${v.veiculo.lugares_dispo} Lugares Ocupados
-                </div>
-                <button class="botao ver-mais-btn">Ver mais</button>
-              </div>
-              <div class="detalhes">
-                <p><strong>Horário de saída:</strong> ${v.horario_saida.substring(0,5)}</p>
-                <hr>
-                <p><strong>Modelo do carro:</strong> ${v.veiculo.modelo_veiculo}</p>
-                <hr>
-                <p><strong>Placa:</strong> ${v.veiculo.placa}</p>
-                <hr>
-                <p><strong>Motorista:</strong> ${v.Motorista.nome}</p>
-                <hr>
-                <p><strong>Status:</strong> ${v.status.descricao}</p>
-                ${v.combustivel ? `<hr><p><strong>Combustível:</strong> ${v.combustivel}</p>` : ''}
-                ${v.km_inicial ? `<hr><p><strong>Km Inicial:</strong> ${v.km_inicial}</p>` : ''}
-                ${v.km_final ? `<hr><p><strong>Km Final:</strong> ${v.km_final}</p>` : ''}
-                ${v.paradas ? `<hr><p><strong>Paradas:</strong> ${v.paradas}</p>` : ''}
-                ${v.obs ? `<hr><p><strong>Observações:</strong> ${v.obs}</p>` : ''}
-                ${v.horario_chega ? `<hr><p><strong>Horário de Chegada:</strong> ${v.horario_chega.substring(0,5)}</p>` : ''}
-                <a href="/admin/viagens/participantes/${v.cod}" class="botao-visualizar">Participantes</a>
-                <div class="d-flex justify-content-end gap-3 mt-2">
-                  <a href="/admin/viagens/editar/${v.cod}" class="botao">Editar</a>
-                  <form action="/admin/viagens/cancelar/${v.cod}?_method=PUT" method="POST" style="display:inline">
-                    <button type="submit" class="botao bg-vermelho">Cancelar Viagem</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          `;
-          listaViagens.appendChild(card);
-        });
-
-        // Reativa ver mais/ver menos
-        document.querySelectorAll(".ver-mais-btn").forEach((btn) => {
-          btn.addEventListener("click", function () {
-            const card = this.closest(".card");
-            const detalhes = card.querySelector(".detalhes");
-            const estaExpandido = detalhes.classList.contains("expandido");
-            if (estaExpandido) {
-              detalhes.style.height = "0px";
-              detalhes.style.marginTop = "0";
-              detalhes.classList.remove("expandido");
-              this.textContent = "Ver mais";
-            } else {
-              detalhes.style.height = detalhes.scrollHeight + "px";
-              detalhes.style.marginTop = "16px";
-              detalhes.classList.add("expandido");
-              this.textContent = "Ver menos";
-            }
-          });
-        });
-
-        // Esconde paginação quando pesquisa ativa
-        document.getElementById('paginacaoWrapper').style.display = 'none';
-      })
-      .catch(err => console.error(err));
+      card.style.display = exibir ? "block" : "none";
+    });
   }
 
-  inputCidade.addEventListener("input", atualizarViagens);
-  inputData.addEventListener("change", atualizarViagens);
+  inputCidade.addEventListener("input", filtrar);
+  inputData.addEventListener("change", filtrar);
+
+  document.querySelectorAll(".botao-relatorio-toggle").forEach((botao) => {
+    botao.addEventListener("click", function () {
+      const card = this.closest(".card");
+      const detalhes = card.querySelector(".detalhes");
+      const principal = detalhes.querySelector(".conteudo-principal");
+      const relatorio = detalhes.querySelector(".conteudo-relatorio");
+
+      const estaExpandido = detalhes.classList.contains("expandido");
+      if (!estaExpandido) {
+        if (relatorio.style.display === "block") {
+          relatorio.style.display = "none";
+          principal.style.display = "block";
+          this.textContent = "Relatório";
+        } else {
+          principal.style.display = "none";
+          relatorio.style.display = "block";
+          this.textContent = "Voltar";
+        }
+        return;
+      }
+
+      if (relatorio.style.display === "block") {
+        relatorio.style.display = "none";
+        principal.style.display = "block";
+        this.textContent = "Relatório";
+      } else {
+        principal.style.display = "none";
+        relatorio.style.display = "block";
+        this.textContent = "Voltar";
+      }
+
+      const novaAltura = detalhes.scrollHeight;
+
+      detalhes.style.height = novaAltura + "px";
+    });
+  });
 </script>

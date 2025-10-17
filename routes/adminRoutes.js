@@ -30,6 +30,7 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 
 router.get('/perfil', verificarSessaoChefe, adminController.renderPerfil);
+router.put('/editar', verificarSessaoChefe, adminController.editarPerfil);
 
 router.get('/usuarios/index', verificarSessaoChefe, adminController.renderUsuarios);
 router.get("/usuarios/pesquisar", adminController.pesquisarUsuarios);
