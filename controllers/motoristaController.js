@@ -28,24 +28,52 @@ exports.renderPerfil = async (req, res) => {
 
 exports.renderUsuarios = async (req, res) => {
   try {
+    if (!req.session.motorista) {
+      return res.status(403).send('Acesso negado. Faça login como motorista.');
+    }
+
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
 
-    const usuarios = await Usuario.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const termo = req.query.q ? req.query.q.trim() : '';
+
+    const whereCondition = termo
+      ? {
+          [Op.or]: [
+            { nome: { [Op.like]: `%${termo}%` } },
+            { CPF: { [Op.like]: `%${termo}%` } },
+          ],
+        }
+      : {};
+
+    const { count, rows } = await Usuario.findAndCountAll({
+      where: whereCondition,
       include: [{ model: Endereco }, { model: Genero }],
-      order: [['cod', 'DESC']]
+      order: [['cod', 'DESC']],
+      limit,
+      offset,
     });
+
+    const totalPaginas = Math.ceil(count / limit);
 
     res.render('motorista/usuarios/index', {
       motorista,
-      usuarios,
+      usuarios: rows,
+      totalPaginas,
+      paginaNun: page,
+      termoPesquisa: termo,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'usuarios',
       userType: 'motorista'
     });
+
   } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao buscar usuários: ' + erro);
+    console.error('Erro ao buscar usuários:', erro);
+    res.status(500).send('Erro ao buscar usuários: ' + erro.message);
   }
 };
 
@@ -81,43 +109,83 @@ exports.renderViagensLista = async (req, res) => {
   try {
     const codMotorista = req.session.motorista.cod;
     const motorista = await Motorista.findOne({ where: { cod: codMotorista } });
-    const hoje = new Date();
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const cidade = req.query.cidade ? req.query.cidade.trim() : '';
+    const data = req.query.data || '';
+    const minhasViagens = req.query.minhas === '1';
+
+    // monta o filtro
+    let where = { statusID: [1, 2, 3] };
+
+    if (data) {
+      where.data_viagem = { [Op.between]: [data + ' 00:00:00', data + ' 23:59:59'] };
+    } else {
+      const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
-      
-    const viagens = await Viagem.findAll({
-       where: {
-            data_viagem: { [Op.gte]: hoje },
-            statusID: [1, 3]
-        },
+      where.data_viagem = { [Op.gte]: hoje };
+    }
+
+    if (minhasViagens) {
+      where.motoristaID = codMotorista;
+    }
+
+    const includeCidade = {
+      model: CidadeConsul,
+      as: 'cidadeconsul',
+      ...(cidade && { where: { descricao: { [Op.like]: `%${cidade}%` } } })
+    };
+
+    const { count, rows } = await Viagem.findAndCountAll({
+      where,
       include: [
-        { model: CidadeConsul, as: 'cidadeconsul' },
+        includeCidade,
         { model: Veiculo, as: 'veiculo' },
-        { model: Status },
+        { model: Status, as: 'status' },
         { model: Motorista, as: 'Motorista' },
         { model: Participante, as: 'participantes' }
       ],
-      order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
+      order: [['data_viagem', 'ASC'], ['horario_saida', 'ASC']],
+      limit,
+      offset,
+      distinct: true
     });
 
-    const viagensComOcupacao = viagens.map((v) => {
+    const viagensComOcupacao = rows.map(v => {
       const qtdParticipantes = v.participantes.length;
       const qtdAcompanhantes = v.participantes.reduce(
         (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
         0
       );
-
-      return {
-        ...v.toJSON(),
-        ocupacao: qtdParticipantes + qtdAcompanhantes,
-      };
+      return { ...v.toJSON(), ocupacao: qtdParticipantes + qtdAcompanhantes };
     });
+
+     const viagensComCores = viagensComOcupacao.map(v => {
+      let corFundo, corCabeca;
+      switch (v.statusID) {
+        case 1: corFundo = '#d1e3fd'; corCabeca = '#a7c9f9'; break;
+        case 2: corFundo = '#c38883'; corCabeca = '#ac6a64'; break;
+        case 3: corFundo = '#bcde9e'; corCabeca = '#a1d49f'; break;
+        default: corFundo = '#d1e3fd'; corCabeca = '#a7c9f9';
+      }
+      return { ...v, corFundo, corCabeca };
+    });
+
+    const totalPaginas = Math.max(1, Math.ceil(count / limit));
 
     res.render('motorista/viagens/lista', {
       motorista,
-      viagens: viagensComOcupacao,
+      viagens: viagensComCores,
       layout: 'layouts/layoutMotorista',
       paginaAtual: 'viagens',
-      userType: 'motorista'
+      totalPaginas,
+      paginaNun: page,
+      termoCidade: cidade,
+      termoData: data,
+      minhasViagens
     });
   } catch (erro) {
     console.error(erro);

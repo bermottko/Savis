@@ -1,0 +1,56 @@
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Cidades</h1>
+
+    <div class="table-responsive mx-auto" style="max-width: 700px;">
+        <table class="table table-bordered text-center align-middle shadow-sm" style="border-radius: 10px; overflow: hidden;">
+            <thead>
+                <tr>
+                    <th>Cidades</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <form action="/admin/viagens/gerenciar/cidades/adicionar" method="POST">
+                        <td>
+                            <input 
+                                type="text" 
+                                name="descricao" 
+                                class="form-control text-center input-transparente" 
+                                required
+                            >
+                        </td>
+                        <td>
+                            <button type="submit" class="botao">Adicionar</button>
+                        </td>
+                    </form>
+                </tr>
+
+                <% if (cidades.length === 0) { %>
+                    <tr>
+                        <td colspan="4" class="text-muted">Nenhum veículo cadastrado.</td>
+                    </tr>
+                <% } else { %>
+                    <% cidades.forEach(function(cidade) { %>
+                        <tr>
+                            <td><%= cidade.descricao %></td>
+                            <td>
+                                <form 
+                                    action="/admin/viagens/gerenciar/cidades/excluir/<%= cidade.cod %>?_method=DELETE"
+                                    method="POST"
+                                >
+                                    <button type="submit" class="botao bg-vermelho">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-start mx-auto" style="max-width: 700px;">
+        <a href="#" onclick="window.history.back(); return false;" class="botao">Voltar</a>
+    </div>
+</div>

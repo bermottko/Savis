@@ -1,19 +1,22 @@
 <div class="container mt-5">
   <div class="row justify-content-center mb-5">
     <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-      <input type="search" 
-      id="pesquisa" 
-      placeholder="Pesquisar motorista por nome ou CPF" 
-      class="form-control pesquisa-custom">
-      <a href="/auth/cadastro-motorista" class="botao-cadastro">Cadastrar Motorista</a>
+      <form method="GET" class="d-flex" style="gap: 10px;">
+        <input 
+          type="search" 
+          name="q"
+          value="<%= termoPesquisa %>"
+          placeholder="Pesquisar motorista por nome ou CPF" 
+          class="form-control pesquisa-custom">
+      </form>
+
+      <a href="/auth/cadastro-motorista/etapa1" class="botao-cadastro">Cadastrar Motorista</a>
     </div>
 
     <% posts.forEach(function(post) { %>
-
       <div class="col-12 d-flex justify-content-center">
         <div class="card p-3 shadow-sm mt-2" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
           <div class="d-flex flex-row align-items-center">
-
             <img 
               src="<%= post.img ? '/uploads/' + post.img : '/assets/default-profile.jpg' %>" 
               alt="Foto de perfil" 
@@ -24,22 +27,23 @@
             </div>
 
             <button class="botao ver-mais-btn">Ver mais</button> 
-            </div>
+          </div>
 
-            <!--VER MAIS-->
-            <div class="detalhes">
-            <p><strong>Matrícula: </strong><%= post.matricula%></p>
+          <!-- DETALHES -->
+          <div class="detalhes">
+            <p><strong>Matrícula: </strong><%= post.matricula %></p>
             <hr>
             <p><strong>Data de Nascimento: </strong><%= post.data_nasc.split('-').reverse().join('/') %></p>
             <hr>
-            <p><strong>CPF: </strong><span class="cpf-perfil"><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></span></p>
+            <p><strong>CPF: </strong><%= post.CPF.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4") %></p>
             <hr>
             <p><strong>Gênero: </strong> <%= post.genero.descricao %></p>
             <hr>
-            <p><strong>Email: </strong> <%= post.email %></p>
+            <% if (post.email){ %>
+            <p><strong>Email: </strong><%= post.email %></p>
             <hr>
-            <p><strong>Telefone: </strong><%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
-            %></p>
+            <% } %>
+            <p><strong>Telefone: </strong><%= post.fone.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3") %></p>
             <hr>
             <p><strong>Endereço: </strong>
               <%= post.endereco?.rua || '' %>, 
@@ -47,14 +51,10 @@
               <%= post.endereco?.bairro || '' %> - 
               <%= post.endereco?.cidade || '' %> 
               (<%= post.endereco?.UF || '' %>) 
-              CEP: <%= post.endereco?.CEP 
-                          ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") 
-                          : '' 
-                    %>
+              CEP: <%= post.endereco?.CEP ? post.endereco.CEP.replace(/^(\d{5})(\d{3})$/, "$1-$2") : '' %>
             </p>
             <hr>
             <p class="mb-2"><strong>Documentos:</strong></p>
-
             <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
               <% const documentos = [
                 { campo: 'carteira_trab', label: 'Carteira de Trabalho' },
@@ -80,85 +80,55 @@
                 </div>
               <% }); %>
             </div>
-            <hr>
 
-<div class="d-flex justify-content-end gap-3">
-  <a href="/admin/motoristas/editar/<%= post.cod %>" class="botao">Editar</a>
-
-  <form action="/admin/motoristas/deletar/<%= post.cod %>?_method=DELETE" method="POST">
-    <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este motorista?')">
-      Excluir
-    </button>
-  </form>
-</div>
-
+            <div class="d-flex justify-content-end gap-3">
+              <a href="/admin/motoristas/editar/<%= post.cod %>" class="botao">Editar</a>
+              <form action="/admin/motoristas/deletar/<%= post.cod %>?_method=DELETE" method="POST">
+                <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este motorista?')">Excluir</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-
     <% }) %>
+    <% if (posts.length === 0) { %>
+      <p class="text-center text-muted mt-4">Nenhum motorista encontrado.</p>
+    <% } else { %>
+    <div class="d-flex justify-content-center mt-4">
+        <% if (paginaNun > 1) { %>
+          <a href="?page=<%= paginaNun - 1 %>&q=<%= termoPesquisa %>" class="botao-paginacao">
+            ‹
+          </a>
+        <% } else { %>
+          <button class="botao-paginacao" disabled>‹</button>
+        <% } %>
 
+        <% for (let i = 1; i <= totalPaginas; i++) { %>
+          <a
+            href="?page=<%= i %>&q=<%= termoPesquisa %>"
+            class="botao-paginacao <%= i === paginaNun ? 'ativo' : '' %>"
+          >
+            <%= i %>
+          </a>
+        <% } %>
+
+        <% if (paginaNun < totalPaginas) { %>
+          <a href="?page=<%= paginaNun + 1 %>&q=<%= termoPesquisa %>" class="botao-paginacao">
+            ›
+          </a>
+        <% } else { %>
+          <button class="botao-paginacao" disabled>›</button>
+        <% } %>
+      </div>
+    <% } %>
   </div>
 </div>
-
+<% if (sucesso) { %>
+        <script>
+          alert('Cadastro realizado com sucesso!');
+        </script>
+<% } %>
 <script>
-  const inputPesquisa = document.getElementById('pesquisa');
-  const cards = Array.from(document.querySelectorAll('.card'));
-  const row = document.querySelector('.row');
-
-  cards.forEach((card, index) => {
-    card.setAttribute('data-original-index', index);
-  });
-
-  inputPesquisa.addEventListener('input', function () {
-    const termo = this.value.trim().toLowerCase();
-
-    if (termo.length === 0) {
-      cards.forEach(card => {
-        card.style.display = 'block';
-        card.setAttribute('data-relevancia', '0');
-      });
-
-      const fragment = document.createDocumentFragment();
-
-      cards
-        .sort((a, b) => a.getAttribute('data-original-index') - b.getAttribute('data-original-index'))
-        .forEach(card => fragment.appendChild(card));
-
-      row.appendChild(fragment);
-
-    } else {
-      cards.forEach(card => {
-        const nomeELemento = card.querySelector('.nome-perfil');
-        const nome = nomeELemento ? nomeELemento.textContent.toLowerCase() : '';
-
-        const cpfElemento = card.querySelector('.cpf-perfil');
-        const cpf = cpfElemento ? cpfElemento.textContent.replace(/[.\-]/g, '') : '';
-
-        if (nome.startsWith(termo) || cpf.startsWith(termo)) {
-          card.style.display = 'block';
-          card.setAttribute('data-relevancia', '1');
-        } else if (nome.includes(termo) || cpf.includes(termo)) {
-          card.style.display = 'block';
-          card.setAttribute('data-relevancia', '2');
-        } else {
-          card.style.display = 'none';
-          card.setAttribute('data-relevancia', '99');
-        }
-
-      });
-
-      const fragment = document.createDocumentFragment();
-
-      cards
-        .filter(card => card.style.display === 'block')
-        .sort((a, b) => a.getAttribute('data-relevancia') - b.getAttribute('data-relevancia'))
-        .forEach(card => fragment.appendChild(card));
-
-      row.appendChild(fragment);
-    }
-  });
-
   // VER MAIS / VER MENOS
   document.querySelectorAll('.ver-mais-btn').forEach(btn => {
     btn.addEventListener('click', function () {

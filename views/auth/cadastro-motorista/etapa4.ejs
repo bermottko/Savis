@@ -1,0 +1,83 @@
+<div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;"> 
+  <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
+    <form action="/auth/cadastro-motorista/etapa4/processar" method="POST">
+       <h6 style="color:#909090">Contatos, Matrícula e Senha</h6>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input type="email" id="email" name="email"
+          class="form-control <% if (erroEmail) { %>is-invalid<% } %>"
+          placeholder="Digite seu e-mail"
+          value="<%= preenchido?.email || '' %>" />
+        <% if (erroEmail) { %><div class="invalid-feedback"><%= erroEmail %></div><% } %>
+      </div>
+
+      <div class="mb-3">
+        <label for="fone" class="form-label">Telefone</label>
+        <input type="text" id="fone" name="fone" maxlength="15"
+          class="form-control <% if (erroFone) { %>is-invalid<% } %>"
+          placeholder="Digite seu telefone"
+          value="<%= preenchido?.fone || '' %>" />
+        <% if (erroFone) { %><div class="invalid-feedback"><%= erroFone %></div><% } %>
+      </div>
+
+      <div class="mb-3">
+        <label for="matricula" class="form-label">Matrícula</label>
+        <input type="text" id="matricula" name="matricula" maxlength="4"
+          class="form-control <% if (erroMatricula) { %>is-invalid<% } %>"
+          placeholder="Digite sua matrícula"
+          value="<%= preenchido?.matricula || '' %>" />
+        <% if (erroMatricula) { %><div class="invalid-feedback"><%= erroMatricula %></div><% } %>
+      </div>
+
+      <div class="mb-3 position-relative">
+        <label for="senha" class="form-label">Senha</label>
+        <input type="password" id="senha" name="senha" required class="form-control"
+          placeholder="Crie uma senha" />
+
+        <ul id="requisitosSenha" class="mt-2 p-2 border rounded" style="list-style:none; font-size:0.9em; background:#f8f9fa;">
+            <li id="tamanho" style="color:#6c757d;">Mínimo 8 caracteres</li>
+            <li id="maiuscula" style="color:#6c757d;">Pelo menos uma letra maiúscula</li>
+            <li id="minuscula" style="color:#6c757d;">Pelo menos uma letra minúscula</li>
+            <li id="numero" style="color:#6c757d;">Pelo menos um número</li>
+            <li id="especial" style="color:#6c757d;">Pelo menos um caractere especial (!@#$%^&*)</li>
+        </ul>
+      </div>
+
+      <% if (erroSenha) { %>
+        <div class="invalid-feedback d-block mt-1"><%= erroSenha %></div>
+      <% } %>
+
+
+      <div class="d-flex justify-content-between">
+        <a href="/auth/cadastro-motorista/etapa3" class="botao-cadastro">Voltar</a>
+        <button type="submit" class="botao-cadastro">Finalizar Cadastro</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+const senhaInput = document.getElementById('senha');
+
+senhaInput.addEventListener('input', () => {
+  const valor = senhaInput.value;
+
+    document.getElementById('tamanho').style.color = valor.length >= 8 ? '#198754' : '#dc3545';
+    document.getElementById('maiuscula').style.color = /[A-Z]/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('minuscula').style.color = /[a-z]/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('numero').style.color = /\d/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('especial').style.color = /[!@#$%^&*(),.?":{}|<>]/.test(valor) ? '#198754' : '#dc3545';
+});
+
+  const foneInput = document.getElementById('fone');
+
+  foneInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+      value = value
+        .replace(/^(\d{2})(\d)/g, '($1) $2')
+        .replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+      e.target.value = value;
+  });
+
+</script>

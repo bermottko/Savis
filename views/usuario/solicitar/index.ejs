@@ -128,7 +128,11 @@
     </form>
   </div>
 </div>
-
+<% if (solicitacaoSucesso) { %>
+        <script>
+          alert('Solicitação realizada com sucesso!');
+        </script>
+<% } %>
 <script>
   function previewImagemAcompanhante(event) {
     const input = event.target;

@@ -73,92 +73,113 @@ exports.renderInicio = async (req, res) => {
 }
 
 exports.renderAgenda = async (req, res) => {
-
+  try {
     const codUsuario = req.session.usuario.cod;
+
+    // busca dados do usuário logado
     const usuario = await Usuario.findOne({
       where: { cod: codUsuario },
     });
+
+    // parâmetros de busca e paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const cidade = req.query.cidade ? req.query.cidade.trim() : "";
+    const data = req.query.data || "";
+
+    // data mínima = hoje
     const hoje = new Date();
-      hoje.setHours(0, 0, 0, 0);
+    hoje.setHours(0, 0, 0, 0);
 
-  const viagens = await Viagem.findAll({
-     where: {
+    // filtro base
+    let where = {
       data_viagem: { [Op.gte]: hoje },
-      statusID: [1]
-    },
-    include: [                  
-      { model: CidadeConsul, as: "cidadeconsul" },
-      { model: Veiculo, as: "veiculo" },
-      { model: Participante, as: "participantes" },
-    ],
-    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
-  });
+      statusID: [1],
+    };
 
-  const solicitacoes = await Solicitacao.findAll({
-    where: { usuarioID: codUsuario },
-  });
+    // se houver data informada, filtra por data exata
+    if (data) {
+      where.data_viagem = { [Op.between]: [data + " 00:00:00", data + " 23:59:59"] };
+    }
 
-  const viagensSolicitadas = viagens.filter((viagem) =>
-    solicitacoes.some(
-      (sol) =>
-        sol.cidadeconsulID === viagem.cidadeconsulID &&
-        new Date(sol.data_consul).toISOString().slice(0, 10) ===
-          new Date(viagem.data_viagem).toISOString().slice(0, 10)
-    )
-  );
+    // filtro da cidade (no include)
+    const includeCidade = {
+      model: CidadeConsul,
+      as: "cidadeconsul",
+      ...(cidade && {
+        where: { descricao: { [Op.like]: `%${cidade}%` } },
+      }),
+    };
 
-  const viagensSolicitadasIDs = viagensSolicitadas.map(v => v.cod);
+    // busca viagens com filtros e paginação
+    const { count, rows } = await Viagem.findAndCountAll({
+      where,
+      include: [
+        includeCidade,
+        { model: Veiculo, as: "veiculo" },
+        { model: Participante, as: "participantes" },
+      ],
+      order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]],
+      limit,
+      offset,
+      distinct: true,
+    });
 
-  const viagensComOcupacao = viagens.map(v => {
-    const qtdParticipantes = v.participantes.length;
-    const qtdAcompanhantes = v.participantes.reduce(
-      (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
-      0
+    // busca solicitações do usuário
+    const solicitacoes = await Solicitacao.findAll({
+      where: { usuarioID: codUsuario },
+    });
+
+    // viagens que o usuário já solicitou
+    const viagensSolicitadas = rows.filter((viagem) =>
+      solicitacoes.some(
+        (sol) =>
+          sol.cidadeconsulID === viagem.cidadeconsulID &&
+          new Date(sol.data_consul).toISOString().slice(0, 10) ===
+            new Date(viagem.data_viagem).toISOString().slice(0, 10)
+      )
     );
 
-    return {
-      ...v.toJSON(), // transforma em objeto plano
-      ocupacao: qtdParticipantes + qtdAcompanhantes
-    };
-  });
-    res.render('usuario/agenda/index', {
+    const viagensSolicitadasIDs = viagensSolicitadas.map((v) => v.cod);
+
+    // calcula ocupação
+    const viagensComOcupacao = rows.map((v) => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce(
+        (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+        0
+      );
+      return {
+        ...v.toJSON(),
+        ocupacao: qtdParticipantes + qtdAcompanhantes,
+      };
+    });
+
+    // total de páginas
+    const totalPaginas = Math.max(1, Math.ceil(count / limit));
+
+    const solicitacaoSucesso = req.session.solicitacaoSucesso;
+    delete req.session.solicitacaoSucesso; 
+
+    res.render("usuario/agenda/index", {
       usuario,
       codUsuario,
       solicitacoes,
       viagens: viagensComOcupacao,
       viagensSolicitadasIDs,
-      layout: 'layouts/layoutUsuario',
-      paginaAtual: 'agenda'
+      totalPaginas,
+      paginaNun: page,
+      termoCidade: cidade,
+      termoData: data,
+      layout: "layouts/layoutUsuario",
+      paginaAtual: "agenda",
+      solicitacaoSucesso
     });
-  
-}
-
-exports.buscarViagens = async (req, res) => {
-  try {
-    const { cidade, data } = req.query;
-    let where = {};
-
-    if (cidade) {
-      where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
-    }
-    if (data) {
-      where.data_viagem = { [Op.eq]: data };
-    }
-
-    const viagens = await Viagem.findAll({
-      where,
-      include: [
-        { model: Motorista, as: "Motorista" },
-        { model: Status, as: "status" },
-        { model: CidadeConsul, as: "cidadeconsul" },
-        { model: Veiculo, as: "veiculo" }
-      ]
-    });
-
-    res.json(viagens);
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar viagens" });
+    res.status(500).send("Erro ao carregar agenda: " + erro);
   }
 };
 
@@ -202,21 +223,23 @@ exports.formularioParticipar = async (req, res) => {
     const ocupacao = qtdParticipantes + qtdAcompanhantes;
 
     res.render('usuario/agenda/formulario-participar', {
-      ocupacao,
-      viagem,
-      usuario,
-      cod: cod_viagem,
-      layout: 'layouts/layoutUsuario',
-      paginaAtual: 'agenda'
-    });
-  };
+    ocupacao,
+    viagem,
+    usuario,
+    cod: cod_viagem,
+    layout: 'layouts/layoutUsuario',
+    paginaAtual: 'agenda',
+    erros: null,
+    preenchido: {},
+  });
+};
 
 exports.requisitarParticipacao = async (req, res) => {
   try {
     const usuarioID = req.session.usuario.cod;
-    let acompanhanteID = null;
+    const cod_viagem = req.body.viagemID;
+    const cod = req.session.usuario.cod;
 
-    // Campos do formulário
     const {
       cidadeconsulID,
       local_consul,
@@ -232,58 +255,98 @@ exports.requisitarParticipacao = async (req, res) => {
       obs
     } = req.body;
 
-    // Arquivos (PDF do encaminhamento + foto do acompanhante)
     const encaminhamento = req.files?.encaminhamento?.[0]?.filename || null;
     const foto_acompanhante = req.files?.foto_acompanhante?.[0]?.filename || null;
 
-    // Validação backend
-    let erros = [];
+    const erros = {};
+    const preenchido = {
+      local_consul,
+      hora_consul,
+      objetivo,
+      obs,
+      temAcompanhante,
+      nome_acomp,
+      cpf_acomp,
+      data_nasc_acomp,
+      telefone_acomp,
+      generoID
+    };
 
-    if (!cidadeconsulID) erros.push({ campo: "cidadeconsulID", msg: "Selecione uma cidade." });
-    if (!local_consul) erros.push({ campo: "local_consul", msg: "Informe o local da consulta." });
-    if (!data_consul || new Date(data_consul).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
-      erros.push({ campo: "data_consul", msg: "Informe uma data válida." });
-    if (!hora_consul) erros.push({ campo: "hora_consul", msg: "Informe o horário da consulta." });
-    if (!objetivo) erros.push({ campo: "objetivo", msg: "Informe o objetivo da consulta." });
-    if (!encaminhamento) erros.push({ campo: "encaminhamento", msg: "Envie o encaminhamento em PDF." });
+    if (!local_consul?.trim()) erros.local_consul = true;
+    if (!hora_consul) erros.hora_consul = true;
+    if (!objetivo?.trim()) erros.objetivo = true;
+    if (!encaminhamento) erros.encaminhamento = true;
 
     if (temAcompanhante === "sim") {
-      if (!nome_acomp) erros.push({ campo: "nome_acomp", msg: "Informe o nome do acompanhante." });
-      if (!cpf_acomp || cpf_acomp.replace(/\D/g,'').length !== 11)
-        erros.push({ campo: "cpf_acomp", msg: "Informe um CPF válido." });
-      if (!data_nasc_acomp) erros.push({ campo: "data_nasc_acomp", msg: "Informe a data de nascimento do acompanhante." });
-      if (!telefone_acomp || telefone_acomp.replace(/\D/g,'').length < 10)
-        erros.push({ campo: "telefone_acomp", msg: "Informe um telefone válido." });
-      if (!generoID) erros.push({ campo: "generoID", msg: "Selecione o gênero do acompanhante." });
-    }
 
-    // Criação do acompanhante (se houver)
-    if (temAcompanhante === "sim") {
-      try {
-        const acompanhanteCriado = await Acompanhante.create({
-          img: foto_acompanhante,
-          nome: nome_acomp,
-          cpf: cpf_acomp.replace(/\D/g,''),
-          data_nasc: data_nasc_acomp,
-          generoID,
-          telefone: telefone_acomp.replace(/\D/g,'')
-        });
-        acompanhanteID = acompanhanteCriado.cod;
-      } catch (error) {
-        if (error.name === "SequelizeUniqueConstraintError" && error.fields?.cpf) {
-          return res.render("usuario/solicitar/index", {
-            cidadeconsul: await CidadeConsul.findAll(),
-            layout: "layouts/layoutUsuario",
-            paginaAtual: "solicitar",
-            erros: [{ campo: "cpf_acomp", msg: "Este CPF já está cadastrado para outro acompanhante." }],
-            preenchido: req.body || {}
-          });
-        }
-        throw error;
+      if (!nome_acomp?.trim()) erros.nome_acomp = true;
+
+      if (!cpf_acomp?.trim()) {
+        erros.cpf_acomp = true;
+      } else {
+        const cpfLimpo = cpf_acomp.replace(/\D/g, '');
+        if (cpfLimpo.length !== 11) erros.cpf_acomp = 'CPF inválido. Verifique e tente novamente.';
       }
+
+      if (!data_nasc_acomp) {
+        erros.data_nasc_acomp = true;
+      } else {
+        const data = new Date(data_nasc_acomp);
+        const hoje = new Date();
+        const anoMinimo = 1900;
+        if (isNaN(data.getTime()) || data > hoje || data.getFullYear() < anoMinimo)
+          erros.data_nasc_acomp = 'Data de nascimento inválida. Verifique e tente novamente.';
+      }
+
+      if (!telefone_acomp?.trim()) {
+        erros.telefone_acomp = true;
+      } else {
+        const telefoneLimpo = telefone_acomp.replace(/\D/g, '');
+        if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11)
+          erros.telefone_acomp = 'Telefone inválido. Verifique e tente novamente.';
+      }
+
+      if (!generoID) erros.generoID = true;
     }
 
-    const dadosSolicitacao = {
+    if (Object.keys(erros).length > 0) {
+      const usuario = await Usuario.findOne({
+        where: { cod },
+        include: [Genero, Endereco]
+      });
+
+      const viagem = await Viagem.findOne({
+        where: { cod: cod_viagem },
+        include: [
+          {
+            model: Participante,
+            as: 'participantes',
+            include: [{ model: Acompanhante, as: 'acompanhante' }]
+          },
+          { model: Veiculo, as: 'veiculo' }
+        ]
+      });
+
+      const qtdParticipantes = viagem.participantes.length;
+      const qtdAcompanhantes = viagem.participantes.reduce(
+        (soma, p) => soma + (p.acompanhante ? 1 : 0),
+        0
+      );
+      const ocupacao = qtdParticipantes + qtdAcompanhantes;
+
+      return res.render('usuario/agenda/formulario-participar', {
+        ocupacao,
+        viagem,
+        usuario,
+        cod: cod_viagem,
+        layout: 'layouts/layoutUsuario',
+        paginaAtual: 'agenda',
+        erros,
+        preenchido
+      });
+    }
+
+    await Solicitacao.create({
       usuarioID,
       cidadeconsulID,
       local_consul,
@@ -292,23 +355,16 @@ exports.requisitarParticipacao = async (req, res) => {
       encaminhamento,
       objetivo,
       obs: obs || null,
-      statusID: null
-    };
+      statusID: null,
+      nome_acomp: temAcompanhante === "sim" ? nome_acomp : null,
+      cpf_acomp: temAcompanhante === "sim" ? cpf_acomp : null,
+      data_nasc_acomp: temAcompanhante === "sim" ? data_nasc_acomp : null,
+      telefone_acomp: temAcompanhante === "sim" ? telefone_acomp : null,
+      generoID: temAcompanhante === "sim" ? generoID : null,
+      foto_acompanhante
+    });
 
-    if (temAcompanhante === "sim") {
-      Object.assign(dadosSolicitacao, {
-        acompanhanteID,
-        nome_acomp,
-        cpf_acomp,
-        data_nasc_acomp,
-        telefone_acomp,
-        generoID,
-        foto_acompanhante
-      });
-    }
-
-    await Solicitacao.create(dadosSolicitacao);
-
+    req.session.solicitacaoSucesso = true;
     res.redirect('/usuario/agenda/index');
 
   } catch (err) {
@@ -324,14 +380,19 @@ exports.renderSolicitar = async (req, res) => {
     });
 
   const cidadeconsul = await CidadeConsul.findAll();
+
+  const solicitacaoSucesso = req.session.solicitacaoSucessoNV;
+  delete req.session.solicitacaoSucessoNV;
+  
     res.render('usuario/solicitar/index', {
       usuario,
       cidadeconsul,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'solicitar',
-      preenchido: {} 
+      preenchido: {},
+      solicitacaoSucesso
     });
-}
+};
 
 exports.addSolicitar = async (req, res) => {
   try {
@@ -407,6 +468,7 @@ exports.addSolicitar = async (req, res) => {
       telefone_acomp: temAcompanhante === "sim" ? telefone_acomp.replace(/\D/g,'') : null
     });
 
+   req.session.solicitacaoSucessoNV = true;
     res.redirect('/usuario/solicitar/index');
 
   } catch (err) {

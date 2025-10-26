@@ -1,256 +1,607 @@
 const bcrypt = require('bcrypt');
 
-const { Usuario, Endereco, Chefe, Motorista, Documento} = require('../models');
+const { Usuario, Endereco, Chefe, Motorista, Documento } = require('../models');
 
 exports.renderEntrada = (req, res) => {
-  res.render('auth/entrada', { layout: 'layouts/layoutAuth' });
+  const sucesso = req.session.sucessoCadastro;
+  delete req.session.sucessoCadastro; 
+
+  res.render('auth/entrada', {
+    layout: 'layouts/layoutAuth',
+    erroValidacao: null,
+    tipoSelecionado: 'paciente',
+    camposVazios: false,  
+    cpf: '',
+    matricula: '',
+    sucesso
+  });
 };
 
 exports.verificarUsuario = async (req, res) => {
-  const { cpf, matricula, senha } = req.body;
+  const { tipo, cpf, matricula, senha } = req.body;
+
+  const camposVazios = 
+    (tipo === 'paciente' && (!cpf || !senha)) ||
+    (tipo === 'funcionario' && (!matricula || !senha));
+
+  if (camposVazios) {
+    return res.render('auth/entrada', {
+      layout: 'layouts/layoutAuth',
+      erroValidacao: null, 
+      camposVazios: true,  
+      tipoSelecionado: tipo || 'paciente',
+      cpf: cpf || '',
+      matricula: matricula || '',
+      senha: senha || ''
+    });
+  }
 
   try {
     let usuario;
-    let redirectPath;
 
-    if (cpf) {
-      // Login por CPF: apenas usuário
-      usuario = await Usuario.findOne({ where: { CPF: cpf } });
-      if (!usuario) return res.send("CPF não encontrado");
-      redirectPath = '/usuario/inicio/index';
+    if (tipo === 'paciente') {
+      const cpfLimpo = cpf.replace(/\D/g, '');
+      usuario = await Usuario.findOne({ where: { CPF: cpfLimpo } });
+
+      if (!usuario) {
+        return res.render('auth/entrada', {
+          layout: 'layouts/layoutAuth',
+          erroValidacao: 'Credenciais inválidas. Tente novamente.',
+          tipoSelecionado: tipo,
+          cpf,
+          matricula: ''
+        });
+      }
 
       const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-      if (!senhaCorreta) return res.send("Senha incorreta");
+      if (!senhaCorreta) {
+        return res.render('auth/entrada', {
+          layout: 'layouts/layoutAuth',
+          erroValidacao: 'Credenciais inválidas. Tente novamente.',
+          tipoSelecionado: tipo,
+          cpf,
+          matricula: ''
+        });
+      }
 
       req.session.usuario = { cod: usuario.cod, nome: usuario.nome };
-      return res.redirect(redirectPath);
+      return res.redirect('/usuario/inicio/index');
+    }
 
-    } else if (matricula) {
-      // Tenta login como motorista
+    if (tipo === 'funcionario') {
       usuario = await Motorista.findOne({ where: { matricula } });
+
       if (usuario) {
-        redirectPath = '/motorista/usuarios/index';
-
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-        if (!senhaCorreta) return res.send("Senha incorreta");
+        if (!senhaCorreta) {
+          return res.render('auth/entrada', {
+            layout: 'layouts/layoutAuth',
+            erroValidacao: 'Credenciais inválidas. Tente novamente.',
+            tipoSelecionado: tipo,
+            cpf: '',
+            matricula
+          });
+        }
 
-        req.session.motorista = {
-        cod: usuario.cod,
-        nome: usuario.nome,
-      };
-
-      console.log("Motorista logado:", req.session.motorista); // debug
-      return res.redirect(redirectPath);
+        req.session.motorista = { cod: usuario.cod, nome: usuario.nome };
+        return res.redirect('/motorista/usuarios/index');
       }
 
-      // Tenta login como chefe (admin)
       usuario = await Chefe.findOne({ where: { matricula } });
-      if (usuario) {
-        redirectPath = '/admin/usuarios/index';
 
+      if (usuario) {
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-        if (!senhaCorreta) return res.send("Senha incorreta");
+        if (!senhaCorreta) {
+          return res.render('auth/entrada', {
+            layout: 'layouts/layoutAuth',
+            erroValidacao: 'Credenciais inválidas. Tente novamente.',
+            tipoSelecionado: tipo,
+            cpf: '',
+            matricula
+          });
+        }
 
         req.session.chefe = { cod: usuario.cod, nome: usuario.nome };
-        return res.redirect(redirectPath);
+        return res.redirect('/admin/usuarios/index');
       }
 
-      return res.send("Matrícula não encontrada");
-
-    } else {
-      return res.send("Por favor, informe CPF ou Matrícula.");
+      return res.render('auth/entrada', {
+        layout: 'layouts/layoutAuth',
+        erroValidacao: 'Credenciais inválidas. Tente novamente.',
+        tipoSelecionado: tipo,
+        cpf: '',
+        matricula
+      });
     }
+
+    return res.render('auth/entrada', {
+      layout: 'layouts/layoutAuth',
+      erroValidacao: 'Credenciais inválidas. Tente novamente.',
+      tipoSelecionado: 'paciente',
+      cpf: '',
+      matricula: ''
+    });
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erro no servidor");
+    return res.status(500).render('auth/entrada', {
+      layout: 'layouts/layoutAuth',
+      erroValidacao: 'Erro interno no servidor. Tente novamente.',
+      tipoSelecionado: tipo || 'paciente',
+      cpf: cpf || '',
+      matricula: matricula || ''
+    });
   }
 };
 
-exports.renderCadastro = (req, res) => {
-  res.render('auth/cadastro', {
+exports.renderEtapa1Usuario = (req, res) => {
+  let retornoCadastro = '/'
+
+  if (req.session.chefe) {
+    retornoCadastro = '/admin/usuarios/index'
+  } 
+
+  res.render('auth/cadastro/etapa1', {
     layout: 'layouts/layoutAuth',
-    preenchido: req.body,
+    preenchido: {
+      ...req.session.cadastro?.etapa1, 
+    },
     erroCPF: null,
-    erroEmail: null,
-    erroFone: null,
-    erroNumero: null,
-    erroCEP: null,
-    erroSUS: null
+    erroData_nasc: null,
+    retornoCadastro
   });
 };
 
-exports.cadastrarUsuario = async (req, res) => {
-  try {
-    const { numero = '', cep = '', CPF, SUS, fone, email } = req.body;
-
-    const cpfVerificando = CPF.replace(/\D/g, '');
-    const susVerificando = SUS.replace(/\D/g, '');
-    const foneVerificando = fone.replace(/\D/g, '');
-
-    const erros = {
-      erroCPF: null,
-      erroSUS: null,
-      erroFone: null,
-      erroEmail: null,
-      erroNumero: null,
-      erroCEP: null
+exports.processarEtapa1Usuario = async (req, res) => {
+  const { nome, CPF, data_nasc, genero } = req.body;
+   if (req.session.chefe) {
+    retornoCadastro = '/admin/usuarios/index'
+  } 
+  
+  if (req.file) {
+    req.session.cadastro = {
+      ...req.session.cadastro,
+      etapa1: {
+        ...req.session.cadastro?.etapa1,
+        foto_perfil: req.file.filename
+      }
     };
+  }
 
-    if (!numero || numero.length > 4) erros.erroNumero = 'Número deve ter até 4 dígitos';
-    if (!cep || cep.replace(/\D/g,'').length !== 8) erros.erroCEP = 'CEP deve ter exatamente 8 dígitos';
+  const foto_perfil = req.file?.filename || req.session.cadastro?.etapa1?.foto_perfil || null;
+  
+  const erros = {};
 
-    const cpfExistente = await Usuario.findOne({ where: { CPF: cpfVerificando } });
-    const susExistente = await Usuario.findOne({ where: { SUS: susVerificando } });
+  const nomeLimpo = nome.trim().replace(/\s+/g, ' ');
+  
+  const cpfLimpo = CPF.replace(/\D/g, '');
+    if (cpfLimpo.length !== 11) 
+      erros.CPF = 'CPF inválido. Verifique e tente novamente.';
 
-    if (cpfExistente) erros.erroCPF = 'CPF já cadastrado.';
-    else if (cpfVerificando.length !== 11) erros.erroCPF = 'CPF inválido.';
+  const usuarioExistente = await Usuario.findOne({ where: { CPF: cpfLimpo } });
+    if (usuarioExistente) 
+      erros.CPF = 'Este CPF já está cadastrado.';
 
-    if (susExistente) erros.erroSUS = 'Número do SUS já cadastrado.';
-    else if (susVerificando.length !== 15) erros.erroSUS = 'Número do SUS inválido.';
+    const data = new Date(data_nasc);
+    const hoje = new Date();
+    const anoMinimo = 1900;
 
-    if (foneVerificando.length < 11) erros.erroFone = 'Telefone inválido. Deve conter 11 dígitos.';
+    if (isNaN(data.getTime()) || data > hoje || data.getFullYear() < anoMinimo)
+      erros.data_nasc = 'Data de nascimento inválida. Verifique e tente novamente.';
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) erros.erroEmail = "E-mail inválido. Digite um e-mail válido (ex: exemplo@email.com).";
 
-    if (Object.values(erros).some(e => e)) {
-      return res.render('auth/cadastro', {
-        layout: 'layouts/layoutAuth',
-        ...erros,
-        preenchido: req.body
-      });
+  if (Object.keys(erros).length > 0) {
+    return res.render('auth/cadastro/etapa1', {
+      layout: 'layouts/layoutAuth',
+      preenchido: {
+        nome: nomeLimpo,
+        CPF: cpfLimpo,
+        data_nasc,
+        genero,
+        foto_perfil, 
+      },
+      erroCPF: erros.CPF || null,
+      erroData_nasc: erros.data_nasc || null,
+    });
+  }
+
+  req.session.cadastro = {
+    ...req.session.cadastro,
+    etapa1: {
+      foto_perfil,
+      nome: nomeLimpo,
+      CPF: cpfLimpo,
+      data_nasc,
+      genero
     }
+  };
 
-    const senhaCriptografada = await bcrypt.hash(req.body.senha, 10);
+  res.redirect('/auth/cadastro/etapa2');
+};
 
-    const enderecoCriado = await Endereco.create({
-      rua: req.body.rua,
-      numero,
-      bairro: req.body.bairro,
-      cidade: req.body.cidade,
-      UF: req.body.uf,
-      CEP: cep
+exports.renderEtapa2Usuario = (req, res) => {
+  res.render('auth/cadastro/etapa2', {
+    layout: 'layouts/layoutAuth',
+    preenchido: req.body,
+    erroCEP: null,
+  });
+};
+
+exports.processarEtapa2Usuario = async (req, res) => {
+  const { rua, numero, cidade, bairro, uf, cep } = req.body;
+
+  if (!rua || !numero || !cidade || !bairro || !uf || !cep) {
+    return res.render('auth/cadastro/etapa2', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+    });
+  }
+
+  const cepLimpo = cep.replace(/\D/g, '');
+  
+  if (cepLimpo.length !== 8) {
+    return res.render('auth/cadastro/etapa2', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroCEP: 'CEP inválido. Verifique e tente novamente.',
+    });
+  }
+
+  req.session.cadastro = {
+    ...req.session.cadastro,
+    etapa2: { rua, numero, bairro, cidade, uf, cep }
+  };
+
+  res.redirect('/auth/cadastro/etapa3');
+};
+
+exports.renderEtapa3Usuario = (req, res) => {
+  res.render('auth/cadastro/etapa3', {
+    layout: 'layouts/layoutAuth',
+    preenchido: req.body,
+    erroEmail: null,
+    erroFone: null,
+    erroSUS: null,
+    erroSenha: null
+  });
+};
+
+exports.processarEtapa3Usuario = async (req, res) => {
+  const { email, fone, senha, SUS } = req.body;
+  const erros = {}; 
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    erros.email = 'Email inválido. Verifique e tente novamente.';
+
+  const foneLimpo = fone.replace(/\D/g, '');
+
+  if (foneLimpo.length < 10 || foneLimpo.length > 11)
+    erros.fone = 'Telefone inválido. Verifique e tente novamente.';
+
+  const susLimpo = SUS.replace(/\D/g, '');
+
+  if (susLimpo.length !== 15) 
+    erros.SUS = 'Número inválido. Verifique e tente novamente.';
+
+  const susExistente = await Usuario.findOne({ where: { SUS: susLimpo } });
+  
+  if (susExistente) 
+    erros.SUS = 'Este CNS já está cadastrado.';
+  
+  const senhaValida = senha.length >= 8 &&
+                      /\d/.test(senha) &&
+                      /[!@#$%^&*(),.?":{}|<>]/.test(senha) &&
+                      /[A-Z]/.test(senha) &&
+                      /[a-z]/.test(senha);
+
+  if (!senhaValida) {
+    erros.senha = 'Senha inválida. Verifique e tente novamente.';
+  }
+
+  if (Object.keys(erros).length > 0) {
+    return res.render('auth/cadastro/etapa3', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroEmail: erros.email || null,
+      erroFone: erros.fone || null,
+      erroSUS: erros.SUS || null,
+      erroSenha: erros.senha || null
+    });
+  }
+
+  const senhaHash = await bcrypt.hash(senha, 10);
+
+  const etapa1 = req.session.cadastro?.etapa1;
+  const etapa2 = req.session.cadastro?.etapa2;
+
+  try {
+    const novoEndereco = await Endereco.create({
+      rua: etapa2.rua,
+      numero: etapa2.numero,
+      bairro: etapa2.bairro,
+      cidade: etapa2.cidade,
+      UF: etapa2.uf,
+      CEP: etapa2.cep
     });
 
     await Usuario.create({
-      img: req.file?.filename || null,
-      nome: req.body.nome,
-      data_nasc: req.body.data_nasc,
-      CPF: cpfVerificando,
-      generoID: req.body.genero,
+      img: etapa1.foto_perfil,
+      nome: etapa1.nome,
+      CPF: etapa1.CPF,
+      data_nasc: etapa1.data_nasc,
+      generoID: etapa1.genero,
       email,
-      fone: foneVerificando,
-      enderecoID: enderecoCriado.cod,
-      SUS: susVerificando,
-      senha: senhaCriptografada
+      fone: foneLimpo,
+      senha: senhaHash,
+      SUS: susLimpo,
+      enderecoID: novoEndereco.cod
     });
+   
+    req.session.cadastro = null;
+    req.session.sucessoCadastro = true;
 
-    res.redirect('/auth/entrada');
+  if (req.session.chefe) {
+    res.redirect('/admin/usuarios/index');
+  } else {
+    res.redirect('/auth/entrada')
+  }
 
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao cadastrar: ' + erro);
+  } catch (err) {
+    console.error('Erro ao salvar usuário:', err);
+    res.render('auth/cadastro/etapa3', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroEmail: null,
+      erroFone: null,
+      erroSUS: null,
+      erroSenha: 'Erro interno. Tente novamente mais tarde.'
+    });
   }
 };
 
-exports.renderCadastroMotorista = (req, res) => {
-  res.render('auth/cadastro-motorista', {
+exports.renderEtapa1Motorista = (req, res) => {
+  res.render('auth/cadastro-motorista/etapa1', {
     layout: 'layouts/layoutAuth',
+    preenchido: {
+      ...req.session.cadastroMotorista?.etapa1, 
+    },
     erroCPF: null,
-    erroMatricula: null,
-    erroFone: null,
-    erroEmail: null,
-    erroNumero: null,
-    erroCEP: null,
-    preenchido: req.body
+    erroData_nasc: null
   });
 };
 
-exports.cadastrarMotorista = async (req, res) => {
-  try {
-    const { numero = '', cep = '', CPF, matricula, fone, email } = req.body;
+exports.processarEtapa1Motorista = async (req, res) => {
+  const { nome, CPF, data_nasc, genero } = req.body;
 
-    const cpfVerificando = CPF.replace(/\D/g, '');
-    const matriculaVerificando = matricula.replace(/\D/g, '');
-    const foneVerificando = fone.replace(/\D/g, '');
-
-    const erros = {
-      erroCPF: null,
-      erroMatricula: null,
-      erroFone: null,
-      erroEmail: null,
-      erroNumero: null,
-      erroCEP: null
+  if (req.file) {
+    req.session.cadastroMotorista = {
+      ...req.session.cadastroMotorista,
+      etapa1: {
+        ...req.session.cadastroMotorista?.etapa1,
+        foto_perfil: req.file.filename
+      }
     };
+  }
 
-    if (!numero || numero.length > 4) erros.erroNumero = 'Número deve ter até 4 dígitos';
-    if (!cep || cep.replace(/\D/g,'').length !== 8) erros.erroCEP = 'CEP deve ter exatamente 8 dígitos';
+  const foto_perfil = req.file?.filename || req.session.cadastroMotorista?.etapa1?.foto_perfil || null;
 
-    const cpfExistente = await Motorista.findOne({ where: { CPF: cpfVerificando } });
-    const matriculaExistente = await Motorista.findOne({ where: { matricula: matriculaVerificando } });
+  const erros = {};
 
-    if (cpfExistente) erros.erroCPF = 'CPF já cadastrado.';
-    else if (cpfVerificando.length !== 11) erros.erroCPF = 'CPF inválido.';
+  const nomeLimpo = nome.trim().replace(/\s+/g, ' ');
 
-    if (matriculaExistente) erros.erroMatricula = 'Matrícula já cadastrada.';
-    else if (!/^\d{4}$/.test(matriculaVerificando)) erros.erroMatricula = 'Matrícula inválida. Deve conter exatamente 4 dígitos.';
+  const cpfLimpo = CPF.replace(/\D/g, '');
+  if (cpfLimpo.length !== 11) erros.CPF = 'CPF inválido. Verifique e tente novamente.';
 
-    if (foneVerificando.length < 11) erros.erroFone = 'Telefone inválido. Deve conter 11 dígitos.';
+  const cpfExistente = await Motorista.findOne({ where: { CPF: cpfLimpo } });
+  if (cpfExistente) erros.CPF = 'Este CPF já está cadastrado.';
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) erros.erroEmail = "E-mail inválido. Digite um e-mail válido (ex: exemplo@email.com).";
+  if (!data_nasc) erros.data_nasc = 'Data de nascimento é obrigatória.';
+  const data = new Date(data_nasc);
+  const hoje = new Date();
+  if (isNaN(data.getTime()) || data > hoje || data.getFullYear() < 1900)
+    erros.data_nasc = 'Data de nascimento inválida. Verifique e tente novamente.';
 
-    if (Object.values(erros).some(e => e)) {
-      return res.render('auth/cadastro-motorista', {
+  if (Object.keys(erros).length > 0) {
+    return res.render('auth/cadastro-motorista/etapa1', {
+      layout: 'layouts/layoutAuth',
+      preenchido: {
+        nome: nomeLimpo,
+        CPF: cpfLimpo,
+        data_nasc,
+        genero,
+        foto_perfil, 
+      },
+      erroCPF: erros.CPF || null,
+      erroData_nasc: erros.data_nasc || null
+    });
+  }
+
+  req.session.cadastroMotorista = {
+    ...req.session.cadastroMotorista,
+    etapa1: { nome: nomeLimpo, CPF: cpfLimpo, data_nasc, genero, foto_perfil }
+  };
+
+  res.redirect('/auth/cadastro-motorista/etapa2');
+};
+
+exports.renderEtapa2Motorista = (req, res) => {
+  res.render('auth/cadastro-motorista/etapa2', {
+    layout: 'layouts/layoutAuth',
+    preenchido: req.body,
+    erroCEP: null
+  });
+};
+
+exports.processarEtapa2Motorista = (req, res) => {
+  const { rua, numero, bairro, cidade, uf, cep } = req.body;
+  const erros = {};
+
+  if (!rua || !numero || !bairro || !cidade || !uf || !cep){
+    return res.render('auth/cadastro-motorista/etapa2', {
         layout: 'layouts/layoutAuth',
-        ...erros,
-        preenchido: req.body
+        preenchido: req.body,
+      });
+  };
+  
+  const cepLimpo = cep.replace(/\D/g, '');
+  if (cepLimpo.length !== 8) erros.CEP = 'CEP inválido. Verifique e tente novamente.';
+
+  if (Object.keys(erros).length > 0) {
+    return res.render('auth/cadastro-motorista/etapa2', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroCEP: erros.CEP || null
+    });
+  }
+
+  req.session.cadastroMotorista = {
+    ...req.session.cadastroMotorista,
+    etapa2: { rua, numero, bairro, cidade, uf, cep }
+  };
+
+  res.redirect('/auth/cadastro-motorista/etapa3');
+};
+
+exports.renderEtapa3Motorista = (req, res) => {
+  res.render('auth/cadastro-motorista/etapa3', {
+    layout: 'layouts/layoutAuth',
+    erroDocs: null
+  });
+};
+
+exports.processarEtapa3Motorista = async (req, res) => {
+  try {
+    const arquivos = req.files;
+
+    if (!arquivos || Object.keys(arquivos).length === 0) {
+      return res.render('auth/cadastro-motorista/etapa3', {
+        layout: 'layouts/layoutAuth',
+        erroDocs: 'Envie todos os documentos obrigatórios.'
       });
     }
 
-    const senhaCriptografada = await bcrypt.hash(req.body.senha, 10);
+    req.session.cadastroMotorista = {
+      ...req.session.cadastroMotorista,
+      etapa3: {
+        carteira_trab: arquivos?.carteira_trab?.[0]?.filename,
+        cursos: arquivos?.cursos?.[0]?.filename,
+        habilitacao: arquivos?.habilitacao?.[0]?.filename,
+        comprov_resid: arquivos?.comprov_resid?.[0]?.filename,
+        comprov_escola: arquivos?.comprov_escola?.[0]?.filename,
+        titulo_eleitor: arquivos?.titulo_eleitor?.[0]?.filename,
+        ant_crim: arquivos?.ant_crim?.[0]?.filename,
+        exame_tox: arquivos?.exame_tox?.[0]?.filename
+      }
+    };
 
-    const enderecoCriado = await Endereco.create({
-      rua: req.body.rua,
-      numero,
-      bairro: req.body.bairro,
-      cidade: req.body.cidade,
-      UF: req.body.uf,
-      CEP: cep
+    res.redirect('/auth/cadastro-motorista/etapa4');
+
+  } catch (err) {
+    console.error('Erro ao processar documentos:', err);
+    res.render('auth/cadastro-motorista/etapa3', {
+      layout: 'layouts/layoutAuth',
+      erroDocs: 'Erro ao processar documentos. Tente novamente.'
+    });
+  }
+};
+
+exports.renderEtapa4Motorista = (req, res) => {
+  res.render('auth/cadastro-motorista/etapa4', {
+    layout: 'layouts/layoutAuth',
+    preenchido: req.body,
+    erroFone: null,
+    erroEmail: null,
+    erroMatricula: null,
+    erroSenha: null
+  });
+};
+
+exports.processarEtapa4Motorista = async (req, res) => {
+  const { fone, email, matricula, senha } = req.body;
+  const erros = {};
+
+  const foneLimpo = fone.replace(/\D/g, '');
+  if (foneLimpo.length < 10 || foneLimpo.length > 11)
+    erros.fone = 'Telefone inválido. Verifique e tente novamente.';
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    erros.email = 'Email inválido. Verifique e tente novamente.';
+
+  const matriculaVerificando = matricula.replace(/\D/g, '');
+  if (!/^\d{4}$/.test(matriculaVerificando))
+    erros.matricula = 'Matrícula inválida. Deve conter 4 dígitos.';
+  const matriculaExistente = await Motorista.findOne({ where: { matricula: matriculaVerificando } });
+  if (matriculaExistente) erros.matricula = 'Esta matrícula já está cadastrada.';
+
+  const senhaValida = senha.length >= 8 &&
+                      /\d/.test(senha) &&
+                      /[!@#$%^&*(),.?":{}|<>]/.test(senha) &&
+                      /[A-Z]/.test(senha) &&
+                      /[a-z]/.test(senha);
+  if (!senhaValida) erros.senha = 'Senha inválida. Verifique e tente novamente.';
+
+  if (Object.keys(erros).length > 0) {
+    return res.render('auth/cadastro-motorista/etapa4', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroFone: erros.fone || null,
+      erroEmail: erros.email || null,
+      erroMatricula: erros.matricula || null,
+      erroSenha: erros.senha || null
+    });
+  }
+
+  const senhaHash = await bcrypt.hash(senha, 10);
+  const etapa1 = req.session.cadastroMotorista?.etapa1;
+  const etapa2 = req.session.cadastroMotorista?.etapa2;
+  const etapa3 = req.session.cadastroMotorista?.etapa3;
+
+  try {
+    const docsCriado = await Documento.create({
+      carteira_trab: etapa3.carteira_trab,
+      cursos: etapa3.cursos,
+      habilitacao: etapa3.habilitacao,
+      comprov_resid: etapa3.comprov_resid,
+      comprov_escola: etapa3.comprov_escola,
+      titulo_eleitor: etapa3.titulo_eleitor,
+      ant_crim: etapa3.ant_crim,
+      exame_tox: etapa3.exame_tox
     });
 
-    const arquivos = req.files;
-    const docsCriado = await Documento.create({
-      carteira_trab: arquivos?.carteira_trab?.[0]?.filename,
-      cursos: arquivos?.cursos?.[0]?.filename,
-      habilitacao: arquivos?.habilitacao?.[0]?.filename,
-      comprov_resid: arquivos?.comprov_resid?.[0]?.filename,
-      comprov_escola: arquivos?.comprov_escola?.[0]?.filename,
-      titulo_eleitor: arquivos?.titulo_eleitor?.[0]?.filename,
-      ant_crim: arquivos?.ant_crim?.[0]?.filename,
-      exame_tox: arquivos?.exame_tox?.[0]?.filename
+    const enderecoCriado = await Endereco.create({
+      rua: etapa2.rua,
+      numero: etapa2.numero,
+      bairro: etapa2.bairro,
+      cidade: etapa2.cidade,
+      UF: etapa2.uf,
+      CEP: etapa2.cep
     });
 
     await Motorista.create({
-      img: arquivos?.foto_perfil?.[0]?.filename || null,
-      nome: req.body.nome,
-      data_nasc: req.body.data_nasc,
-      CPF: cpfVerificando,
-      fone: foneVerificando,
+      img: etapa1.foto_perfil,
+      nome: etapa1.nome,
+      data_nasc: etapa1.data_nasc,
+      CPF: etapa1.CPF,
+      fone: foneLimpo,
       email,
-      generoID: req.body.genero,
+      generoID: etapa1.genero,
       enderecoID: enderecoCriado.cod,
       docsID: docsCriado.cod,
-      senha: senhaCriptografada,
+      senha: senhaHash,
       matricula: matriculaVerificando
     });
 
+    req.session.cadastroMotorista = null;
+    req.session.sucessoCadastroMotorista = true;
     res.redirect('/admin/motoristas/index');
 
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send('Erro ao cadastrar motorista: ' + erro);
+  } catch (err) {
+    console.error('Erro ao salvar motorista:', err);
+    res.render('auth/cadastro-motorista/etapa4', {
+      layout: 'layouts/layoutAuth',
+      preenchido: req.body,
+      erroSenha: 'Erro interno. Tente novamente mais tarde.'
+    });
   }
 };
 

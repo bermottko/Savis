@@ -1,36 +1,49 @@
 <div id="calendario"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const calendarEl = document.getElementById('calendario');
-      if (!calendarEl) return;
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendario');
+    if (!calendarEl) return;
 
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'pt-br',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'pt-br',
+     
+
+      headerToolbar: {
+        left: 'title',
+        center: '',
+        right: 'today prev,next',
+      },
+
+      buttonText: {
+        today: 'Hoje',
+        month: 'Mês',
+      },
+
+      views: {
+        dayGridMonth: {
+          titleFormat: { year: 'numeric', month: 'long' },
         },
-        buttonText: {
-            today: 'Hoje',
-            month: 'Mês',
-            week: 'Semana',
-            day: 'Dia',
-        },
-        events: '/motorista/viagens/buscar-eventos',
+      },
 
-        dateClick: function(info) {
-          const dataSelecionada = info.dateStr; // formato: 'YYYY-MM-DD'
-          // redireciona para a página de nova viagem, passando a data como parâmetro 
-          window.location.href = `/motorista/viagens/nova-viagem?data_viagem=${dataSelecionada}`;
-        },
+      events: '/motorista/viagens/buscar-eventos',
 
-      });
+      dayCellDidMount: function (info) {
+        const hoje = new Date();
+        const dataCelula = new Date(info.date);
 
-      calendar.render();
+        const hojeFormatado = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+        const celulaFormatada = new Date(dataCelula.getFullYear(), dataCelula.getMonth(), dataCelula.getDate());
+
+        if (celulaFormatada < hojeFormatado) {
+          info.el.style.opacity = '0.6';
+        }
+      },
     });
-  </script>
+
+    calendar.render();
+  });
+</script>

@@ -140,6 +140,39 @@
         background-color: #701019;
       }
 
+      
+      .botao-paginacao {
+        display: inline-block;
+        background-color: #a7c9f9;
+        color: #062352;
+        border: none;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0 4px;
+        min-width: 38px;
+        text-align: center;
+        text-decoration: none; 
+      }
+
+      .botao-paginacao:hover:not(:disabled) {
+        background-color: #7faef7;
+        color: #fff;
+        text-decoration: none; 
+      }
+
+      .botao-paginacao.ativo {
+        background-color: #062352;
+        color: #fff;
+      }
+
+      .botao-paginacao:disabled {
+        opacity: 0.5;
+      }
+
       /* ===== Inputs & Forms ===== */
       .pesquisa-custom {
         width: 400px;

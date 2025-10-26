@@ -4,89 +4,83 @@
       <h2 class="mb-4 titulo">Cadastrar Viagem</h2>
 
       <input type="hidden" name="solicitacaoID" value="<%= solicitacaoID %>">
+      <input type="hidden" name="redirectTo" value="<%= redirectTo %>">
 
-      <!-- Cidade -->
       <div class="mb-3">
         <label for="cidadeconsulID" class="form-label">Cidade</label>
-        <select id="cidadeconsulID" name="cidadeconsulID" class="form-control">
-          <option value="" disabled <%= !cidadeSelecionada ? 'selected' : '' %>>Selecione uma cidade</option>
+        <select 
+          id="cidadeconsulID" 
+          name="cidadeconsulID" 
+          class="form-control <%= !preenchido?.cidadeconsulID && erros?.campos ? 'is-invalid' : '' %>">
+          <option value="" disabled <%= !preenchido?.cidadeconsulID ? 'selected' : '' %>>Selecione uma cidade</option>
           <% cidadeconsul.forEach(cidade => { %>
-            <option value="<%= cidade.cod %>" <%= cidadeSelecionada == cidade.cod ? 'selected' : '' %>><%= cidade.descricao %></option>
+            <option value="<%= cidade.cod %>" <%= preenchido?.cidadeconsulID == cidade.cod ? 'selected' : '' %>>
+              <%= cidade.descricao %>
+            </option>
           <% }) %>
         </select>
-        <div class="text-danger small" id="erroCidade"></div>
       </div>
 
-      <!-- Data da Viagem -->
       <div class="mb-3">
         <label for="data_viagem" class="form-label">Data da Viagem</label>
-        <input type="date" id="data_viagem" name="data_viagem" class="form-control" value="<%= dataSelecionada %>">
-        <div class="text-danger small" id="erroData"></div>
+        <input 
+          type="date" 
+          id="data_viagem" 
+          name="data_viagem" 
+          class="form-control <%= (!preenchido?.data_viagem && erros?.campos) || erros?.data ? 'is-invalid' : '' %>" 
+          value="<%= preenchido?.data_viagem || '' %>">
+
+        <% if (erros?.data) { %>
+          <div class="invalid-feedback d-block">
+            <%= erros.data %>
+          </div>
+        <% } %>
       </div>
 
-      <!-- Horário de Saída -->
       <div class="mb-3">
         <label for="horario_saida" class="form-label">Horário de Saída</label>
-        <input type="time" id="horario_saida" name="horario_saida" class="form-control">
-        <div class="text-danger small" id="erroHorario"></div>
+        <input 
+          type="time" 
+          id="horario_saida" 
+          name="horario_saida" 
+          class="form-control <%= !preenchido?.horario_saida && erros?.campos ? 'is-invalid' : '' %>" 
+          value="<%= preenchido?.horario_saida || '' %>">
       </div>
 
-      <!-- Veículo -->
       <div class="mb-3">
         <label for="veiculoID" class="form-label">Veículo</label>
-        <select id="veiculoID" name="veiculoID" class="form-control">
-          <option value="" disabled selected>Selecione um Veículo</option>
+        <select 
+          id="veiculoID" 
+          name="veiculoID" 
+          class="form-control <%= !preenchido?.veiculoID && erros?.campos ? 'is-invalid' : '' %>">
+          <option value="" disabled <%= !preenchido?.veiculoID ? 'selected' : '' %>>Selecione um Veículo</option>
           <% veiculos.forEach(veiculo => { %>
-            <option value="<%= veiculo.cod %>"><%= veiculo.modelo_veiculo %></option>
+            <option value="<%= veiculo.cod %>" <%= preenchido?.veiculoID == veiculo.cod ? 'selected' : '' %>>
+              <%= veiculo.modelo_veiculo %>
+            </option>
           <% }) %>
         </select>
-        <div class="text-danger small" id="erroVeiculo"></div>
       </div>
 
-      <!-- Motorista -->
       <div class="mb-3">
         <label for="motoristaID" class="form-label">Motorista</label>
-        <select id="motoristaID" name="motoristaID" class="form-control">
-          <option value="" disabled selected>Selecione um Motorista</option>
+        <select 
+          id="motoristaID" 
+          name="motoristaID" 
+          class="form-control <%= !preenchido?.motoristaID && erros?.campos ? 'is-invalid' : '' %>">
+          <option value="" disabled <%= !preenchido?.motoristaID ? 'selected' : '' %>>Selecione um Motorista</option>
           <% motoristas.forEach(motorista => { %>
-            <option value="<%= motorista.cod %>"><%= motorista.nome %></option>
+            <option value="<%= motorista.cod %>" <%= preenchido?.motoristaID == motorista.cod ? 'selected' : '' %>>
+              <%= motorista.nome %>
+            </option>
           <% }) %>
         </select>
-        <div class="text-danger small" id="erroMotorista"></div>
       </div>
 
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between mt-4">
         <button type="button" class="botao" onclick="history.back()">Cancelar</button>
         <button type="submit" class="botao">Cadastrar</button>
       </div>
     </form>
   </div>
 </div>
-
-<script>
-  function validarNovaViagem(e) {
-    e.preventDefault();
-    let erros = false;
-    let primeiroErro = null;
-
-    // limpa erros
-    ["erroCidade","erroData","erroHorario","erroVeiculo","erroMotorista"].forEach(id => document.getElementById(id).innerText="");
-
-    const cidade = document.getElementById("cidadeconsulID");
-    const data = document.getElementById("data_viagem");
-    const horario = document.getElementById("horario_saida");
-    const veiculo = document.getElementById("veiculoID");
-    const motorista = document.getElementById("motoristaID");
-
-    if(!cidade.value){ document.getElementById("erroCidade").innerText="Selecione uma cidade."; erros=true; primeiroErro=primeiroErro||cidade; }
-    if(!data.value){ document.getElementById("erroData").innerText="Informe a data da viagem."; erros=true; primeiroErro=primeiroErro||data; }
-    if(!horario.value){ document.getElementById("erroHorario").innerText="Informe o horário de saída."; erros=true; primeiroErro=primeiroErro||horario; }
-    if(!veiculo.value){ document.getElementById("erroVeiculo").innerText="Selecione um veículo."; erros=true; primeiroErro=primeiroErro||veiculo; }
-    if(!motorista.value){ document.getElementById("erroMotorista").innerText="Selecione um motorista."; erros=true; primeiroErro=primeiroErro||motorista; }
-
-    if(erros) primeiroErro.focus();
-    else e.target.submit();
-  }
-
-  document.getElementById("formNovaViagem").addEventListener("submit", validarNovaViagem);
-</script>

@@ -158,6 +158,39 @@
         font-size: 14px;
       }
 
+          
+      .botao-paginacao {
+        display: inline-block;
+        background-color: #a7c9f9;
+        color: #062352;
+        border: none;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0 4px;
+        min-width: 38px;
+        text-align: center;
+        text-decoration: none; 
+      }
+
+      .botao-paginacao:hover:not(:disabled) {
+        background-color: #7faef7;
+        color: #fff;
+        text-decoration: none; 
+      }
+
+      .botao-paginacao.ativo {
+        background-color: #062352;
+        color: #fff;
+      }
+
+      .botao-paginacao:disabled {
+        opacity: 0.5;
+      }
+
       .pesquisa-custom {
         width: 400px;
         border: 1px solid #a2c3f2;
@@ -167,6 +200,12 @@
 
       .pesquisa-custom::placeholder {
         text-transform: none;
+      }
+
+      input[type="date"] {
+        display: inline-block; 
+        padding-right: 1rem; 
+        box-sizing: border-box; 
       }
 
       .foto-perfil {
@@ -213,6 +252,18 @@
       .espaco-card-edit {
         padding-top: 50px;
         padding-bottom: 70px;
+      }
+      .card-viagem {
+        width: 100%;
+        max-width: 720px;
+        background-color: #d1e3fd; 
+      }
+      .card-viagem.status-concluida {
+        background-color: rgb(214, 235, 195); 
+      }
+
+      .card-viagem.status-cancelada {
+        background-color: rgb(224, 187, 183); 
       }
 
       .footer-custom {
@@ -367,9 +418,6 @@
         justify-content: center;
       }
 
-  #paginacaoContainer {
-    margin-top: 25px;
-  }
 
   .botao-paginacao {
     background-color: #a7c9f9;
@@ -399,13 +447,6 @@
   .botao-paginacao:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  #paginacaoWrapper {
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
   }
 
     </style>

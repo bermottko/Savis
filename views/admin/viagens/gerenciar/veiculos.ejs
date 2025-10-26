@@ -1,0 +1,78 @@
+<div class="container mt-4">
+  <h1 class="mb-4 text-center">Veículos</h1>
+
+  <div class="table-responsive mx-auto" style="max-width: 700px;">
+    <table class="table table-bordered text-center align-middle shadow-sm" style="border-radius: 10px; overflow: hidden;">
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Placa</th>
+          <th>Lugares</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <form action="/admin/viagens/gerenciar/veiculos/adicionar" method="POST">
+            <td>
+              <input 
+                type="text" 
+                name="modelo_veiculo" 
+                class="form-control text-center input-transparente" 
+                required
+              >
+            </td>
+            <td>
+              <input 
+                type="text" 
+                name="placa" 
+                class="form-control text-center input-transparente" 
+                required
+              >
+            </td>
+            <td>
+              <input 
+                type="number" 
+                name="lugares_dispo" 
+                class="form-control text-center input-transparente" 
+                min="1"
+                required
+              >
+            </td>
+            <td>
+              <button type="submit" class="botao">Adicionar</button>
+            </td>
+          </form>
+        </tr>
+
+        <!-- 🔹 Lista de veículos já cadastrados -->
+        <% if (veiculos.length === 0) { %>
+          <tr>
+            <td colspan="4" class="text-muted">Nenhum veículo cadastrado.</td>
+          </tr>
+        <% } else { %>
+          <% veiculos.forEach(function(veiculo) { %>
+            <tr>
+              <td><%= veiculo.modelo_veiculo %></td>
+              <td><%= veiculo.placa %></td>
+              <td><%= veiculo.lugares_dispo %></td>
+              <td>
+                <form 
+                  action="/admin/viagens/gerenciar/veiculos/excluir/<%= veiculo.cod %>?_method=DELETE"
+                  method="POST"
+                >
+                  <button type="submit" class="botao bg-vermelho">Excluir</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+     <div class="d-flex justify-content-start mx-auto" style="max-width: 700px;">
+        <a href="#" onclick="window.history.back(); return false;" class="botao">Voltar</a>
+    </div>
+</div>
+

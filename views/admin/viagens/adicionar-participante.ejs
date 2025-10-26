@@ -2,10 +2,16 @@
   <h1>Selecione um usuário para vincular à viagem</h1>
 
   <div class="d-flex justify-content-center align-items-center mb-4" style="gap: 10px;">
-    <input type="search" 
-           id="pesquisa" 
-           placeholder="Pesquisar usuário por nome ou CPF" 
-           class="form-control pesquisa-custom">
+    <form action="/admin/viagens/adicionar-participante/<%= cod %>" method="GET" class="d-flex align-items-center" style="gap: 10px;">
+    <input
+      type="search"
+      name="q"
+      value="<%= termoPesquisa %>"
+      placeholder="Pesquisar usuário por nome ou CPF"
+      class="form-control pesquisa-custom"
+    />
+  </form>
+
     <button id="btnVincular" class="botao-cadastro" disabled>Vincular</button>
   </div>
 
@@ -24,10 +30,6 @@
             <div class="flex-grow-1">
               <h5 class="nome-perfil mb-0"><%= post.nome %></h5>
             </div>
-
-            <!-- RADIO BUTTON PARA SELEÇÃO -->
-            <!-- RADIO BUTTON PARA SELEÇÃO -->
-<!-- <input type="radio" name="usuarioSelecionado" class="usuario-radio me-3" value="<%= post.cod %>"> -->
 
             <button class="botao ver-mais-btn" type="button">Ver mais</button>
           </div>
@@ -59,34 +61,55 @@
         </div>
       </div>
     <% }) %>
+  
+    <% if (posts.length === 0) { %>
+      <p class="text-center text-muted mt-4">Nenhum usuário encontrado.</p>
+    <% } else { %>
+  
+      <div class="d-flex justify-content-between align-items-center mt-4" style="max-width: 700px; margin: 0 auto;">
+  
+  <!-- BOTÃO VOLTAR -->
+  <a href="#" onclick="window.history.back(); return false;" class="botao">
+    Voltar
+  </a>
+
+  <!-- PAGINAÇÃO -->
+  <div class="d-flex justify-content-center align-items-center" style="flex-grow: 1; gap: 6px;">
+    <% if (paginaNun > 1) { %>
+      <a href="?page=<%= paginaNun - 1 %>&q=<%= termoPesquisa %>" class="botao-paginacao">‹</a>
+    <% } else { %>
+      <button class="botao-paginacao" disabled>‹</button>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPaginas; i++) { %>
+      <a href="?page=<%= i %>&q=<%= termoPesquisa %>" class="botao-paginacao <%= i === paginaNun ? 'ativo' : '' %>">
+        <%= i %>
+      </a>
+    <% } %>
+
+    <% if (paginaNun < totalPaginas) { %>
+      <a href="?page=<%= paginaNun + 1 %>&q=<%= termoPesquisa %>" class="botao-paginacao">›</a>
+    <% } else { %>
+      <button class="botao-paginacao" disabled>›</button>
+    <% } %>
+  </div>
+
+  <!-- Espaço vazio à direita para equilibrar -->
+  <div style="width: 70px;"></div>
+
+</div>
+
+
+
+    <% } %>
   </div>
 </div>
 <script>
-const inputPesquisa = document.getElementById('pesquisa');
-const row = document.getElementById('row-usuarios');
+
 const cards = Array.from(document.querySelectorAll('.card-selecao'));
 const btnVincular = document.getElementById('btnVincular');
 
 let usuarioSelecionado = null;
-
-// Armazena o index original para reordenar
-cards.forEach((card, index) => card.setAttribute('data-original-index', index));
-
-// Pesquisa
-inputPesquisa.addEventListener('input', function () {
-  const termo = this.value.trim().toLowerCase();
-
-  cards.forEach(card => {
-    const nome = card.querySelector('.nome-perfil').textContent.toLowerCase();
-    const cpf = card.querySelector('.cpf-perfil').textContent.replace(/[.\-]/g, '');
-
-    if (nome.includes(termo) || cpf.includes(termo)) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-});
 
 // Ver mais / ver menos
 document.querySelectorAll('.ver-mais-btn').forEach(btn => {

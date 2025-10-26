@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const authController = require('../controllers/authController');
 
-// Configuração do Multer
+// configuração do Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'public/uploads/'),
     filename: (req, file, cb) => {
@@ -15,18 +15,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Rotas
 router.get('/entrada', authController.renderEntrada);
 router.post('/verificarUsuario', authController.verificarUsuario); 
 
-router.get('/cadastro', authController.renderCadastro);
-router.post('/add-usuario', upload.single('foto_perfil'), authController.cadastrarUsuario);
+router.get('/cadastro/etapa1', authController.renderEtapa1Usuario);
+router.post('/cadastro/etapa1/processar', upload.single('foto_perfil'), authController.processarEtapa1Usuario);
 
-router.get('/cadastro-motorista', authController.renderCadastroMotorista);
+router.get('/cadastro/etapa2', authController.renderEtapa2Usuario);
+router.post('/cadastro/etapa2/processar', authController.processarEtapa2Usuario);
+
+router.get('/cadastro/etapa3', authController.renderEtapa3Usuario);
+router.post('/cadastro/etapa3/processar', authController.processarEtapa3Usuario);
+
+router.get('/cadastro-motorista/etapa1', authController.renderEtapa1Motorista);
+router.post('/cadastro-motorista/etapa1/processar', upload.single('foto_perfil'), authController.processarEtapa1Motorista);
+
+router.get('/cadastro-motorista/etapa2', authController.renderEtapa2Motorista);
+router.post('/cadastro-motorista/etapa2/processar', authController.processarEtapa2Motorista);
+
+router.get('/cadastro-motorista/etapa3', authController.renderEtapa3Motorista);
 router.post(
-  '/add-motorista',
+  '/cadastro-motorista/etapa3/processar',
   upload.fields([
-    { name: 'foto_perfil', maxCount: 1 },
     { name: 'carteira_trab', maxCount: 1 },
     { name: 'cursos', maxCount: 1 },
     { name: 'habilitacao', maxCount: 1 },
@@ -34,10 +44,14 @@ router.post(
     { name: 'comprov_escola', maxCount: 1 },
     { name: 'titulo_eleitor', maxCount: 1 },
     { name: 'ant_crim', maxCount: 1 },
-    { name: 'exame_tox', maxCount: 1 },
+    { name: 'exame_tox', maxCount: 1 }
   ]),
-  authController.cadastrarMotorista
+  authController.processarEtapa3Motorista
 );
+
+
+router.get('/cadastro-motorista/etapa4', authController.renderEtapa4Motorista);
+router.post('/cadastro-motorista/etapa4/processar', authController.processarEtapa4Motorista);
 
 router.get('/sair', authController.logout);
 

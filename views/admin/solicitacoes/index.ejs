@@ -65,6 +65,28 @@
       </div>
     <% }) %>
   </div>
+  <div class="d-flex justify-content-center align-items-center" style="flex-grow: 1; gap: 6px;">
+  <% if (paginaNun > 1) { %>
+    <a href="?page=<%= paginaNun - 1 %>" class="botao-paginacao">‹</a>
+  <% } else { %>
+    <button class="botao-paginacao" disabled>‹</button>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPaginas; i++) { %>
+    <a href="?page=<%= i %>" class="botao-paginacao <%= i === paginaNun ? 'ativo' : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <% if (paginaNun < totalPaginas) { %>
+    <a href="?page=<%= paginaNun + 1 %>" class="botao-paginacao">›</a>
+  <% } else { %>
+    <button class="botao-paginacao" disabled>›</button>
+  <% } %>
+</div>
  <% } else { %>
-    <p class="text-center mt-4">Não há solicitações de viagem no momento.</p>
+    <p class="text-center text-muted mt-4">Não há solicitações de viagem no momento.</p>
 <% } %>
+
+
+

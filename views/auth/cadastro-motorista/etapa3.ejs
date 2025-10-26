@@ -1,0 +1,32 @@
+<div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;"> 
+  <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
+    <form action="/auth/cadastro-motorista/etapa3/processar" method="POST" enctype="multipart/form-data">
+      <h6 style="color:#909090">Documentos</h6>
+
+      <% const documentos = [
+        { id: 'carteira_trab', nome: 'Carteira de Trabalho' },
+        { id: 'cursos', nome: 'Cursos' },
+        { id: 'habilitacao', nome: 'Habilitação' },
+        { id: 'comprov_resid', nome: 'Comprovante de Residência' },
+        { id: 'comprov_escola', nome: 'Comprovante Escolar' },
+        { id: 'titulo_eleitor', nome: 'Título de Eleitor' },
+        { id: 'ant_crim', nome: 'Antecedentes Criminais' },
+        { id: 'exame_tox', nome: 'Exame Toxicológico' }
+      ]; %>
+
+      <% documentos.forEach(doc => { %>
+        <div class="mb-3">
+          <label for="<%= doc.id %>" class="form-label"><%= doc.nome %></label>
+          <input type="file" id="<%= doc.id %>" name="<%= doc.id %>" accept="application/pdf" required class="form-control" />
+        </div>
+      <% }) %>
+
+      <% if (erroDocs) { %><div class="alert alert-danger text-center"><%= erroDocs %></div><% } %>
+
+      <div class="d-flex justify-content-between">
+        <a href="/auth/cadastro-motorista/etapa2" class="botao-cadastro">Voltar</a>
+        <button type="submit" class="botao-cadastro">Próximo</button>
+      </div>
+    </form>
+  </div>
+</div>

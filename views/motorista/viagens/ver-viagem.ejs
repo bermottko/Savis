@@ -1,6 +1,7 @@
 <div class="col-12 d-flex justify-content-center espaco-card-edit">
-  <div class="card p-3 shadow-sm mt-2 card-viagem" style="width: 100%; max-width: 720px; background-color: #d1e3fd;">
-    
+    <div  class="card p-3 shadow-sm mt-2 card-viagem 
+    <% if (viagem.status.cod == 2) { %> status-cancelada <% } %>
+    <% if (viagem.status.cod == 3) { %> status-concluida <% } %> " >
     <h2 class="mb-4 titulo">
       <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %>
     </h2>

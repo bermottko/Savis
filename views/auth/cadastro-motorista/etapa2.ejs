@@ -1,0 +1,97 @@
+<div class="d-flex justify-content-center align-items-start pt-5 pb-5" style="min-height: 100vh;">
+  <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
+    <form action="/auth/cadastro-motorista/etapa2/processar" method="POST">
+
+        <h6 style="color:#909090">Endereço</h6>
+
+            <div class="mb-3">
+                <label for="rua" class="form-label">Rua</label>
+                <input type="text" id="rua" name="rua" required class="form-control"
+                placeholder="Digite a rua da residência" value="<%= preenchido?.rua || '' %>" />
+            </div>
+
+            <div class="mb-3">
+                <label for="numero" class="form-label">Número</label>
+                <input type="text" id="numero" name="numero" maxlength="6"
+                class="form-control"
+                placeholder="Digite o número da residência"
+                value="<%= preenchido?.numero || '' %>" />
+            </div>
+
+            <div class="mb-3">
+                <label for="bairro" class="form-label">Bairro</label>
+                <input type="text" id="bairro" name="bairro" required class="form-control"
+                placeholder="Digite o bairro da residência" value="<%= preenchido?.bairro || '' %>" />
+            </div>
+
+            <div class="mb-3">
+                <label for="cidade" class="form-label">Cidade</label>
+                <input type="text" id="cidade" name="cidade" required class="form-control"
+                placeholder="Digite a cidade da residência" value="<%= preenchido?.cidade || '' %>" />
+            </div>
+
+            <div class="mb-3">
+                <label for="uf" class="form-label">Estado (UF)</label>
+                <select id="uf" name="uf" required class="form-select">
+                <option value="" disabled <%= !preenchido?.uf ? 'selected' : '' %>>Não selecionado</option>
+                <% const estados = ['SC','PR','RS','SP','RJ','MG','ES','DF','GO','MT','MS','AL','BA','CE','MA','PB','PE','PI','RN','SE','AC','AP','AM','PA','RO','RR','TO']; %>
+                <% estados.forEach(estado => { %>
+                    <option value="<%= estado %>" <%= preenchido?.uf === estado ? 'selected' : '' %>><%= estado %></option>
+                <% }); %>
+                </select>
+            </div>
+
+            <div class="mb-3">
+            <label for="cep" class="form-label">CEP</label>
+            <input type="text" id="cep" name="cep" required
+                class="form-control <% if (erroCEP) { %>is-invalid<% } %>"
+                placeholder="Digite o CEP da residência"
+                value="<%= preenchido?.cep || '' %>" />
+            <% if (erroCEP) { %>
+                <div class="invalid-feedback"><%= erroCEP %></div>
+            <% } %>
+            </div>
+
+             <div class="d-flex justify-content-between">
+                 <a href="/auth/cadastro-motorista/etapa1" class="botao-cadastro">Voltar</a>
+                <button type="submit" class="botao-cadastro">Próximo</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+
+  const cepInput = document.getElementById('cep');
+
+  cepInput.addEventListener('input', function () {
+    let valor = this.value.replace(/\D/g, ''); 
+
+    if (valor.length > 8) valor = valor.slice(0, 8); 
+
+    valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+
+    this.value = valor;
+  });
+
+  cepInput.addEventListener('keypress', function (e) {
+    if (!/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  const apenasLetras = ['rua', 'bairro', 'cidade'];
+
+  apenasLetras.forEach((campoId) => {
+    const campo = document.getElementById(campoId);
+    campo.addEventListener('input', function () {
+      this.value = this.value.replace(/[^A-Za-zÀ-ÿ\s]/g, '');
+    });
+  });
+
+  const numeroInput = document.getElementById('numero');
+  numeroInput.addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '');
+  });
+
+</script>

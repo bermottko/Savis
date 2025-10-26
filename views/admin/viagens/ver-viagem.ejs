@@ -6,7 +6,6 @@
       <%= viagem.cidadeconsul.descricao %> - <%= viagem.data_viagem.split('-').reverse().join('/') %>
     </h2>
 
-    <!-- CONTEÚDO PADRÃO -->
     <div class="conteudo-principal">
       <p><strong>Horário de saída:</strong> <%= viagem.horario_saida.substring(0,5) %></p>
       <hr>
@@ -14,7 +13,7 @@
       <hr>
       <p><strong>Placa:</strong> <%= viagem.veiculo.placa %></p>
       <hr>
-      <p><strong>Lugares disponíveis:</strong> <%= viagem.veiculo.lugares_dispo %></p>
+      <p><strong>Ocupação:</strong> <%= ocupacao %></p>
       <hr>
       <p><strong>Motorista:</strong> <%= viagem.Motorista.nome %></p>
       <hr>

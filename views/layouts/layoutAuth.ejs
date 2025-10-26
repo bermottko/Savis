@@ -69,19 +69,25 @@
         margin-top: 65px;
       }
 
-      .botao {
-        background-color: #00204c;
-        color: white;
-        padding: 8px 25px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: bold;
-        border: none;
-      }
+    .botao {
+  background-color: #00204c;
+  color: white;
+  padding: 8px 25px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
 
-      .botao:hover {
-        background-color: #001129;
-      }
+  display: inline-block; /* faz o botão se ajustar ao conteúdo */
+  white-space: nowrap;   /* impede que o texto quebre em várias linhas */
+  max-width: 100%;       /* garante que não ultrapasse a largura do container */
+  box-sizing: border-box; /* inclui padding na largura total */
+  text-align: center;     /* centraliza o texto se o botão tiver largura maior */
+}
+
+.botao:hover {
+  background-color: #001129;
+}
       /*CADASTRO*/
       .botao-cadastro {
         background-color: #00204c;

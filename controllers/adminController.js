@@ -12,6 +12,7 @@ const {
   Acompanhante,
   Participante,
   Veiculo,
+  
 } = require("../models");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
@@ -63,48 +64,48 @@ exports.renderPerfil = async (req, res) => {
   }
 };
 
-exports.editarPerfil = async (req, res) => {
-    const chefeID = req.session.chefe.cod;
-    await Chefe.update(
-      {
-        nome: req.body.nome,
-        matricula: req.bodymatricula
-      },
-      { where: { cod: chefeID } }
-    );
-};
-
 exports.renderUsuarios = async (req, res) => {
   try {
-    const posts = await Usuario.findAll({
-      include: [{ model: Endereco }, { model: Genero }],
-    });
-    posts.sort((a, b) => b.cod - a.cod);
-    res.render("admin/usuarios/index", {
-      posts,
-      layout: "layouts/layoutAdmin",
-      paginaAtual: "usuarios",
-    });
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send("Erro ao buscar usuários: " + erro);
-  }
-};
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
-exports.buscarUsuarios = async (req, res) => {
-  try {
-    const termo = req.query.q || "";
-    const usuarios = await Usuario.findAll({
-      where: {
-        nome: {
-          [Op.like]: `%${termo}%`,
-        },
-      },
+    const termo = req.query.q ? req.query.q.trim() : '';
+
+    const whereCondition = termo
+      ? {
+          [Sequelize.Op.or]: [
+            { nome: { [Sequelize.Op.like]: `%${termo}%` } },
+            { CPF: { [Sequelize.Op.like]: `%${termo}%` } },
+          ],
+        }
+      : {};
+
+    const { count, rows } = await Usuario.findAndCountAll({
+      where: whereCondition,
+      include: [{ model: Endereco }, { model: Genero }],
+      order: [['cod', 'DESC']],
+      limit,
+      offset,
     });
-    res.json(usuarios);
+
+    const totalPaginas = Math.ceil(count / limit);
+
+    const sucesso = req.session.sucessoCadastro;
+    delete req.session.sucessoCadastro; 
+
+    res.render('admin/usuarios/index', {
+      posts: rows,
+      totalPaginas,
+      paginaNun: page,
+      termoPesquisa: termo,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'usuarios',
+      sucesso
+    });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar usuários" });
+    res.status(500).send('Erro ao buscar usuários: ' + erro);
   }
 };
 
@@ -159,33 +160,27 @@ exports.salvarEdicaoUsuario = async (req, res) => {
     let erros = {};
     let preenchido = req.body;
 
-    // Validação CPF
     if (!CPF || CPF.replace(/\D/g, "").length !== 11) {
       erros.erroCPF = "CPF inválido. Deve conter 11 dígitos.";
     }
 
-    // Validação Telefone
     if (!fone || fone.replace(/\D/g, "").length !== 11) {
       erros.erroFone = "Telefone inválido. Deve conter 11 dígitos.";
     }
 
-    // Validação CEP
     if (!cep || cep.replace(/\D/g, "").length !== 8) {
       erros.erroCEP = "CEP inválido. Deve conter 8 dígitos.";
     }
 
-    // Validação Email
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !regexEmail.test(email)) {
       erros.erroEmail = "Digite um email válido.";
     }
 
-    // Validação SUS (mínimo e máximo 15 dígitos)
     if (!SUS || SUS.replace(/\D/g, "").length !== 15) {
       erros.erroSUS = "Número do SUS inválido. Deve conter 15 dígitos.";
     }
 
-    // Se houver erros, renderiza de volta com mensagens
     if (Object.keys(erros).length > 0) {
       return res.render("admin/usuarios/editar", {
         usuario,
@@ -196,7 +191,6 @@ exports.salvarEdicaoUsuario = async (req, res) => {
       });
     }
 
-    // Atualiza endereço
     await Endereco.update(
       {
         rua: req.body.rua,
@@ -209,7 +203,6 @@ exports.salvarEdicaoUsuario = async (req, res) => {
       { where: { cod: usuario.enderecoID } }
     );
 
-    // Atualiza dados do usuário
     const fotoPerfil = req.file ? req.file.filename : usuario.img;
 
     await Usuario.update(
@@ -235,36 +228,46 @@ exports.salvarEdicaoUsuario = async (req, res) => {
 
 exports.renderMotoristas = async (req, res) => {
   try {
-    const motoristas = await Motorista.findAll({
-      include: [{ model: Endereco }, { model: Genero }, { model: Documento }],
-    });
-    motoristas.sort((a, b) => b.cod - a.cod);
-    res.render("admin/motoristas/index", {
-      posts: motoristas,
-      layout: "layouts/layoutAdmin",
-      paginaAtual: "motoristas",
-    });
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).send("Erro ao buscar motoristas: " + erro);
-  }
-};
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
-exports.buscarMotoristas = async (req, res) => {
-  try {
-    const termo = req.query.q || "";
-    const motoristas = await Motorista.findAll({
-      where: {
-        nome: {
-          [Op.like]: `%${termo}%`,
-        },
-      },
-      include: [{ model: Endereco }, { model: Genero }],
+    const termo = req.query.q ? req.query.q.trim() : '';
+
+    const whereCondition = termo
+      ? {
+          [Op.or]: [
+            { nome: { [Op.like]: `%${termo}%` } },
+            { CPF: { [Op.like]: `%${termo}%` } },
+          ],
+        }
+      : {};
+
+    const { count, rows } = await Motorista.findAndCountAll({
+      where: whereCondition,
+      include: [{ model: Endereco }, { model: Genero }, { model: Documento }],
+      order: [['cod', 'DESC']],
+      limit,
+      offset,
     });
-    res.json(motoristas);
+
+    const totalPaginas = Math.ceil(count / limit);
+
+    const sucesso = req.session.sucessoCadastroMotorista;
+    delete req.session.sucessoCadastroMotorista; 
+
+    res.render('admin/motoristas/index', {
+      posts: rows,
+      totalPaginas,
+      paginaNun: page, 
+      termoPesquisa: termo,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'motoristas',
+      sucesso
+    });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar motoristas" });
+    res.status(500).send('Erro ao buscar motoristas: ' + erro);
   }
 };
 
@@ -425,35 +428,6 @@ exports.salvarEdicaoMotorista = async (req, res) => {
   }
 };
 
-exports.buscarViagens = async (req, res) => {
-  try {
-    const { cidade, data } = req.query;
-    let where = {};
-
-    if (cidade) {
-      where["$cidadeconsul.descricao$"] = { [Op.like]: `%${cidade}%` };
-    }
-    if (data) {
-      where.data_viagem = { [Op.eq]: data };
-    }
-
-    const viagens = await Viagem.findAll({
-      where,
-      include: [
-        { model: Motorista, as: "Motorista" },
-        { model: Status, as: "status" },
-        { model: CidadeConsul, as: "cidadeconsul" },
-        { model: Veiculo, as: "veiculo" },
-      ],
-    });
-
-    res.json(viagens);
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar viagens" });
-  }
-};
-
 exports.renderViagens = async (req, res) => {
   await removerViagensCanceladasPassadas();
   res.render("admin/viagens/index", {
@@ -508,14 +482,18 @@ exports.renderBuscarEventos = async (req, res) => {
 
 exports.renderNovaViagem = async (req, res) => {
   try {
+    const redirectTo = req.get('Referer');
     const cidadeconsul = await CidadeConsul.findAll();
     const motoristas = await Motorista.findAll();
     const veiculos = await Veiculo.findAll();
-
+    
     const dataSelecionada = req.query.data_viagem || "";
     const cidadeSelecionada = req.query.cidade_consul || "";
     const solicitacaoID = req.query.solicitacaoID || null;
-
+    const preenchido = {
+      data_viagem: dataSelecionada,
+      cidadeconsulID: cidadeSelecionada
+    };
     res.render("admin/viagens/nova-viagem", {
       layout: "layouts/layoutAdmin",
       paginaAtual: "viagens",
@@ -523,8 +501,11 @@ exports.renderNovaViagem = async (req, res) => {
       motoristas,
       cidadeconsul,
       dataSelecionada,
-      cidadeSelecionada: cidadeSelecionada || "",
+      cidadeSelecionada,
       solicitacaoID,
+      redirectTo,
+      erros: {}, 
+      preenchido
     });
   } catch (erro) {
     console.error(erro);
@@ -534,31 +515,22 @@ exports.renderNovaViagem = async (req, res) => {
 
 exports.renderCadastrarViagem = async (req, res) => {
   try {
-    const {
-      solicitacaoID,
-      cidadeconsulID,
-      data_viagem,
-      horario_saida,
-      veiculoID,
-      motoristaID,
-    } = req.body;
+    const { solicitacaoID, cidadeconsulID, data_viagem, horario_saida, veiculoID, motoristaID, redirectTo } = req.body;
 
-    let erros = [];
-    if (!cidadeconsulID)
-      erros.push({ campo: "cidadeconsulID", msg: "Selecione uma cidade." });
-    if (!data_viagem)
-      erros.push({ campo: "data_viagem", msg: "Informe a data da viagem." });
-    if (!horario_saida)
-      erros.push({
-        campo: "horario_saida",
-        msg: "Informe o horário de saída.",
-      });
-    if (!veiculoID)
-      erros.push({ campo: "veiculoID", msg: "Selecione um veículo." });
-    if (!motoristaID)
-      erros.push({ campo: "motoristaID", msg: "Selecione um motorista." });
+    const erros = {};
+    const preenchido = { cidadeconsulID, data_viagem, horario_saida, veiculoID, motoristaID };
 
-    if (erros.length > 0) {
+    if (!cidadeconsulID || !data_viagem || !horario_saida || !veiculoID || !motoristaID) {
+      erros.campos = "Preencha todos os campos.";
+    }
+
+    if (data_viagem) {
+      const hoje = new Date();
+      const dataViagem = new Date(data_viagem + "T00:00");
+      if (dataViagem <= hoje) erros.data = "A viagem deve ser marcada para uma data futura.";
+    }
+
+    if (Object.keys(erros).length > 0) {
       const cidadeconsul = await CidadeConsul.findAll();
       const motoristas = await Motorista.findAll();
       const veiculos = await Veiculo.findAll();
@@ -572,11 +544,12 @@ exports.renderCadastrarViagem = async (req, res) => {
         dataSelecionada: data_viagem,
         cidadeSelecionada: cidadeconsulID,
         solicitacaoID,
+        redirectTo,
         erros,
+        preenchido
       });
     }
 
-    // se passou nas validações → cria a viagem
     const novaViagem = await Viagem.create({
       cidadeconsulID,
       data_viagem,
@@ -617,7 +590,7 @@ exports.renderCadastrarViagem = async (req, res) => {
       }
     }
 
-    res.redirect("/admin/viagens/index");
+    res.redirect(redirectTo || '/admin/viagens/index');
   } catch (erro) {
     console.error("Erro ao cadastrar viagem:", erro);
     res.status(500).send("Erro ao cadastrar viagem: " + erro);
@@ -633,10 +606,22 @@ exports.renderVerViagem = async (req, res) => {
       { model: Status },
       { model: CidadeConsul },
       { model: Veiculo, as: "veiculo" },
+      { model: Participante, as: "participantes" } // precisa incluir
     ],
   });
 
+  let ocupacao = 0;
+if (viagem && viagem.participantes) {
+  const qtdParticipantes = viagem.participantes.length;
+  const qtdAcompanhantes = viagem.participantes.reduce(
+    (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
+    0
+  );
+  ocupacao = qtdParticipantes + qtdAcompanhantes;
+}
+
   res.render("admin/viagens/ver-viagem", {
+    ocupacao,
     viagem,
     layout: "layouts/layoutAdmin",
     paginaAtual: "viagens",
@@ -729,52 +714,32 @@ exports.verParticipantes = async (req, res) => {
   try {
     const cod = req.params.cod;
 
-    const viagem = await Viagem.findOne({
-      where: { cod },
+    const viagem = await Viagem.findByPk(cod, { include: [{ model: Veiculo, as: 'veiculo' }] });
+    if (!viagem) return res.status(404).send('Viagem não encontrada');
+
+    const participantes = await Participante.findAll({
+      where: { viagemId: cod },
       include: [
-        { model: Veiculo,
-          as: "veiculo"
-        },
-        {
-          model: Participante,
-          as: "participantes",
-          include: [
-            {
-              model: Usuario,
-              include: [{ model: Genero }, { model: Endereco }],
-            },
-            {
-              model: Acompanhante,
-              include: [{ model: Genero }],
-              as: "acompanhante",
-            },
-          ],
-        },
+        { model: Usuario, include: [{ model: Genero }, { model: Endereco }] },
+        { model: Acompanhante, as: 'acompanhante', include: [{ model: Genero }] }
       ],
+      order: [['cod', 'ASC']]
     });
 
-    if (!viagem) {
-      return res.status(404).send("Viagem não encontrada");
-    }
-
-    const qtdParticipantes = viagem.participantes.length;
-    const qtdAcompanhantes = viagem.participantes.reduce(
-      (soma, p) => soma + (p.acompanhante ? 1 : 0),
-      0
-    );
-
+    const qtdParticipantes = participantes.length;
+    const qtdAcompanhantes = participantes.reduce((s, p) => s + (p.acompanhante ? 1 : 0), 0);
     const ocupacao = qtdParticipantes + qtdAcompanhantes;
 
-    res.render("admin/viagens/participantes", {
-      ocupacao,
+    res.render('admin/viagens/participantes', {
       viagem,
-      participantes: viagem.participantes, // agora vem da tabela Participante
-      layout: "layouts/layoutAdmin",
-      paginaAtual: "viagens",
+      participantes,
+      ocupacao,
+      paginaAtual: 'viagens',
+      layout: 'layouts/layoutAdmin'
     });
   } catch (error) {
-    console.error("Erro ao buscar participantes:", error);
-    res.status(500).send("Erro ao buscar participantes da viagem");
+    console.error(error);
+    res.status(500).send('Erro ao buscar participantes da viagem');
   }
 };
 
@@ -782,7 +747,13 @@ exports.adicionarParticipante = async (req, res) => {
   const cod = req.params.cod;
 
   try {
-    // Busca a viagem e os participantes já vinculados
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const termo = req.query.q ? req.query.q.trim() : "";
+
     const viagem = await Viagem.findOne({
       where: { cod },
       include: [{ model: Participante, as: "participantes", required: false }],
@@ -792,29 +763,38 @@ exports.adicionarParticipante = async (req, res) => {
       return res.status(404).send("Viagem não encontrada");
     }
 
-    // Pega os IDs de usuários que já são participantes dessa viagem
-    const codUsuariosVinculados = viagem.participantes
-      ? viagem.participantes.map((p) => p.usuarioID)
-      : [];
+    const codUsuariosVinculados = viagem.participantes.map(p => p.usuarioID);
 
-    // Busca todos os usuários que não estão vinculados a essa viagem
-    const usuariosNaoVinculados = await Usuario.findAll({
-      where: {
-        cod: {
-          [Op.notIn]: codUsuariosVinculados.length
-            ? codUsuariosVinculados
-            : [0],
-        },
-      },
+    const whereCondition = {
+      cod: { [Op.notIn]: codUsuariosVinculados.length ? codUsuariosVinculados : [0] },
+      ...(termo
+        ? {
+            [Op.or]: [
+              { nome: { [Op.like]: `%${termo}%` } },
+              { CPF: { [Op.like]: `%${termo}%` } },
+            ],
+          }
+        : {}),
+    };
+
+    const { count, rows } = await Usuario.findAndCountAll({
+      where: whereCondition,
       include: [{ model: Endereco }, { model: Genero }],
       order: [["cod", "DESC"]],
+      limit,
+      offset,
     });
+
+    const totalPaginas = Math.ceil(count / limit);
 
     res.render("admin/viagens/adicionar-participante", {
       cod,
-      posts: usuariosNaoVinculados,
+      posts: rows, 
       layout: "layouts/layoutAdmin",
       paginaAtual: "viagens",
+      totalPaginas,
+      paginaNun: page,
+      termoPesquisa: termo,
     });
   } catch (error) {
     console.error("Erro ao carregar participantes:", error);
@@ -867,6 +847,8 @@ exports.formularioParticipante = async (req, res) => {
     usuario,
     layout: "layouts/layoutAdmin",
     paginaAtual: "viagens",
+    erros: null,
+    preenchido: {}
   });
 };
 
@@ -875,40 +857,115 @@ exports.vincularUsuario = async (req, res) => {
     const cod = req.params.cod; // viagemID
     const usuarioID = req.body.usuarioID; // vem do input hidden
 
-    const {
+   const {
       local_consul,
       hora_consul,
-      encaminhamento,
+      objetivo,
+      temAcompanhante,
+      nome_acomp,
+      cpf_acomp,
+      data_nasc_acomp,
+      telefone_acomp,
+      generoID,
+      obs
+    } = req.body;
+
+    const encaminhamento = req.files?.encaminhamento?.[0]?.filename || null;
+    const foto_acompanhante = req.files?.foto_acompanhante?.[0]?.filename || null;
+
+    const erros = {};
+    const preenchido = {
+      local_consul,
+      hora_consul,
       objetivo,
       obs,
       temAcompanhante,
       nome_acomp,
       cpf_acomp,
       data_nasc_acomp,
-      generoID,
       telefone_acomp,
-    } = req.body;
+      generoID
+    };
 
-    if (!usuarioID) {
-      return res.status(400).send("Nenhum usuário selecionado");
+    if (!local_consul?.trim()) erros.local_consul = true;
+    if (!hora_consul) erros.hora_consul = true;
+    if (!objetivo?.trim()) erros.objetivo = true;
+    if (!encaminhamento) erros.encaminhamento = true;
+
+    if (temAcompanhante === "sim") {
+
+      if (!nome_acomp?.trim()) erros.nome_acomp = true;
+
+      if (!cpf_acomp?.trim()) {
+        erros.cpf_acomp = true;
+      } else {
+        const cpfLimpo = cpf_acomp.replace(/\D/g, '');
+        if (cpfLimpo.length !== 11) erros.cpf_acomp = 'CPF inválido. Verifique e tente novamente.';
+      }
+
+      if (!data_nasc_acomp) {
+        erros.data_nasc_acomp = true;
+      } else {
+        const data = new Date(data_nasc_acomp);
+        const hoje = new Date();
+        const anoMinimo = 1900;
+        if (isNaN(data.getTime()) || data > hoje || data.getFullYear() < anoMinimo)
+          erros.data_nasc_acomp = 'Data de nascimento inválida. Verifique e tente novamente.';
+      }
+
+      if (!telefone_acomp?.trim()) {
+        erros.telefone_acomp = true;
+      } else {
+        const telefoneLimpo = telefone_acomp.replace(/\D/g, '');
+        if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11)
+          erros.telefone_acomp = 'Telefone inválido. Verifique e tente novamente.';
+      }
+
+      if (!generoID) erros.generoID = true;
+    }
+
+    if (Object.keys(erros).length > 0) {
+      const usuario = await Usuario.findOne({
+        where: { cod: usuarioID },
+        include: [Genero, Endereco]
+      });
+
+      const viagem = await Viagem.findOne({
+        where: { cod },
+        include: [
+          {
+            model: Participante,
+            as: 'participantes',
+            include: [{ model: Acompanhante, as: 'acompanhante' }]
+          },
+          { model: Veiculo, as: 'veiculo' }
+        ]
+      });
+
+      const qtdParticipantes = viagem.participantes.length;
+      const qtdAcompanhantes = viagem.participantes.reduce(
+        (soma, p) => soma + (p.acompanhante ? 1 : 0),
+        0
+      );
+      const ocupacao = qtdParticipantes + qtdAcompanhantes;
+
+      return res.render('admin/viagens/formulario-participante', {
+        ocupacao,
+        viagem,
+        usuario,
+        cod: usuarioID,
+        layout: 'layouts/layoutUsuario',
+        paginaAtual: 'agenda',
+        erros,
+        preenchido
+      });
     }
 
     let acompanhanteID = null;
-
-    // pega a foto do acompanhante (se foi enviada)
-    let fotoAcomp = null;
-    if (
-      req.files &&
-      req.files["foto_acompanhante"] &&
-      req.files["foto_acompanhante"][0]
-    ) {
-      fotoAcomp = req.files["foto_acompanhante"][0].filename;
-    }
-
-    // Se usuário marcou "Sim" no campo acompanhante
+    
     if (temAcompanhante === "sim") {
       const novoAcomp = await Acompanhante.create({
-        img: fotoAcomp, // salva o nome do arquivo no banco
+        img: foto_acompanhante, 
         nome: nome_acomp,
         cpf: cpf_acomp,
         data_nasc: data_nasc_acomp,
@@ -916,10 +973,9 @@ exports.vincularUsuario = async (req, res) => {
         telefone: telefone_acomp,
       });
 
-      acompanhanteID = novoAcomp.cod; // pega a PK criada
+      acompanhanteID = novoAcomp.cod; 
     }
 
-    // pega o arquivo de encaminhamento (se foi enviado)
     let encaminhamentoFile = encaminhamento;
     if (
       req.files &&
@@ -929,7 +985,6 @@ exports.vincularUsuario = async (req, res) => {
       encaminhamentoFile = req.files["encaminhamento"][0].filename;
     }
 
-    // Agora cria o participante
     await Participante.create({
       usuarioID,
       viagemID: cod,
@@ -938,7 +993,7 @@ exports.vincularUsuario = async (req, res) => {
       encaminhamento: encaminhamentoFile,
       objetivo,
       obs: obs || null,
-      acompanhanteID, // se null, não vincula
+      acompanhanteID, 
       statusID: 1,
     });
 
@@ -950,64 +1005,73 @@ exports.vincularUsuario = async (req, res) => {
 };
 
 exports.renderViagensLista = async (req, res) => {
-  const viagens = await Viagem.findAll({
-    include: [
-      { model: Motorista, as: "Motorista" },
-      { model: Status },
-      { model: CidadeConsul, as: "cidadeconsul" },
-      { model: Veiculo, as: "veiculo" },
-      { model: Participante, as: "participantes"}
-    ],
-    order: [["data_viagem", "ASC"], ["horario_saida", "ASC"]]
-  });
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
-  const viagensComOcupacao = viagens.map((v) => {
-    const qtdParticipantes = v.participantes.length;
-    const qtdAcompanhantes = v.participantes.reduce(
-      (soma, p) => soma + (p.acompanhanteID ? 1 : 0),
-      0
-    );
+    const cidade = req.query.cidade ? req.query.cidade.trim() : '';
+    const data = req.query.data || '';
 
-    return {
-      ...v.toJSON(), // transforma em objeto plano
-      ocupacao: qtdParticipantes + qtdAcompanhantes,
-    };
-  });
-
-  const viagensComCores = viagensComOcupacao.map((v) => {
-  let corFundo, corCabeca;
-
-  switch (v.statusID) {
-      case 1: // AGENDADA
-        corFundo = '#d1e3fd'; 
-        corCabeca = '#a7c9f9';
-        break;
-      case 2: // CANCELADA
-        corFundo = '#c38883'; 
-        corCabeca = '#ac6a64';
-        break;
-      case 3: // CONCLUÍDA
-        corFundo = '#bcde9e'; 
-        corCabeca = '#a1d49f';
-        break;
-      default:
-        corFundo = '#d1e3fd';
-        corCabeca = '#a7c9f9';
-        break;
+    let where = {};
+    if (data) {
+      where.data_viagem = { [Op.between]: [data + ' 00:00:00', data + ' 23:59:59'] };
     }
-
-    return {
-      ...v,
-      corFundo,
-      corCabeca
+    const includeCidade = {
+      model: CidadeConsul,
+      as: 'cidadeconsul',
+      ...(cidade && { where: { descricao: { [Op.like]: `%${cidade}%` } } })
     };
-  });
 
-  res.render("admin/viagens/lista", {
-    viagens: viagensComCores,
-    layout: "layouts/layoutAdmin",
-    paginaAtual: "viagens",
-  });
+    const { count, rows } = await Viagem.findAndCountAll({
+      where,
+      include: [
+        { model: Motorista, as: 'Motorista' },
+        { model: Status, as: 'status' },
+        includeCidade,
+        { model: Veiculo, as: 'veiculo' },
+        { model: Participante, as: 'participantes' }
+      ],
+      order: [['data_viagem', 'DESC'], ['horario_saida', 'DESC']],
+      limit,
+      offset,
+      distinct: true 
+    });
+
+    // calcula ocupação
+    const viagensComOcupacao = rows.map(v => {
+      const qtdParticipantes = v.participantes.length;
+      const qtdAcompanhantes = v.participantes.reduce((soma, p) => soma + (p.acompanhanteID ? 1 : 0), 0);
+      return { ...v.toJSON(), ocupacao: qtdParticipantes + qtdAcompanhantes };
+    });
+
+    const viagensComCores = viagensComOcupacao.map(v => {
+      let corFundo, corCabeca;
+      switch (v.statusID) {
+        case 1: corFundo = '#d1e3fd'; corCabeca = '#a7c9f9'; break;
+        case 2: corFundo = '#c38883'; corCabeca = '#ac6a64'; break;
+        case 3: corFundo = '#bcde9e'; corCabeca = '#a1d49f'; break;
+        default: corFundo = '#d1e3fd'; corCabeca = '#a7c9f9';
+      }
+      return { ...v, corFundo, corCabeca };
+    });
+
+    const totalPaginas = Math.max(1, Math.ceil(count / limit));
+
+    res.render('admin/viagens/lista', {
+      viagens: viagensComCores,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'viagens',
+      totalPaginas,
+      paginaNun: page,
+      termoCidade: cidade,
+      termoData: data
+    });
+
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao buscar viagens: ' + erro);
+  }
 };
 
 exports.desvincularParticipante = async (req, res) => {
@@ -1031,6 +1095,10 @@ exports.desvincularParticipante = async (req, res) => {
 
 exports.renderSolicitacoes = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; // Página atual (default: 1)
+    const limit = 5; // Quantos registros por página
+    const offset = (page - 1) * limit;
+
     const solicitacoes = await Solicitacao.findAll({
       include: [
         { model: CidadeConsul },
@@ -1060,37 +1128,38 @@ exports.renderSolicitacoes = async (req, res) => {
       };
     });
 
-    // Função auxiliar para comparar datas (YYYY-MM-DD)
+    // Normaliza data para formato YYYY-MM-DD
     const normalizarData = (data) => {
       if (!data) return null;
       const d = new Date(data);
-      const ano = d.getFullYear();
-      const mes = String(d.getMonth() + 1).padStart(2, '0');
-      const dia = String(d.getDate()).padStart(2, '0');
-      return `${ano}-${mes}-${dia}`;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
-    // Filtrar solicitações
+    // Filtrar solicitações compatíveis
     const solicitacoesFiltradas = solicitacoes.filter((sol) => {
       const dataSolicitacao = normalizarData(sol.data_consul);
-
       const viagemCompatível = viagensComOcupacao.find((v) => {
         const dataViagem = normalizarData(v.data_viagem);
-
         return (
           v.cidadeconsulID === sol.cidadeconsulID &&
           dataViagem === dataSolicitacao &&
           v.ocupacao < v.veiculo.lugares_dispo
         );
       });
-
       return !viagemCompatível;
     });
+
+    // Aplicar paginação manual (slice)
+    const totalSolicitacoes = solicitacoesFiltradas.length;
+    const totalPaginas = Math.ceil(totalSolicitacoes / limit);
+    const solicitacoesPaginadas = solicitacoesFiltradas.slice(offset, offset + limit);
 
     res.render("admin/solicitacoes/index", {
       layout: "layouts/layoutAdmin",
       paginaAtual: "solicitacoes",
-      solicitacoes: solicitacoesFiltradas,
+      solicitacoes: solicitacoesPaginadas,
+      totalPaginas,
+      paginaNun: page,
     });
 
   } catch (erro) {
@@ -1100,7 +1169,11 @@ exports.renderSolicitacoes = async (req, res) => {
 };
 
 exports.renderParticipacoes = async (req, res) => {
-   try {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
     const solicitacoes = await Solicitacao.findAll({
       include: [
         { model: CidadeConsul },
@@ -1130,37 +1203,36 @@ exports.renderParticipacoes = async (req, res) => {
       };
     });
 
-    // Função auxiliar para comparar datas (YYYY-MM-DD)
     const normalizarData = (data) => {
       if (!data) return null;
       const d = new Date(data);
-      const ano = d.getFullYear();
-      const mes = String(d.getMonth() + 1).padStart(2, '0');
-      const dia = String(d.getDate()).padStart(2, '0');
-      return `${ano}-${mes}-${dia}`;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
-    // Filtrar solicitações
     const solicitacoesFiltradas = solicitacoes.filter((sol) => {
       const dataSolicitacao = normalizarData(sol.data_consul);
-
       const viagemCompatível = viagensComOcupacao.find((v) => {
         const dataViagem = normalizarData(v.data_viagem);
-
         return (
           v.cidadeconsulID === sol.cidadeconsulID &&
           dataViagem === dataSolicitacao &&
           v.ocupacao < v.veiculo.lugares_dispo
         );
       });
-
       return viagemCompatível;
     });
+
+    // Paginação
+    const totalSolicitacoes = solicitacoesFiltradas.length;
+    const totalPaginas = Math.ceil(totalSolicitacoes / limit);
+    const solicitacoesPaginadas = solicitacoesFiltradas.slice(offset, offset + limit);
 
     res.render("admin/solicitacoes/participacoes", {
       layout: "layouts/layoutAdmin",
       paginaAtual: "solicitacoes",
-      solicitacoes: solicitacoesFiltradas,
+      solicitacoes: solicitacoesPaginadas,
+      totalPaginas,
+      paginaNun: page,
     });
 
   } catch (erro) {
@@ -1260,5 +1332,89 @@ exports.aceitarSolicitacoe = async (req, res) => {
   } catch (erro) {
     console.error("Erro ao aceitar solicitação:", erro);
     res.status(500).send("Erro ao aceitar solicitação");
+  }
+};
+
+exports.renderVeiculos = async (req, res) => {
+  const veiculos = await Veiculo.findAll();
+
+  res.render("admin/viagens/gerenciar/veiculos", {
+      veiculos,
+      layout: "layouts/layoutAdmin",
+      paginaAtual: "viagens",
+  });
+};
+
+exports.adicionarVeiculo = async (req, res) => {
+  try {
+    const { modelo_veiculo, placa, lugares_dispo } = req.body;
+
+    if (!modelo_veiculo || !placa || !lugares_dispo) {
+      return res.status(400).send("Todos os campos são obrigatórios.");
+    }
+
+    await Veiculo.create({
+      modelo_veiculo,
+      placa,
+      lugares_dispo
+    });
+
+    res.redirect("/admin/viagens/gerenciar/veiculos");
+  } catch (error) {
+    console.error("Erro ao adicionar veículo:", error);
+    res.status(500).send("Erro ao cadastrar veículo.");
+  }
+};
+
+exports.excluirVeiculo = async (req, res) => {
+  try {
+    const { cod } = req.params;
+    await Veiculo.destroy({ where: { cod } });
+
+    res.redirect("/admin/viagens/gerenciar/veiculos");
+  } catch (error) {
+    console.error("Erro ao excluir veículo:", error);
+    res.status(500).send("Erro ao excluir veículo.");
+  }
+};
+
+exports.renderCidades = async (req, res) => {
+  const cidades = await CidadeConsul.findAll();
+
+  res.render("admin/viagens/gerenciar/cidades", {
+      cidades,
+      layout: "layouts/layoutAdmin",
+      paginaAtual: "viagens",
+  });
+};
+
+exports.adicionarCidade = async (req, res) => {
+  try {
+    const { descricao } = req.body;
+
+    if (!descricao) {
+      return res.status(400).send("Todos os campos são obrigatórios.");
+    }
+
+    await CidadeConsul.create({
+      descricao
+    });
+
+    res.redirect("/admin/viagens/gerenciar/cidades");
+  } catch (error) {
+    console.error("Erro ao adicionar cidade:", error);
+    res.status(500).send("Erro ao cadastrar cidade.");
+  }
+};
+
+exports.excluirCidade = async (req, res) => {
+  try {
+    const { cod } = req.params;
+    await CidadeConsul.destroy({ where: { cod } });
+
+    res.redirect("/admin/viagens/gerenciar/cidades");
+  } catch (error) {
+    console.error("Erro ao excluir cidade:", error);
+    res.status(500).send("Erro ao excluir cidade.");
   }
 };

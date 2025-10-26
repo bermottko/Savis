@@ -29,7 +29,6 @@ const Usuario = db.sequelize.define('Usuario', {
     },
     email: {
         type: db.Sequelize.STRING(30),
-        allowNull: false
     },
     fone: {
         type: db.Sequelize.CHAR(16),

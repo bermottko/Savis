@@ -30,16 +30,13 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 
 router.get('/perfil', verificarSessaoChefe, adminController.renderPerfil);
-router.put('/editar', verificarSessaoChefe, adminController.editarPerfil);
 
 router.get('/usuarios/index', verificarSessaoChefe, adminController.renderUsuarios);
-router.get('/usuarios/buscar', verificarSessaoChefe, adminController.buscarUsuarios);
 router.delete('/usuarios/deletar/:cod', verificarSessaoChefe, adminController.deletarUsuarios);
 router.get('/usuarios/editar/:cod', verificarSessaoChefe, adminController.editarUsuario);
 router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), verificarSessaoChefe, adminController.salvarEdicaoUsuario);
 
 router.get('/motoristas/index', verificarSessaoChefe, adminController.renderMotoristas);
-router.get('/motoristas/buscar', verificarSessaoChefe, adminController.buscarMotoristas);
 router.get('/motoristas/editar/:cod', verificarSessaoChefe, adminController.editarMotorista);
 router.delete('/motoristas/deletar/:cod', verificarSessaoChefe, adminController.deletarMotoristas);
 router.put(
@@ -59,7 +56,6 @@ router.put(
 );
 
 router.get('/viagens/lista', verificarSessaoChefe, adminController.renderViagensLista);
-router.get('/viagens/buscar-viagens', verificarSessaoChefe, adminController.buscarViagens);
 router.get('/viagens/index', verificarSessaoChefe, adminController.renderViagens);
 router.get('/viagens/buscar-eventos', verificarSessaoChefe, adminController.renderBuscarEventos);
 router.get('/viagens/nova-viagem', verificarSessaoChefe, adminController.renderNovaViagem);
@@ -80,6 +76,14 @@ router.post(
   verificarSessaoChefe, adminController.vincularUsuario
 );
 router.delete('/viagens/desvincular/:cod', verificarSessaoChefe, adminController.desvincularParticipante);
+
+router.get('/viagens/gerenciar/veiculos', verificarSessaoChefe, adminController.renderVeiculos);
+router.post('/viagens/gerenciar/veiculos/adicionar', verificarSessaoChefe, adminController.adicionarVeiculo);
+router.delete('/viagens/gerenciar/veiculos/excluir/:cod', verificarSessaoChefe, adminController.excluirVeiculo);
+
+router.get('/viagens/gerenciar/cidades', verificarSessaoChefe, adminController.renderCidades);
+router.post('/viagens/gerenciar/cidades/adicionar', verificarSessaoChefe, adminController.adicionarCidade);
+router.delete('/viagens/gerenciar/cidades/excluir/:cod', verificarSessaoChefe, adminController.excluirCidade);
 
 router.get('/solicitacoes/index', verificarSessaoChefe, adminController.renderSolicitacoes);
 router.get('/solicitacoes/participacoes', verificarSessaoChefe, adminController.renderParticipacoes);
