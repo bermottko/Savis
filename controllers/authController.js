@@ -32,7 +32,8 @@ exports.verificarUsuario = async (req, res) => {
       tipoSelecionado: tipo || 'paciente',
       cpf: cpf || '',
       matricula: matricula || '',
-      senha: senha || ''
+      senha: senha || '',
+      sucesso: false
     });
   }
 
@@ -49,18 +50,21 @@ exports.verificarUsuario = async (req, res) => {
           erroValidacao: 'Credenciais inválidas. Tente novamente.',
           tipoSelecionado: tipo,
           cpf,
-          matricula: ''
+          matricula: '',
+          sucesso: false
         });
       }
 
       const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
       if (!senhaCorreta) {
         return res.render('auth/entrada', {
           layout: 'layouts/layoutAuth',
           erroValidacao: 'Credenciais inválidas. Tente novamente.',
           tipoSelecionado: tipo,
           cpf,
-          matricula: ''
+          matricula: '',
+          sucesso: false
         });
       }
 
@@ -73,13 +77,15 @@ exports.verificarUsuario = async (req, res) => {
 
       if (usuario) {
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
         if (!senhaCorreta) {
           return res.render('auth/entrada', {
             layout: 'layouts/layoutAuth',
             erroValidacao: 'Credenciais inválidas. Tente novamente.',
             tipoSelecionado: tipo,
             cpf: '',
-            matricula
+            matricula,
+            sucesso: false
           });
         }
 
@@ -91,13 +97,15 @@ exports.verificarUsuario = async (req, res) => {
 
       if (usuario) {
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+        
         if (!senhaCorreta) {
           return res.render('auth/entrada', {
             layout: 'layouts/layoutAuth',
             erroValidacao: 'Credenciais inválidas. Tente novamente.',
             tipoSelecionado: tipo,
             cpf: '',
-            matricula
+            matricula,
+            sucesso: false
           });
         }
 
@@ -110,7 +118,8 @@ exports.verificarUsuario = async (req, res) => {
         erroValidacao: 'Credenciais inválidas. Tente novamente.',
         tipoSelecionado: tipo,
         cpf: '',
-        matricula
+        matricula,
+        sucesso: false
       });
     }
 
@@ -119,7 +128,8 @@ exports.verificarUsuario = async (req, res) => {
       erroValidacao: 'Credenciais inválidas. Tente novamente.',
       tipoSelecionado: 'paciente',
       cpf: '',
-      matricula: ''
+      matricula: '',
+      sucesso: false
     });
 
   } catch (err) {
@@ -129,7 +139,8 @@ exports.verificarUsuario = async (req, res) => {
       erroValidacao: 'Erro interno no servidor. Tente novamente.',
       tipoSelecionado: tipo || 'paciente',
       cpf: cpf || '',
-      matricula: matricula || ''
+      matricula: matricula || '',
+      sucesso: false
     });
   }
 };

@@ -30,6 +30,8 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 
 router.get('/perfil', verificarSessaoChefe, adminController.renderPerfil);
+router.get('/perfil/senha', verificarSessaoChefe, adminController.renderMudarSenha);
+router.put('/perfil/senha/atualizar', verificarSessaoChefe, adminController.atualizarSenha);
 
 router.get('/usuarios/index', verificarSessaoChefe, adminController.renderUsuarios);
 router.delete('/usuarios/deletar/:cod', verificarSessaoChefe, adminController.deletarUsuarios);
@@ -38,6 +40,7 @@ router.put('/usuarios/editar/:cod', upload.single('foto_perfil'), verificarSessa
 
 router.get('/motoristas/index', verificarSessaoChefe, adminController.renderMotoristas);
 router.get('/motoristas/editar/:cod', verificarSessaoChefe, adminController.editarMotorista);
+router.put('/motoristas/habilitado/:cod',verificarSessaoChefe, adminController.habilitadoMotorista);
 router.delete('/motoristas/deletar/:cod', verificarSessaoChefe, adminController.deletarMotoristas);
 router.put(
   '/motoristas/editar/:cod',

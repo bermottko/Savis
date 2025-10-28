@@ -15,5 +15,6 @@ router.get('/viagens/relatorio/:cod', verificarSessaoMotorista, motoristaControl
 router.put('/viagens/relatorio/:cod', verificarSessaoMotorista, motoristaController.salvarRelatorio);
 
 router.get('/perfil', verificarSessaoMotorista, motoristaController.renderPerfil);
-
+router.get('/perfil/senha', verificarSessaoMotorista, motoristaController.renderMudarSenha);
+router.put('/perfil/senha/atualizar', verificarSessaoMotorista, motoristaController.atualizarSenha);
 module.exports = router;

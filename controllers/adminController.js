@@ -23,9 +23,9 @@ const { removerViagensCanceladasPassadas } = require("../utils/cronViagens");
 
 /*async function inserirChefeAutomatico() {
   try {
-    const matricula = 5555;
-    const senha = '1234';
-    const nome = 'ber';
+    const matricula = 0000;
+    const senha = '12345Be!';
+    const nome = 'Administrador';
 
     const senhaHash = await bcrypt.hash(senha, 10);
 
@@ -61,6 +61,85 @@ exports.renderPerfil = async (req, res) => {
   } catch (err) {
     console.error("Erro ao carregar perfil do admin:", err);
     res.status(500).send("Erro no servidor");
+  }
+};
+
+exports.renderMudarSenha = async (req, res) => {
+   const codChefe = req.session.chefe.cod;
+
+   const chefe = await Chefe.findOne({
+      where: { cod: codChefe}
+    });
+
+   res.render('admin/perfil/senha', {
+      chefe,
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'perfil',
+      userType: 'chefe',
+      erroSenha: null
+    });
+};
+
+exports.atualizarSenha = async (req, res) => {
+  try {
+    const { senhaAtual, senhaNova } = req.body;
+    const cod = req.session.chefe.cod;
+
+    const chefe = await Chefe.findByPk(cod);
+
+    if (!chefe) {
+      return res.render('admin/perfil/senha', {
+        layout: 'layouts/layoutAdmin',
+        paginaAtual: 'perfil',
+        userType: 'chefe',
+        erroSenha: 'Administrador não encontrado.'
+      });
+    }
+
+    const senhaCorreta = await bcrypt.compare(senhaAtual, chefe.senha);
+    if (!senhaCorreta) {
+      return res.render('admin/perfil/senha', {
+        layout: 'layouts/layoutAdmin',
+        paginaAtual: 'perfil',
+        userType: 'chefe',
+        erroSenha: 'Senha atual inválida, verifique e tente novamente.'
+      });
+    }
+
+    const senhaValida =
+      senhaNova.length >= 8 &&
+      /\d/.test(senhaNova) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(senhaNova) &&
+      /[A-Z]/.test(senhaNova) &&
+      /[a-z]/.test(senhaNova);
+
+    if (!senhaValida) {
+      return res.render('admin/perfil/senha', {
+        layout: 'layouts/layoutAdmin',
+        paginaAtual: 'perfil',
+        userType: 'chefe',
+        erroSenha:
+          'Nova senha inválida, verifique e tente novamente.'
+      });
+    }
+
+    const hashNovaSenha = await bcrypt.hash(senhaNova, 10);
+    await Chefe.update(
+      { senha: hashNovaSenha },
+      { where: { cod } }
+    );
+
+    
+    res.redirect('/admin/perfil');
+
+  } catch (error) {
+    console.error(error);
+    return res.render('admin/perfil/senha', {
+      layout: 'layouts/layoutAdmin',
+      paginaAtual: 'perfil',
+      userType: 'chefe',
+      erroSenha: 'Ocorreu um erro ao atualizar a senha. Tente novamente.'
+    });
   }
 };
 
@@ -286,6 +365,29 @@ exports.deletarMotoristas = async (req, res) => {
   }
 };
 
+exports.habilitadoMotorista = async (req, res) => {
+  try {
+    const { cod } = req.params; 
+
+    const motorista = await Motorista.findByPk(cod);
+    if (!motorista) {
+      return res.status(404).send('Motorista não encontrado');
+    }
+
+    const novoStatus = !motorista.habilitado; //valor invertido
+
+    await Motorista.update(
+      { habilitado: novoStatus },
+      { where: { cod } }
+    );
+
+    res.json({ sucesso: true, habilitado: novoStatus });
+  } catch (err) {
+    console.error('Erro ao alterar status do motorista:', err);
+    res.status(500).send('Erro interno ao atualizar motorista');
+  }
+};
+
 exports.editarMotorista = async (req, res) => {
   try {
     const cod = req.params.cod;
@@ -484,7 +586,11 @@ exports.renderNovaViagem = async (req, res) => {
   try {
     const redirectTo = req.get('Referer');
     const cidadeconsul = await CidadeConsul.findAll();
-    const motoristas = await Motorista.findAll();
+    const motoristas = await Motorista.findAll({
+      where: {
+        habilitado: true
+      }
+    });
     const veiculos = await Veiculo.findAll();
     
     const dataSelecionada = req.query.data_viagem || "";
@@ -642,7 +748,11 @@ exports.editarViagem = async (req, res) => {
       ],
     });
 
-    const motoristas = await Motorista.findAll();
+    const motoristas = await Motorista.findAll({
+      where: {
+        habilitado: true
+      }
+    });
     const statusLista = await Status.findAll();
     const cidades = await CidadeConsul.findAll();
     const veiculos = await Veiculo.findAll();

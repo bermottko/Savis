@@ -1,5 +1,6 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Veiculo, Participante, Acompanhante } = require('../models');
 const { Op, where } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 exports.renderPerfil = async (req, res) => {
   try {
@@ -23,6 +24,85 @@ exports.renderPerfil = async (req, res) => {
   } catch (err) {
     console.error("Erro ao carregar perfil:", err);
     res.status(500).send("Erro no servidor");
+  }
+};
+
+exports.renderMudarSenha = async (req, res) => {
+     const codMotorista = req.session.motorista.cod;
+
+    const motorista = await Motorista.findOne({
+      where: { cod: codMotorista }
+    });
+
+   res.render('motorista/perfil/senha', {
+      motorista,
+      layout: 'layouts/layoutMotorista',
+      paginaAtual: 'perfil',
+      userType: 'motorista',
+      erroSenha: null
+    });
+};
+
+exports.atualizarSenha = async (req, res) => {
+  try {
+    const { senhaAtual, senhaNova } = req.body;
+    const cod = req.session.motorista.cod;
+
+    const motorista = await Motorista.findByPk(cod);
+
+    if (!motorista) {
+      return res.render('motorista/perfil/senha', {
+        layout: 'layouts/layoutMotorista',
+        paginaAtual: 'perfil',
+        userType: 'motorista',
+        erroSenha: 'Usuário não encontrado.'
+      });
+    }
+
+    const senhaCorreta = await bcrypt.compare(senhaAtual, motorista.senha);
+    if (!senhaCorreta) {
+      return res.render('motorista/perfil/senha', {
+        layout: 'layouts/layoutMotorista',
+        paginaAtual: 'perfil',
+        userType: 'motorista',
+        erroSenha: 'Senha atual inválida, verifique e tente novamente.'
+      });
+    }
+
+    const senhaValida =
+      senhaNova.length >= 8 &&
+      /\d/.test(senhaNova) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(senhaNova) &&
+      /[A-Z]/.test(senhaNova) &&
+      /[a-z]/.test(senhaNova);
+
+    if (!senhaValida) {
+      return res.render('motorista/perfil/senha', {
+        layout: 'layouts/layoutMotorista',
+        paginaAtual: 'perfil',
+        userType: 'motorista',
+        erroSenha:
+          'Nova senha inválida, verifique e tente novamente.'
+      });
+    }
+
+    const hashNovaSenha = await bcrypt.hash(senhaNova, 10);
+    await Motorista.update(
+      { senha: hashNovaSenha },
+      { where: { cod } }
+    );
+
+    
+    res.redirect('/motorista/perfil');
+
+  } catch (error) {
+    console.error(error);
+    return res.render('motorista/perfil/senha', {
+      layout: 'layouts/layoutMotorista',
+      paginaAtual: 'perfil',
+      userType: 'motorista',
+      erroSenha: 'Ocorreu um erro ao atualizar a senha. Tente novamente.'
+    });
   }
 };
 

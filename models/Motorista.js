@@ -48,8 +48,13 @@ const Motorista = db.sequelize.define('motorista', {
     allowNull: false
   },
   senha: {
-          type: db.Sequelize.STRING(255), 
-          allowNull: false
+    type: db.Sequelize.STRING(255), 
+    allowNull: false
+  },
+  habilitado: {
+    type: db.Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   }
 }, {
   tableName: 'motorista',

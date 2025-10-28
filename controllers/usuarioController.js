@@ -1,5 +1,6 @@
 const { Usuario, Endereco, Genero, Motorista, Documento, Viagem, Status, CidadeConsul, Solicitacao, Acompanhante, Participante, Veiculo} = require('../models');
 const { Op, where } = require('sequelize');
+const bcrypt = require("bcrypt");
 
 exports.renderPerfil = async (req, res) => {
    const codUsuario = req.session.usuario.cod;
@@ -12,13 +13,93 @@ exports.renderPerfil = async (req, res) => {
       ],
     });
 
-  res.render('usuario/perfil/index', {
+  res.render('usuario/perfil', {
       usuario,
       layout: 'layouts/layoutUsuario',
       paginaAtual: 'perfil'
     });
 
 }
+
+exports.renderMudarSenha = async (req, res) => {
+   const codUsuario = req.session.usuario.cod;
+
+   const usuario = await Usuario.findOne({
+      where: { cod: codUsuario }
+    });
+
+   res.render('usuario/perfil/senha', {
+    usuario,
+      layout: 'layouts/layoutUsuario',
+      paginaAtual: 'perfil',
+      userType: 'usuario',
+      erroSenha: null
+    });
+};
+
+exports.atualizarSenha = async (req, res) => {
+  try {
+    const { senhaAtual, senhaNova } = req.body;
+    const cod = req.session.usuario.cod;
+
+    const usuario = await Usuario.findByPk(cod);
+
+    if (!usuario) {
+      return res.render('usuario/perfil/senha', {
+        layout: 'layouts/layoutUsuario',
+        paginaAtual: 'perfil',
+        userType: 'usuario',
+        erroSenha: 'Usuário não encontrado.'
+      });
+    }
+
+    const senhaCorreta = await bcrypt.compare(senhaAtual, usuario.senha);
+    if (!senhaCorreta) {
+      return res.render('usuario/perfil/senha', {
+        layout: 'layouts/layoutUsuario',
+        paginaAtual: 'perfil',
+        userType: 'usuario',
+        erroSenha: 'Senha atual inválida, verifique e tente novamente.'
+      });
+    }
+
+    const senhaValida =
+      senhaNova.length >= 8 &&
+      /\d/.test(senhaNova) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(senhaNova) &&
+      /[A-Z]/.test(senhaNova) &&
+      /[a-z]/.test(senhaNova);
+
+    if (!senhaValida) {
+      return res.render('usuario/perfil/senha', {
+        layout: 'layouts/layoutUsuario',
+        paginaAtual: 'perfil',
+        userType: 'usuario',
+        erroSenha:
+          'Nova senha inválida, verifique e tente novamente.'
+      });
+    }
+
+    const hashNovaSenha = await bcrypt.hash(senhaNova, 10);
+    await Usuario.update(
+      { senha: hashNovaSenha },
+      { where: { cod } }
+    );
+
+    
+    res.redirect('/usuario/perfil');
+
+  } catch (error) {
+    console.error(error);
+    return res.render('usuario/perfil/senha', {
+      layout: 'layouts/layoutUsuario',
+      paginaAtual: 'perfil',
+      userType: 'usuario',
+      erroSenha: 'Ocorreu um erro ao atualizar a senha. Tente novamente.'
+    });
+  }
+};
+
 
 exports.renderInicio = async (req, res) => {
     const codUsuario = req.session.usuario.cod;

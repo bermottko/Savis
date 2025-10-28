@@ -83,9 +83,12 @@
 
             <div class="d-flex justify-content-end gap-3">
               <a href="/admin/motoristas/editar/<%= post.cod %>" class="botao">Editar</a>
-              <form action="/admin/motoristas/deletar/<%= post.cod %>?_method=DELETE" method="POST">
+              <!-- <form action="/admin/motoristas/deletar/<%= post.cod %>?_method=DELETE" method="POST">
                 <button type="submit" class="botao bg-vermelho" onclick="return confirm('Tem certeza que deseja deletar este motorista?')">Excluir</button>
-              </form>
+              </form> -->
+         <button class="botao habilitar-btn" data-cod="<%= post.cod %>" data-habilitado="<%= post.habilitado %>">
+          <%= post.habilitado ? 'Desabilitar' : 'Habilitar' %>
+        </button>
             </div>
           </div>
         </div>
@@ -149,4 +152,28 @@
       }
     });
   });
+
+document.querySelectorAll('.habilitar-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const cod = btn.dataset.cod;
+
+    try {
+      const res = await fetch(`/admin/motoristas/habilitado/${cod}`, {
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await res.json();
+
+      if (data.sucesso) {
+        btn.textContent = data.habilitado ? 'Desabilitar' : 'Habilitar';
+      } else {
+        alert(data.msg || 'Erro ao atualizar status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao atualizar status');
+    }
+  });
+});
 </script>

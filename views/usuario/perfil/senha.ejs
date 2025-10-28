@@ -1,0 +1,63 @@
+<div class="col-12 d-flex justify-content-center espaco-card-edit"> 
+  <div class="card shadow rounded-4 p-5 mb-5" style="width: 100%; max-width: 600px; background-color: #fff;">
+    <form action="/usuario/perfil/senha/atualizar?_method=PUT" method="POST">
+      
+      <!-- SENHA ATUAL -->
+      <div class="mb-3 position-relative">
+        <label for="senhaAtual" class="form-label">Senha Atual</label>
+        <input 
+          type="password" 
+          id="senhaAtual" 
+          name="senhaAtual" 
+          required 
+          class="form-control <%= erroSenha ? 'is-invalid' : '' %>"
+          placeholder="Digite sua senha atual" 
+        />
+      </div>
+
+      <!-- NOVA SENHA -->
+      <div class="mb-3 position-relative">
+        <label for="senhaNova" class="form-label">Nova Senha</label>
+        <input 
+          type="password" 
+          id="senhaNova" 
+          name="senhaNova" 
+          required 
+          class="form-control <%= erroSenha ? 'is-invalid' : '' %>"
+          placeholder="Crie uma nova senha" 
+        />
+
+        <ul id="requisitosSenha" class="mt-2 p-2 border rounded" style="list-style:none; font-size:0.9em; background:#f8f9fa;">
+          <li id="tamanho" style="color:#6c757d;">Mínimo 8 caracteres</li>
+          <li id="maiuscula" style="color:#6c757d;">Pelo menos uma letra maiúscula</li>
+          <li id="minuscula" style="color:#6c757d;">Pelo menos uma letra minúscula</li>
+          <li id="numero" style="color:#6c757d;">Pelo menos um número</li>
+          <li id="especial" style="color:#6c757d;">Pelo menos um caractere especial (!@#$%^&*)</li>
+        </ul>
+      </div>
+
+      <% if (erroSenha) { %>
+        <div class="invalid-feedback d-block mt-1 mb-4"><%= erroSenha %></div>
+      <% } %>
+
+      <div class="d-flex justify-content-between">
+        <a href="/usuario/perfil" class="botao">Cancelar</a>
+        <button type="submit" class="botao">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const senhaInput = document.getElementById('senhaNova');
+
+  senhaInput.addEventListener('input', () => {
+    const valor = senhaInput.value;
+
+    document.getElementById('tamanho').style.color = valor.length >= 8 ? '#198754' : '#dc3545';
+    document.getElementById('maiuscula').style.color = /[A-Z]/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('minuscula').style.color = /[a-z]/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('numero').style.color = /\d/.test(valor) ? '#198754' : '#dc3545';
+    document.getElementById('especial').style.color = /[!@#$%^&*(),.?":{}|<>]/.test(valor) ? '#198754' : '#dc3545';
+  });
+</script>

@@ -23,36 +23,32 @@
 
     <p><strong>Status:</strong> <%= viagem.status.descricao %></p>
     <hr>
-
-    <% if (viagem.combustivel) { %>
-      <p><strong>Combustível:</strong> <%= viagem.combustivel %></p>
+  <div class="conteudo-relatorio" style="display: none;">
+      <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega ? viagem.horario_chega.slice(0,5) : '—' %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.km_inicial) { %>
-      <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
+       <p><strong>Km Inicial:</strong> <%= viagem.km_inicial %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.km_final) { %>
       <p><strong>Km Final:</strong> <%= viagem.km_final %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.paradas) { %>
+      <p><strong>Combustível:</strong> <%= viagem.combustivel || '—' %></p>
+      <hr>
       <p><strong>Paradas:</strong> <%= viagem.paradas %></p>
       <hr>
-    <% } %>
-
-    <% if (viagem.obs) { %>
       <p><strong>Observações:</strong> <%= viagem.obs %></p>
       <hr>
-    <% } %>
+  
+    </div>
 
-    <% if (viagem.horario_chega) { %>
-      <p><strong>Horário de Chegada:</strong> <%= viagem.horario_chega.substring(0,5) %></p>
-      <hr>
-    <% } %>
         <a href="/motorista/viagens/participantes/<%= viagem.cod %>" class="botao-visualizar">Participantes</a>
-        <br />
+        <div class="d-flex justify-content-between mt-3">
+      <div>
+        <a href="/motorista/viagens/index" class="botao">Voltar</a>
+      </div>
+
+      <div style="display: flex; gap: 15px;">
+        <% if (motorista && viagem.Motorista && viagem.Motorista.cod === motorista.cod) { %>
+              <a href="/motorista/viagens/relatorio/<%= viagem.cod %>" class="botao">Relatório</a>
+        <% } %>
+      </div>
+    </div>
 </div>

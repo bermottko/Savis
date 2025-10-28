@@ -15,7 +15,9 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-router.get('/perfil/index', verificarSessaoUsuario, usuarioController.renderPerfil);
+router.get('/perfil', verificarSessaoUsuario, usuarioController.renderPerfil);
+router.get('/perfil/senha', verificarSessaoUsuario, usuarioController.renderMudarSenha);
+router.put('/perfil/senha/atualizar', verificarSessaoUsuario, usuarioController.atualizarSenha);
 
 router.get('/inicio/index', verificarSessaoUsuario, usuarioController.renderInicio);
 
