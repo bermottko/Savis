@@ -1,0 +1,99 @@
+<div class="container mt-4 mb-5">
+  <h1>Dúvidas Frequentes</h1>
+
+  <div class="faq mx-auto">
+
+    <!-- PERGUNTA 1 -->
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>1. Como saber as viagens que estou participando?</span>
+        <i class="bi bi-chevron-right arrow"></i>
+      </div>
+      <div class="faq-answer">
+        Na tela de início, você tem acesso às viagens que está participando e às informações sobre cada uma delas.
+      </div>
+    </div>
+
+    <!-- PERGUNTA 2 -->
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>2. Como solicitar uma viagem?</span>
+        <i class="bi bi-chevron-right arrow"></i>
+      </div>
+      <div class="faq-answer">
+        <p>Você pode participar de uma viagem de duas formas: solicitando participação em uma viagem já agendada ou solicitando a criação de uma nova viagem.</p>
+        <p>Para verificar se já existe uma viagem no dia e cidade que você precisa, acesse a página “Agenda” no menu superior.</p>
+        <p>Pesquise por cidade, data ou ambos. Se houver vagas disponíveis, clique em <b>Participar</b>.</p>
+        <p>Se não houver viagem disponível, ou se as vagas forem insuficientes (considerando também seu acompanhante), clique em “Solicitar” no menu para solicitar uma nova viagem.</p>
+
+        <!-- Subperguntas -->
+        <div class="faq-sub">
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Como solicitar participação em uma viagem?</span>
+              <i class="bi bi-chevron-right arrow"></i>
+            </div>
+            <div class="faq-answer">
+              Na página “Agenda”, localize a viagem desejada e clique no botão <b>Participar</b>.<br>
+              Preencha as informações solicitadas, confirme a participação e aguarde a aprovação do administrador.<br>
+              Se você tiver um acompanhante, inclua os dados dele também.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Como solicitar uma nova viagem?</span>
+              <i class="bi bi-chevron-right arrow"></i>
+            </div>
+            <div class="faq-answer">
+              Clique em "Solicitar" no menu principal.<br>
+              Preencha os dados da viagem, como cidade, data, horário e informações do paciente e do acompanhante (se houver).<br>
+              Após enviar a solicitação, o administrador irá analisar e aprovar ou recusar o pedido.</br>
+              Em até dois dias, se você estiver participando da viagem desejada, ela aparecerá na sua tela de "Início".
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERGUNTA 5 -->
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>3. Quando é necessário um acompanhante?</span>
+        <i class="bi bi-chevron-right arrow"></i>
+      </div>
+      <div class="faq-answer">
+        O acompanhante é necessário em situações em que o paciente não possui condições de realizar a viagem sozinho, seja por limitações físicas, menoridade, 
+        maior de 60 anos, necessidades especiais ou recomendação médica. 
+        A <b>presença</b> do acompanhante deve ser <b>informada</b> no momento do agendamento, para que o transporte possa ser organizado adequadamente.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.faq-question').forEach(question => {
+  question.addEventListener('click', () => {
+    const answer = question.nextElementSibling;
+    const isOpen = question.classList.contains('active');
+
+    // Fecha outras perguntas no mesmo nível
+    const siblings = question.parentElement.parentElement.querySelectorAll(':scope > .faq-item .faq-answer');
+    siblings.forEach(sib => {
+      if (sib !== answer) {
+        sib.style.display = 'none';
+        sib.previousElementSibling.classList.remove('active');
+      }
+    });
+
+    if (!isOpen) {
+      answer.style.display = 'block';
+      question.classList.add('active'); // seta gira
+    } else {
+      answer.style.display = 'none';
+      question.classList.remove('active'); // seta volta
+    }
+  });
+});
+</script>

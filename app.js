@@ -18,7 +18,7 @@ const mysqlOptions = {
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'Be#99493544',
+  password: '2017',
   database: 'SAVISdb',
 };
 
